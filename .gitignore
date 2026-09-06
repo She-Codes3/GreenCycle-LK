@@ -40,6 +40,10 @@ venv/
 *.class
 *.jar
 !.mvn/wrapper/maven-wrapper.jar
+bin/
+.settings/
+.project
+.classpath
 
 # Testing
 coverage/
