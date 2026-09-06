@@ -1,0 +1,39 @@
+# Code owners for GreenCycle LK.
+# Replace the @memberN-github-handle placeholders with each teammate's actual
+# GitHub username once assigned.
+
+# Default owner
+*                                                       @Sanduni69
+
+# Member 1 — auth, user, schedule, recycling, scanner
+/backend/src/main/java/lk/greencycle/auth/             @member1-github-handle
+/backend/src/main/java/lk/greencycle/user/             @member1-github-handle
+/backend/src/main/java/lk/greencycle/schedule/         @member1-github-handle
+/backend/src/main/java/lk/greencycle/recycling/        @member1-github-handle
+/backend/src/main/java/lk/greencycle/scanner/          @member1-github-handle
+/frontend/src/features/auth/                           @member1-github-handle
+/frontend/src/features/dashboard/                      @member1-github-handle
+/frontend/src/features/schedule/                       @member1-github-handle
+/frontend/src/features/recycling/                      @member1-github-handle
+/frontend/src/features/scanner/                        @member1-github-handle
+
+# Member 2 — vehicle, tracking, route, pickup
+/backend/src/main/java/lk/greencycle/vehicle/          @member2-github-handle
+/backend/src/main/java/lk/greencycle/tracking/         @member2-github-handle
+/backend/src/main/java/lk/greencycle/route/            @member2-github-handle
+/backend/src/main/java/lk/greencycle/pickup/           @member2-github-handle
+/frontend/src/features/tracking/                       @member2-github-handle
+/frontend/src/features/pickup/                         @member2-github-handle
+/frontend/src/features/collector/                      @member2-github-handle
+
+# Member 3 — disposal, report, gamification, notification, analytics
+/backend/src/main/java/lk/greencycle/disposal/         @member3-github-handle
+/backend/src/main/java/lk/greencycle/report/           @member3-github-handle
+/backend/src/main/java/lk/greencycle/gamification/     @member3-github-handle
+/backend/src/main/java/lk/greencycle/notification/     @member3-github-handle
+/backend/src/main/java/lk/greencycle/analytics/        @member3-github-handle
+/frontend/src/features/disposal/                       @member3-github-handle
+/frontend/src/features/reports/                        @member3-github-handle
+/frontend/src/features/rewards/                        @member3-github-handle
+/frontend/src/features/notifications/                  @member3-github-handle
+/frontend/src/features/admin/                          @member3-github-handle
