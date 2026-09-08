@@ -9,8 +9,10 @@ RUN mvn -B clean package -DskipTests
 # --- Runtime stage ---
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-RUN addgroup --system spring && adduser --system --ingroup spring spring
+RUN addgroup --system spring && adduser --system --ingroup spring spring \
+    && mkdir -p /app/uploads \
+    && chown -R spring:spring /app
 USER spring:spring
-COPY --from=build /app/target/greencycle-backend.jar app.jar
+COPY --from=build --chown=spring:spring /app/target/greencycle-backend.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
