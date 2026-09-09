@@ -1,0 +1,13 @@
+{
+  "name": "greencycle-lk-workspace",
+  "private": true,
+  "description": "GreenCycle LK - Smart Waste Management Web Platform for Sri Lanka",
+  "scripts": {
+    "storybook": "npm --prefix frontend run storybook",
+    "build-storybook": "npm --prefix frontend run build-storybook",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "lint": "npm --prefix frontend run lint"
+  }
+}
