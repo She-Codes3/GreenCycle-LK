@@ -8,6 +8,7 @@ dist/
 build/
 target/
 *.tsbuildinfo
+/frontend/storybook-static/
 
 # Environment files
 .env
