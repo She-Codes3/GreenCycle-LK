@@ -9,6 +9,7 @@ export interface DashboardLayoutProps {
   className?: string;
 }
 
+/** Arranges dashboard navigation and content in a responsive shell. */
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   sidebar,
   navbar,

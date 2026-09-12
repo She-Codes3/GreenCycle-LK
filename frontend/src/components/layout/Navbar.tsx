@@ -16,6 +16,7 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   showBrand?: boolean;
 }
 
+/** Renders the shared dashboard navigation bar and user actions. */
 export const Navbar: React.FC<NavbarProps> = ({
   brand,
   navigation,

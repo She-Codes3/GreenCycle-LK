@@ -39,6 +39,7 @@ const navigationItems: Array<{ id: CollectorSidebarItem; label: string; href: st
   { id: 'profile', label: 'Profile', href: '#', icon: <User /> },
 ];
 
+/** Renders navigation and logout controls for the collector workspace. */
 export const CollectorSidebar: React.FC<CollectorSidebarProps> = ({
   activeItem = 'dashboard',
   onItemSelect,
