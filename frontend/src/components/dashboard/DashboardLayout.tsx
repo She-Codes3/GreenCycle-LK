@@ -17,20 +17,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   className,
 }) => {
   return (
-    <div className="flex h-screen overflow-hidden bg-canvas text-content font-sans">
+    <div className="flex h-screen overflow-hidden bg-canvas font-sans text-content">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:shrink-0 h-full">{sidebar}</div>
+      <div className="hidden h-full lg:flex lg:shrink-0">{sidebar}</div>
 
       {/* Mobile Menu Drawer */}
       {mobileMenu}
 
       {/* Main Content Column */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Sticky Navbar */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {/* Top navigation for the main content area */}
         {navbar}
 
-        {/* Scrollable Dashboard Body */}
-        <main className={cn('flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8', className)}>
+        {/* Scrollable dashboard content */}
+        <main className={cn('min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8', className)}>
           <div className="mx-auto max-w-7xl space-y-6">{children}</div>
         </main>
       </div>
