@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
+
 import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 
