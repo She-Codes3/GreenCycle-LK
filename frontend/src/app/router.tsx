@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
+import { HomePage } from '@/features/home/HomePage';
 
 function ComingSoon({ feature }: { feature: string }) {
   return (
@@ -16,7 +17,7 @@ function ComingSoon({ feature }: { feature: string }) {
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<ComingSoon feature="Home" />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/components" element={<ComponentShowcase />} />
       <Route path="/login" element={<ComingSoon feature="Login" />} />
       <Route path="/register" element={<ComingSoon feature="Register" />} />
