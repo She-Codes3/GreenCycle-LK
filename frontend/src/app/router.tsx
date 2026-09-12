@@ -4,6 +4,7 @@ import { ComponentShowcase } from '@/components/ComponentShowcase';
 
 import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
+import { OnboardPage } from '@/features/home/onboard';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -32,7 +33,7 @@ export function AppRouter() {
       <Route path="/" element={<HomePage />} />
       <Route path="/components" element={<ComponentShowcase />} />
       <Route path="/login" element={<ComingSoon feature="Login" />} />
-      <Route path="/register" element={<ComingSoon feature="Register" />} />
+      <Route path="/register" element={<OnboardPage />} />
 
       <Route
         path="/collector/dashboard"
