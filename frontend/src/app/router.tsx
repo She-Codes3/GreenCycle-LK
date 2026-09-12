@@ -1,8 +1,11 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
+
+import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 
+/** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
   return (
     <div className="flex min-h-screen items-center justify-center p-6 text-center">
@@ -14,13 +17,27 @@ function ComingSoon({ feature }: { feature: string }) {
   );
 }
 
+/** Defines the application's public and protected route tree. */
 export function AppRouter() {
+  const collectorDashboard = import.meta.env.DEV ? (
+    <CollectorDashboardPage />
+  ) : (
+    <ProtectedRoute allowedRoles={['COLLECTOR']}>
+      <CollectorDashboardPage />
+    </ProtectedRoute>
+  );
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/components" element={<ComponentShowcase />} />
       <Route path="/login" element={<ComingSoon feature="Login" />} />
       <Route path="/register" element={<ComingSoon feature="Register" />} />
+
+      <Route
+        path="/collector/dashboard"
+        element={collectorDashboard}
+      />
 
       <Route
         path="/dashboard"
