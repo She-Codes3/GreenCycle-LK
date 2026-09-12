@@ -342,15 +342,8 @@ function HeroSection() {
   );
 }
 
-/** Displays a simulated live collection status card in the hero area. */
-function LiveCollectionCard() {
-  const [pulse, setPulse] = useState(true);
-
-  useEffect(() => {
-    const id = setInterval(() => setPulse((v) => !v), 1800);
-    return () => clearInterval(id);
-  }, []);
-
+/** Displays the hero truck photo with a decorative gradient overlay. */
+function HeroImage() {
   return (
     <div className="relative w-full max-w-lg">
       {/* Main image frame */}
@@ -376,10 +369,6 @@ function LiveCollectionCard() {
     </div>
   );
 }
-
-
-
-// ─── Stats Strip ──────────────────────────────────────────────────────────────
 
 /** Summarizes the platform's headline adoption and impact statistics. */
 function StatsSection() {
