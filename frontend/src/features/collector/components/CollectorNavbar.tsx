@@ -11,6 +11,7 @@ export interface CollectorNavbarProps {
   notificationCount?: number;
 }
 
+/** Configures the shared navbar with collector-specific user defaults. */
 export const CollectorNavbar: React.FC<CollectorNavbarProps> = (props) => (
   <Navbar
     {...props}

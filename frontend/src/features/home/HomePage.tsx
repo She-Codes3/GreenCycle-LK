@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
+import heroTruck from '@/assets/hero-truck.jpg';
 import { Link } from 'react-router-dom';
 
 // ─── Inline SVG Icons ──────────────────────────────────────────────────────────
 
+/** Renders the GreenCycle logo with configurable sizing classes. */
 function LogoIcon({ className = 'w-8 h-8' }: { className?: string }) {
   return (
     <img
@@ -15,6 +17,7 @@ function LogoIcon({ className = 'w-8 h-8' }: { className?: string }) {
   );
 }
 
+/** Renders the location marker used in collection status details. */
 function MapPinIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -24,6 +27,7 @@ function MapPinIcon() {
   );
 }
 
+/** Renders the directional icon used by landing-page calls to action. */
 function ArrowRightIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -32,6 +36,7 @@ function ArrowRightIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
+/** Renders the collection-truck icon used in live status content. */
 function TruckIcon() {
   return (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -43,6 +48,7 @@ function TruckIcon() {
   );
 }
 
+/** Renders a configurable leaf icon for sustainability features. */
 function LeafIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -52,6 +58,7 @@ function LeafIcon({ className = 'w-6 h-6' }: { className?: string }) {
   );
 }
 
+/** Renders a configurable recycling icon for waste-management features. */
 function RecycleIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -62,6 +69,7 @@ function RecycleIcon({ className = 'w-6 h-6' }: { className?: string }) {
   );
 }
 
+/** Renders a configurable star icon for rewards content. */
 function StarIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -70,6 +78,7 @@ function StarIcon({ className = 'w-6 h-6' }: { className?: string }) {
   );
 }
 
+/** Renders a configurable map icon for route-tracking features. */
 function MapIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -80,6 +89,7 @@ function MapIcon({ className = 'w-6 h-6' }: { className?: string }) {
   );
 }
 
+/** Renders a configurable shield icon for reliability features. */
 function ShieldIcon({ className = 'w-6 h-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -88,6 +98,7 @@ function ShieldIcon({ className = 'w-6 h-6' }: { className?: string }) {
   );
 }
 
+/** Renders a configurable check mark for benefit lists. */
 function CheckIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -96,6 +107,7 @@ function CheckIcon({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
+/** Renders the downward chevron used by the hero scroll prompt. */
 function ChevronDownIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -104,6 +116,7 @@ function ChevronDownIcon() {
   );
 }
 
+/** Renders the icon that opens mobile navigation. */
 function MenuIcon() {
   return (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -114,6 +127,7 @@ function MenuIcon() {
   );
 }
 
+/** Renders the icon that closes mobile navigation. */
 function CloseIcon() {
   return (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -125,6 +139,7 @@ function CloseIcon() {
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 
+/** Renders responsive navigation for the public landing page. */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -215,6 +230,7 @@ function Navbar() {
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 
+/** Introduces GreenCycle and directs visitors to registration or features. */
 function HeroSection() {
   return (
     <section
@@ -304,9 +320,9 @@ function HeroSection() {
             </div>
           </div>
 
-          {/* Right: Live collection card */}
+          {/* Right: Hero image */}
           <div className="flex justify-center lg:justify-end">
-            <LiveCollectionCard />
+            <HeroImage />
           </div>
         </div>
       </div>
@@ -326,83 +342,35 @@ function HeroSection() {
   );
 }
 
-function LiveCollectionCard() {
-  const [pulse, setPulse] = useState(true);
-
-  useEffect(() => {
-    const id = setInterval(() => setPulse((v) => !v), 1800);
-    return () => clearInterval(id);
-  }, []);
-
+/** Displays the hero truck photo with a decorative gradient overlay. */
+function HeroImage() {
   return (
-    <div
-      className="w-full max-w-sm rounded-3xl p-6 space-y-5"
-      style={{
-        background: 'rgba(255,255,255,0.12)',
-        border: '1px solid rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-      }}
-    >
-      {/* Logo large */}
-      <div className="flex items-center justify-between">
-        <LogoIcon className="w-14 h-14" />
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/20 border border-secondary/30">
-          <span
-            className={`w-2 h-2 rounded-full bg-secondary transition-opacity duration-700 ${pulse ? 'opacity-100' : 'opacity-30'}`}
-          />
-          <span className="text-xs font-medium text-secondary">Live</span>
-        </div>
-      </div>
-
-      {/* Next collection info */}
-      <div className="space-y-1">
-        <p className="text-sm text-white/60">Next collection · Colombo 05</p>
-        <p className="text-2xl font-bold text-white">Organic Waste</p>
-        <p className="text-sm text-white/70">Today · 6:00 AM – 8:00 AM</p>
-      </div>
-
-      {/* Truck alert */}
+    <div className="relative w-full max-w-lg">
+      {/* Main image frame */}
       <div
-        className="flex items-start gap-3 rounded-xl p-4"
-        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)' }}
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          boxShadow: '0 32px 64px rgba(0,0,0,0.35)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
       >
-        <TruckIcon />
-        <p className="text-sm text-white/85 leading-relaxed">
-          🚛 Truck WP CA-1234 is 1.2 km away — arriving in ~8 minutes.
-        </p>
-      </div>
-
-      {/* Schedule grid */}
-      <div className="space-y-2.5">
-        <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">This Week</p>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { day: 'Mon', type: 'Organic', color: '#15803d' },
-            { day: 'Wed', type: 'Paper', color: '#0284c7' },
-            { day: 'Fri', type: 'Plastic', color: '#ea580c' },
-          ].map(({ day, type, color }) => (
-            <div
-              key={day}
-              className="rounded-xl p-2.5 text-center"
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              <div className="text-xs text-white/50">{day}</div>
-              <div
-                className="mt-1 w-2.5 h-2.5 rounded-full mx-auto"
-                style={{ background: color }}
-              />
-              <div className="text-xs text-white/75 mt-1 font-medium">{type}</div>
-            </div>
-          ))}
-        </div>
+        <img
+          src={heroTruck}
+          alt="GreenCycle waste collection truck in Colombo"
+          className="w-full h-auto object-cover"
+          style={{ aspectRatio: '4/3' }}
+        />
+        {/* Gradient overlay at bottom */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(13,53,39,0.85), transparent)' }}
+        />
       </div>
     </div>
   );
 }
 
-// ─── Stats Strip ──────────────────────────────────────────────────────────────
-
+/** Summarizes the platform's headline adoption and impact statistics. */
 function StatsSection() {
   const stats = [
     { value: '2.4M', suffix: 'kg', label: 'Waste collected monthly' },
@@ -477,6 +445,7 @@ const features = [
   },
 ];
 
+/** Presents the core resident-facing GreenCycle platform features. */
 function FeaturesSection() {
   return (
     <section id="features" className="py-24 bg-canvas">
@@ -548,6 +517,7 @@ const steps = [
   },
 ];
 
+/** Explains the resident onboarding and collection workflow. */
 function HowItWorksSection() {
   return (
     <section
@@ -649,6 +619,7 @@ const wasteStreams = [
   },
 ];
 
+/** Describes supported waste categories and their collection schedules. */
 function WasteStreamsSection() {
   return (
     <section id="waste-streams" className="py-24 bg-surface">
@@ -744,6 +715,7 @@ const testimonials = [
   },
 ];
 
+/** Displays feedback from residents and municipal users. */
 function TestimonialsSection() {
   return (
     <section id="about" className="py-24 bg-canvas">
@@ -786,6 +758,7 @@ function TestimonialsSection() {
 
 // ─── CTA Section ──────────────────────────────────────────────────────────────
 
+/** Encourages visitors to register and summarizes signup benefits. */
 function CtaSection() {
   const benefits = [
     'Free for all citizens',
@@ -850,6 +823,7 @@ function CtaSection() {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
+/** Renders product, company, support, and legal navigation links. */
 function Footer() {
   const links = {
     Product: ['Features', 'How it Works', 'Pricing', 'Changelog'],
@@ -922,6 +896,7 @@ function Footer() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+/** Composes the complete public GreenCycle landing page. */
 export function HomePage() {
   // Smooth scroll for hash links
   useEffect(() => {

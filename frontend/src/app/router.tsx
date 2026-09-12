@@ -5,6 +5,7 @@ import { ComponentShowcase } from '@/components/ComponentShowcase';
 import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 
+/** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
   return (
     <div className="flex min-h-screen items-center justify-center p-6 text-center">
@@ -16,6 +17,7 @@ function ComingSoon({ feature }: { feature: string }) {
   );
 }
 
+/** Defines the application's public and protected route tree. */
 export function AppRouter() {
   const collectorDashboard = import.meta.env.DEV ? (
     <CollectorDashboardPage />

@@ -3,6 +3,7 @@ import { MobileMenu } from '@/components/layout';
 import { DashboardLayout } from '@/components/dashboard';
 import { CollectorNavbar, CollectorSidebar } from '@/features/collector/components';
 
+/** Composes the responsive shell for the collector dashboard. */
 export function CollectorDashboardPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

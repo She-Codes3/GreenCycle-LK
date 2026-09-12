@@ -9,6 +9,7 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   footer?: React.ReactNode;
 }
 
+/** Renders the branded sidebar shell around dashboard navigation items. */
 export const Sidebar: React.FC<SidebarProps> = ({
   logo,
   brandName = 'GreenCycle LK',

@@ -11,6 +11,7 @@ export interface SidebarItemProps {
   className?: string;
 }
 
+/** Renders a sidebar action as a link or button with optional status. */
 export const SidebarItem: React.FC<SidebarItemProps> = ({
   icon,
   label,
