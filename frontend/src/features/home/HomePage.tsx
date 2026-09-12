@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
+import heroTruck from '@/assets/hero-truck.jpg';
 import { Link } from 'react-router-dom';
 
 // ─── Inline SVG Icons ──────────────────────────────────────────────────────────
@@ -319,9 +320,9 @@ function HeroSection() {
             </div>
           </div>
 
-          {/* Right: Live collection card */}
+          {/* Right: Hero image */}
           <div className="flex justify-center lg:justify-end">
-            <LiveCollectionCard />
+            <HeroImage />
           </div>
         </div>
       </div>
@@ -351,71 +352,32 @@ function LiveCollectionCard() {
   }, []);
 
   return (
-    <div
-      className="w-full max-w-sm rounded-3xl p-6 space-y-5"
-      style={{
-        background: 'rgba(255,255,255,0.12)',
-        border: '1px solid rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-      }}
-    >
-      {/* Logo large */}
-      <div className="flex items-center justify-between">
-        <LogoIcon className="w-14 h-14" />
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/20 border border-secondary/30">
-          <span
-            className={`w-2 h-2 rounded-full bg-secondary transition-opacity duration-700 ${pulse ? 'opacity-100' : 'opacity-30'}`}
-          />
-          <span className="text-xs font-medium text-secondary">Live</span>
-        </div>
-      </div>
-
-      {/* Next collection info */}
-      <div className="space-y-1">
-        <p className="text-sm text-white/60">Next collection · Colombo 05</p>
-        <p className="text-2xl font-bold text-white">Organic Waste</p>
-        <p className="text-sm text-white/70">Today · 6:00 AM – 8:00 AM</p>
-      </div>
-
-      {/* Truck alert */}
+    <div className="relative w-full max-w-lg">
+      {/* Main image frame */}
       <div
-        className="flex items-start gap-3 rounded-xl p-4"
-        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)' }}
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          boxShadow: '0 32px 64px rgba(0,0,0,0.35)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
       >
-        <TruckIcon />
-        <p className="text-sm text-white/85 leading-relaxed">
-          🚛 Truck WP CA-1234 is 1.2 km away — arriving in ~8 minutes.
-        </p>
-      </div>
-
-      {/* Schedule grid */}
-      <div className="space-y-2.5">
-        <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">This Week</p>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { day: 'Mon', type: 'Organic', color: '#15803d' },
-            { day: 'Wed', type: 'Paper', color: '#0284c7' },
-            { day: 'Fri', type: 'Plastic', color: '#ea580c' },
-          ].map(({ day, type, color }) => (
-            <div
-              key={day}
-              className="rounded-xl p-2.5 text-center"
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              <div className="text-xs text-white/50">{day}</div>
-              <div
-                className="mt-1 w-2.5 h-2.5 rounded-full mx-auto"
-                style={{ background: color }}
-              />
-              <div className="text-xs text-white/75 mt-1 font-medium">{type}</div>
-            </div>
-          ))}
-        </div>
+        <img
+          src={heroTruck}
+          alt="GreenCycle waste collection truck in Colombo"
+          className="w-full h-auto object-cover"
+          style={{ aspectRatio: '4/3' }}
+        />
+        {/* Gradient overlay at bottom */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(13,53,39,0.85), transparent)' }}
+        />
       </div>
     </div>
   );
 }
+
+
 
 // ─── Stats Strip ──────────────────────────────────────────────────────────────
 
