@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
 
@@ -142,11 +141,11 @@ const roles = [
     desc: 'Schedule pickups, track trucks and earn GreenPoints.',
     route: '/register/resident',
     style: {
-      card: 'bg-primary hover:bg-primary-dark border-primary',
-      icon: 'bg-white/15 text-white',
-      label: 'text-white',
-      desc: 'text-white/70',
-      arrow: 'text-white/60',
+      card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
+      icon: 'bg-primary-light text-primary',
+      label: 'text-content',
+      desc: 'text-content-secondary',
+      arrow: 'text-content-muted',
     },
     primary: true,
   },
@@ -157,7 +156,7 @@ const roles = [
     desc: 'Manage your route, update collection status in real time.',
     route: '/collector/dashboard',
     style: {
-      card: 'bg-surface hover:bg-secondary-light border-border hover:border-secondary',
+      card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
       label: 'text-content',
       desc: 'text-content-secondary',
@@ -172,7 +171,7 @@ const roles = [
     desc: 'Oversee operations, analytics and community impact data.',
     route: '/dashboard',
     style: {
-      card: 'bg-surface hover:bg-secondary-light border-border hover:border-secondary',
+      card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
       label: 'text-content',
       desc: 'text-content-secondary',
@@ -186,7 +185,6 @@ const roles = [
 
 /** Onboarding introduction — two-column layout with steps on the left and role selection on the right. */
 export function OnboardPage() {
-  const [activeStep, setActiveStep] = useState<number | null>(null);
   const navigate = useNavigate();
 
   return (
@@ -209,7 +207,7 @@ export function OnboardPage() {
           <Link
             to="/login"
             id="onboard-header-sign-in"
-            className="font-medium text-secondary hover:text-secondary-dark transition-colors"
+            className="font-medium text-secondary bg-primary-light text-primary rounded px-2 py-0.5 hover:bg-primary-dark hover:text-secondary-light transition-colors"
           >
             Sign in
           </Link>
@@ -221,61 +219,50 @@ export function OnboardPage() {
         <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-10 items-stretch">
 
           {/* ── LEFT: Logo + heading + 4 step cards ── */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-5">
             {/* Heading */}
-            <div>
+            <div className="lg:h-[72px] flex flex-col justify-end">
               <h1 className="text-3xl font-bold text-content tracking-tight leading-tight">
                 Welcome to GreenCycle LK
               </h1>
-              <p className="mt-1.5 text-sm text-content-secondary">
+              <p className="mt-1 text-sm text-content-secondary">
                 Smarter Waste. Greener Sri Lanka.
               </p>
             </div>
 
-            {/* Step cards */}
-            <div className="flex flex-col gap-3">
+            {/* Step cards — stretch to fill height evenly */}
+            <div className="flex flex-col gap-3 flex-1">
               {steps.map(({ number, icon, title, description }) => (
-                <button
+                <div
                   key={number}
                   id={`onboard-step-${number}`}
-                  onClick={() => setActiveStep(activeStep === number ? null : number)}
-                  className={`w-full text-left rounded-2xl border p-4 flex items-start gap-4 transition-all duration-200 group ${
-                    activeStep === number
-                      ? 'border-secondary bg-secondary-light shadow-card'
-                      : 'border-border bg-surface hover:border-secondary/50 hover:shadow-card'
-                  }`}
+                  className="flex-1 flex items-center gap-4 rounded-2xl border border-border bg-surface px-4 py-3 transition-all duration-200 group hover:border-secondary hover:bg-secondary-light/60 hover:shadow-card cursor-default"
                 >
                   {/* Icon bubble */}
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                      activeStep === number
-                        ? 'bg-secondary text-white'
-                        : 'bg-primary-light text-primary group-hover:bg-secondary/10 group-hover:text-secondary'
-                    }`}
-                  >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors bg-primary-light text-primary group-hover:bg-secondary group-hover:text-white">
                     {icon}
                   </div>
 
                   {/* Text */}
-                  <div className="flex-1 min-w-0 pt-0.5">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">
-                      <span className="text-content-muted font-normal mr-1">{number}.</span>
-                      <span className={activeStep === number ? 'text-secondary' : 'text-content'}>
+                      <span className="text-content-muted font-normal mr-1 group-hover:text-secondary transition-colors">{number}.</span>
+                      <span className="text-content group-hover:text-secondary transition-colors">
                         {title}
                       </span>
                     </p>
-                    <p className="mt-1 text-sm text-content-secondary leading-relaxed">
+                    <p className="mt-0.5 text-xs sm:text-sm text-content-secondary leading-relaxed">
                       {description}
                     </p>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           </div>
 
           {/* ── RIGHT: Role selection ── */}
-          <div className="flex flex-col gap-4">
-            <div>
+          <div className="flex flex-col gap-5">
+            <div className="lg:h-[72px] flex flex-col justify-end">
               <h2 className="text-xl font-bold text-content tracking-tight">Choose your role</h2>
               <p className="mt-1 text-sm text-content-secondary">
                 Select how you'll be using GreenCycle LK.
@@ -289,11 +276,11 @@ export function OnboardPage() {
                   key={id}
                   id={`onboard-role-${id}`}
                   onClick={() => navigate(route)}
-                  className={`flex-1 flex items-center gap-5 rounded-2xl border px-6 py-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated active:translate-y-0 ${style.card}`}
+                  className={`flex-1 flex items-center gap-5 rounded-2xl border px-6 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated active:translate-y-0 ${style.card}`}
                 >
                   {/* Icon */}
                   <div
-                    className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${style.icon}`}
+                    className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center ${style.icon}`}
                   >
                     {icon}
                   </div>
