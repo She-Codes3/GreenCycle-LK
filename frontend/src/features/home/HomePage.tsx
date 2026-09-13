@@ -141,21 +141,10 @@ function CloseIcon() {
 
 /** Renders responsive navigation for the public landing page. */
 function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-navigation transition-all duration-300 ${
-        scrolled ? 'bg-surface/95 backdrop-blur border-b border-border shadow-card' : 'bg-transparent'
-      }`}
-    >
+    <header className="fixed top-0 inset-x-0 z-navigation bg-surface border-b border-border shadow-card">
       <div className="ui-container">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
