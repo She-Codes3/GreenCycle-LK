@@ -207,7 +207,7 @@ export function OnboardPage() {
           <Link
             to="/login"
             id="onboard-header-sign-in"
-            className="font-medium text-secondary bg-primary-light text-primary rounded px-2 py-0.5 hover:bg-primary-dark hover:text-secondary-light transition-colors"
+            className="font-medium bg-primary-light text-secondary rounded px-2 py-1 hover:bg-primary-dark hover:text-secondary-light transition-colors"
           >
             Sign in
           </Link>
