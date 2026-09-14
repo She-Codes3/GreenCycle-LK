@@ -2,7 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
 
-import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
+import { CollectionHistory } from '@/features/collector/pages/CollectionHistory';
+import { CollectorDashboardPage } from '@/features/collector/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 import { OnboardPage } from '@/features/home/onboard';
 
@@ -20,6 +21,14 @@ function ComingSoon({ feature }: { feature: string }) {
 
 /** Defines the application's public and protected route tree. */
 export function AppRouter() {
+  const collectionHistory = import.meta.env.DEV ? (
+    <CollectionHistory />
+  ) : (
+    <ProtectedRoute allowedRoles={['COLLECTOR']}>
+      <CollectionHistory />
+    </ProtectedRoute>
+  );
+
   const collectorDashboard = import.meta.env.DEV ? (
     <CollectorDashboardPage />
   ) : (
@@ -38,6 +47,11 @@ export function AppRouter() {
       <Route
         path="/collector/dashboard"
         element={collectorDashboard}
+      />
+
+      <Route
+        path="/collector/collection-history"
+        element={collectionHistory}
       />
 
       <Route

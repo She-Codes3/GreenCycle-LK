@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   AlertTriangle,
-  BarChart3,
+  History,
   LayoutDashboard,
   LogOut,
   MapPinned,
@@ -18,7 +18,7 @@ export type CollectorSidebarItem =
   | 'tracking'
   | 'bulky-waste'
   | 'bin-status'
-  | 'monitoring'
+  | 'collection-history'
   | 'settings'
   | 'profile';
 
@@ -34,7 +34,7 @@ const navigationItems: Array<{ id: CollectorSidebarItem; label: string; href: st
   { id: 'tracking', label: 'Live GPS Tracking', href: '/collector/tracking', icon: <MapPinned /> },
   { id: 'bulky-waste', label: 'Bulky Waste Requests', href: '/collector/bulky-waste', icon: <Package /> },
   { id: 'bin-status', label: 'Overflow Reports', href: '#', icon: <AlertTriangle /> },
-  { id: 'monitoring', label: 'Collection Analytics', href: '/municipal/collection-monitoring', icon: <BarChart3 /> },
+  { id: 'collection-history', label: 'Collection History', href: '/collector/collection-history', icon: <History /> },
   { id: 'settings', label: 'Settings', href: '#', icon: <Settings /> },
   { id: 'profile', label: 'Profile', href: '#', icon: <User /> },
 ];
