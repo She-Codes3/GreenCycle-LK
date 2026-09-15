@@ -2,9 +2,11 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
 
-import { CollectorDashboardPage } from '@/features/collector/dashboard/pages/CollectorDashboardPage';
+import { CollectionHistory } from '@/features/collector/pages/CollectionHistory';
+import { CollectorDashboardPage } from '@/features/collector/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 import { OnboardPage } from '@/features/home/onboard';
+import { LoginPage } from '@/features/auth';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -20,6 +22,14 @@ function ComingSoon({ feature }: { feature: string }) {
 
 /** Defines the application's public and protected route tree. */
 export function AppRouter() {
+  const collectionHistory = import.meta.env.DEV ? (
+    <CollectionHistory />
+  ) : (
+    <ProtectedRoute allowedRoles={['COLLECTOR']}>
+      <CollectionHistory />
+    </ProtectedRoute>
+  );
+
   const collectorDashboard = import.meta.env.DEV ? (
     <CollectorDashboardPage />
   ) : (
@@ -32,12 +42,17 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/components" element={<ComponentShowcase />} />
-      <Route path="/login" element={<ComingSoon feature="Login" />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<OnboardPage />} />
 
       <Route
         path="/collector/dashboard"
         element={collectorDashboard}
+      />
+
+      <Route
+        path="/collector/collection-history"
+        element={collectionHistory}
       />
 
       <Route

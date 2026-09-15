@@ -13,6 +13,8 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   error?: boolean;
   success?: boolean;
   fullWidth?: boolean;
+  /** Replaces the default chevron rendered in the trailing slot. */
+  icon?: React.ReactNode;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
@@ -24,6 +26,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       error = false,
       success = false,
       fullWidth = true,
+      icon,
       disabled,
       className,
       ...props
@@ -64,13 +67,15 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             : children}
         </select>
         <div className="pointer-events-none absolute right-3.5 flex items-center text-content-muted">
-          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
+          {icon ?? (
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
         </div>
       </div>
     );

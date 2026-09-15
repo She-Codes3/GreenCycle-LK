@@ -19,6 +19,7 @@ export * from './Alert';
 export * from './StatusBadge';
 export * from './EmptyState';
 export * from './Skeleton';
+export * from './ProgressBar';
 export * from './Spinner';
 export * from './Modal';
 export * from './Dialog';
