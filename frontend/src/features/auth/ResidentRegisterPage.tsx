@@ -3,14 +3,96 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/providers';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
 
-// ─── Sri Lankan Cities ────────────────────────────────────────────────────────
+// ─── Sri Lankan Locations ─────────────────────────────────────────────────────
 
 const SRI_LANKA_CITIES = [
-  'Colombo', 'Kandy', 'Galle', 'Jaffna', 'Negombo', 'Trincomalee',
-  'Batticaloa', 'Anuradhapura', 'Ratnapura', 'Badulla', 'Matara',
-  'Kurunegala', 'Ampara', 'Puttalam', 'Nuwara Eliya', 'Kalmunai',
-  'Vavuniya', 'Hambantota', 'Mannar', 'Polonnaruwa',
+  'Colombo', 'Dehiwala-Mount Lavinia', 'Moratuwa', 'Sri Jayawardenepura Kotte',
+  'Negombo', 'Kandy', 'Kalutara', 'Galle', 'Matara', 'Jaffna',
+  'Batticaloa', 'Trincomalee', 'Anuradhapura', 'Polonnaruwa', 'Kurunegala',
+  'Puttalam', 'Ratnapura', 'Kegalle', 'Badulla', 'Monaragala',
+  'Ampara', 'Kalmunai', 'Nuwara Eliya', 'Matale', 'Hambantota',
+  'Vavuniya', 'Mannar', 'Kilinochchi', 'Mullaitivu', 'Gampaha',
+  'Panadura', 'Maharagama', 'Horana', 'Avissawella', 'Chilaw',
 ];
+
+const SRI_LANKA_DISTRICTS = [
+  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo',
+  'Galle', 'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara',
+  'Kandy', 'Kegalle', 'Kilinochchi', 'Kurunegala', 'Mannar',
+  'Matale', 'Matara', 'Monaragala', 'Mullaitivu', 'Nuwara Eliya',
+  'Polonnaruwa', 'Puttalam', 'Ratnapura', 'Trincomalee', 'Vavuniya',
+];
+
+const SRI_LANKA_PROVINCES = [
+  'Central', 'Eastern', 'North Central', 'Northern', 'North Western',
+  'Sabaragamuwa', 'Southern', 'Uva', 'Western',
+];
+
+const DISTRICT_TO_PROVINCE: Record<string, string> = {
+  Colombo: 'Western',
+  Gampaha: 'Western',
+  Kalutara: 'Western',
+  Kandy: 'Central',
+  Matale: 'Central',
+  'Nuwara Eliya': 'Central',
+  Galle: 'Southern',
+  Matara: 'Southern',
+  Hambantota: 'Southern',
+  Jaffna: 'Northern',
+  Kilinochchi: 'Northern',
+  Mannar: 'Northern',
+  Mullaitivu: 'Northern',
+  Vavuniya: 'Northern',
+  Ampara: 'Eastern',
+  Batticaloa: 'Eastern',
+  Trincomalee: 'Eastern',
+  Kurunegala: 'North Western',
+  Puttalam: 'North Western',
+  Anuradhapura: 'North Central',
+  Polonnaruwa: 'North Central',
+  Badulla: 'Uva',
+  Monaragala: 'Uva',
+  Kegalle: 'Sabaragamuwa',
+  Ratnapura: 'Sabaragamuwa',
+};
+
+const CITY_TO_DISTRICT: Record<string, string> = {
+  Colombo: 'Colombo',
+  'Dehiwala-Mount Lavinia': 'Colombo',
+  Moratuwa: 'Colombo',
+  'Sri Jayawardenepura Kotte': 'Colombo',
+  Maharagama: 'Colombo',
+  Avissawella: 'Colombo',
+  Negombo: 'Gampaha',
+  Gampaha: 'Gampaha',
+  Kalutara: 'Kalutara',
+  Panadura: 'Kalutara',
+  Horana: 'Kalutara',
+  Kandy: 'Kandy',
+  Matale: 'Matale',
+  'Nuwara Eliya': 'Nuwara Eliya',
+  Galle: 'Galle',
+  Matara: 'Matara',
+  Hambantota: 'Hambantota',
+  Jaffna: 'Jaffna',
+  Kilinochchi: 'Kilinochchi',
+  Mannar: 'Mannar',
+  Mullaitivu: 'Mullaitivu',
+  Vavuniya: 'Vavuniya',
+  Ampara: 'Ampara',
+  Kalmunai: 'Ampara',
+  Batticaloa: 'Batticaloa',
+  Trincomalee: 'Trincomalee',
+  Kurunegala: 'Kurunegala',
+  Puttalam: 'Puttalam',
+  Chilaw: 'Puttalam',
+  Anuradhapura: 'Anuradhapura',
+  Polonnaruwa: 'Polonnaruwa',
+  Badulla: 'Badulla',
+  Monaragala: 'Monaragala',
+  Kegalle: 'Kegalle',
+  Ratnapura: 'Ratnapura',
+};
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -73,6 +155,25 @@ function MapPinIcon() {
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
       <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function CompassIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </svg>
+  );
+}
+
+function MapIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+      <line x1="8" y1="2" x2="8" y2="18" />
+      <line x1="16" y1="6" x2="16" y2="22" />
     </svg>
   );
 }
@@ -174,6 +275,8 @@ interface FormData {
   phone: string;
   address: string;
   city: string;
+  district: string;
+  province: string;
   password: string;
   confirmPassword: string;
   agreed: boolean;
@@ -185,6 +288,8 @@ interface FormErrors {
   phone?: string;
   address?: string;
   city?: string;
+  district?: string;
+  province?: string;
   password?: string;
   confirmPassword?: string;
   agreed?: string;
@@ -200,6 +305,8 @@ export function ResidentRegisterPage() {
     phone: '',
     address: '',
     city: '',
+    district: '',
+    province: '',
     password: '',
     confirmPassword: '',
     agreed: false,
@@ -213,6 +320,41 @@ export function ResidentRegisterPage() {
   const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const handleCityChange = (city: string) => {
+    const district = CITY_TO_DISTRICT[city];
+    const province = district ? DISTRICT_TO_PROVINCE[district] : undefined;
+
+    setForm((prev) => ({
+      ...prev,
+      city,
+      district: district || prev.district,
+      province: province || prev.province,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      city: undefined,
+      ...(district ? { district: undefined } : {}),
+      ...(province ? { province: undefined } : {}),
+    }));
+  };
+
+  const handleDistrictChange = (district: string) => {
+    const province = DISTRICT_TO_PROVINCE[district];
+
+    setForm((prev) => ({
+      ...prev,
+      district,
+      province: province || prev.province,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      district: undefined,
+      ...(province ? { province: undefined } : {}),
+    }));
   };
 
   const validate = (): boolean => {
@@ -234,6 +376,8 @@ export function ResidentRegisterPage() {
     else if (form.address.trim().length < 10) e.address = 'Please enter a more complete address.';
 
     if (!form.city) e.city = 'Please select your city.';
+    if (!form.district) e.district = 'Please select your district.';
+    if (!form.province) e.province = 'Please select your province.';
 
     if (!form.password) e.password = 'Password is required.';
     else if (form.password.length < 8) e.password = 'Password must be at least 8 characters.';
@@ -260,6 +404,10 @@ export function ResidentRegisterPage() {
           fullName: form.fullName.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
+          address: form.address.trim(),
+          city: form.city,
+          district: form.district,
+          province: form.province,
           role: 'RESIDENT',
           createdAt: new Date().toISOString(),
         },
@@ -456,7 +604,7 @@ export function ResidentRegisterPage() {
                   <select
                     id="reg-city"
                     value={form.city}
-                    onChange={(e) => setField('city', e.target.value)}
+                    onChange={(e) => handleCityChange(e.target.value)}
                     className={`${errors.city ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
                   >
                     <option value="" disabled>Select your city</option>
@@ -471,6 +619,55 @@ export function ResidentRegisterPage() {
                   </span>
                 </div>
               </Field>
+
+              {/* District & Province */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {/* District */}
+                <Field label="District" htmlFor="reg-district" error={errors.district} required>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><CompassIcon /></span>
+                    <select
+                      id="reg-district"
+                      value={form.district}
+                      onChange={(e) => handleDistrictChange(e.target.value)}
+                      className={`${errors.district ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
+                    >
+                      <option value="" disabled>Select district</option>
+                      {SRI_LANKA_DISTRICTS.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-3.5 pointer-events-none text-content-muted">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </span>
+                  </div>
+                </Field>
+
+                {/* Province */}
+                <Field label="Province" htmlFor="reg-province" error={errors.province} required>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapIcon /></span>
+                    <select
+                      id="reg-province"
+                      value={form.province}
+                      onChange={(e) => setField('province', e.target.value)}
+                      className={`${errors.province ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
+                    >
+                      <option value="" disabled>Select province</option>
+                      {SRI_LANKA_PROVINCES.map((p) => (
+                        <option key={p} value={p}>{p} Province</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-3.5 pointer-events-none text-content-muted">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </span>
+                  </div>
+                </Field>
+              </div>
 
               {/* Divider */}
               <div className="flex items-center gap-3 py-1">
