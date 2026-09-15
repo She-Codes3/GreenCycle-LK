@@ -296,10 +296,10 @@ export function ResidentRegisterPage() {
   // ── Main layout ───────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-surface font-sans">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden w-full flex flex-col lg:flex-row bg-surface font-sans">
 
-      {/* ── LEFT: Brand Panel ── */}
-      <div className="relative hidden lg:flex lg:w-[40%] xl:w-[36%] bg-[#094833] text-white flex-col justify-between p-10 xl:p-14 overflow-hidden">
+      {/* ── LEFT: Brand Panel (Fixed / Stationary) ── */}
+      <div className="relative hidden lg:flex lg:w-[40%] xl:w-[36%] lg:h-full shrink-0 bg-[#094833] text-white flex-col justify-between p-8 xl:p-12 2xl:p-14 overflow-hidden select-none">
         {/* decorative waves */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07]" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 800 800">
           <path d="M-100 200 C 150 100, 300 400, 900 200 M-100 350 C 200 250, 400 550, 900 350 M-100 500 C 250 400, 500 700, 900 500 M-100 650 C 300 550, 600 850, 900 650" fill="none" stroke="white" strokeWidth="3" />
@@ -308,7 +308,7 @@ export function ResidentRegisterPage() {
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-[#04281c] rounded-full blur-2xl pointer-events-none" />
 
         {/* Logo */}
-        <div className="relative z-10">
+        <div className="relative z-10 shrink-0">
           <Link to="/" className="inline-flex items-center gap-3 group">
             <img src={greenCycleLogo} alt="GreenCycle LK" className="w-9 h-9 object-contain brightness-0 invert" />
             <div>
@@ -319,18 +319,18 @@ export function ResidentRegisterPage() {
         </div>
 
         {/* Body */}
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1 mb-5">
+        <div className="relative z-10 my-auto py-6">
+          <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1 mb-4">
             <span className="text-xs text-emerald-200 font-medium">🌱 Join 48,000+ residents</span>
           </div>
-          <h1 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-[1.18]">
+          <h1 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-white tracking-tight leading-[1.18]">
             Join the green movement today.
           </h1>
-          <p className="mt-4 text-sm text-emerald-100/80 leading-relaxed max-w-xs">
+          <p className="mt-3 text-xs xl:text-sm text-emerald-100/80 leading-relaxed max-w-xs">
             Create your free account and start scheduling pickups, earning GreenPoints, and contributing to a cleaner Sri Lanka.
           </p>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 space-y-3 xl:space-y-3.5">
             {[
               { emoji: '📅', text: 'Schedule waste pickups at your convenience' },
               { emoji: '🚚', text: 'Track collection trucks in real time' },
@@ -338,15 +338,15 @@ export function ResidentRegisterPage() {
               { emoji: '♻️', text: 'Smart recycling guides for every item' },
             ].map(({ emoji, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-sm">{emoji}</div>
-                <span className="text-sm text-emerald-50 font-medium">{text}</span>
+                <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-xs xl:text-sm">{emoji}</div>
+                <span className="text-xs xl:text-sm text-emerald-50 font-medium">{text}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="relative z-10 pt-4 border-t border-white/10">
+        <div className="relative z-10 pt-4 border-t border-white/10 shrink-0">
           <p className="text-xs text-emerald-200/60 flex items-center gap-2">
             <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
@@ -358,8 +358,8 @@ export function ResidentRegisterPage() {
         </div>
       </div>
 
-      {/* ── RIGHT: Form Panel ── */}
-      <div className="w-full lg:flex-1 bg-canvas overflow-y-auto">
+      {/* ── RIGHT: Form Panel (Scrollable) ── */}
+      <div className="w-full lg:flex-1 lg:h-full bg-canvas overflow-y-auto">
         <div className="min-h-full flex items-start justify-center">
           <div className="w-full max-w-lg px-6 sm:px-10 py-10 lg:py-12">
 
