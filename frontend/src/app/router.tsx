@@ -8,7 +8,7 @@ import { CollectionHistory } from '@/features/collector/pages/CollectionHistory'
 import { CollectorDashboardPage } from '@/features/collector/pages/CollectorDashboardPage';
 import { HomePage } from '@/features/home/HomePage';
 import { OnboardPage } from '@/features/home/onboard';
-import { LoginPage, ResidentRegisterPage, CollectorRegisterPage } from '@/features/auth';
+import { LoginPage, ResidentRegisterPage, CollectorRegisterPage, MunicipalityRegisterPage } from '@/features/auth';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -52,6 +52,7 @@ export function AppRouter() {
       <Route path="/register" element={<OnboardPage />} />
       <Route path="/register/resident" element={<ResidentRegisterPage />} />
       <Route path="/register/collector" element={<CollectorRegisterPage />} />
+      <Route path="/register/municipality" element={<MunicipalityRegisterPage />} />
 
       <Route
         path="/collector/dashboard"

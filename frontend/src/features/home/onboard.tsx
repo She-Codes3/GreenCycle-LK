@@ -169,7 +169,7 @@ const roles = [
     icon: <BuildingIcon />,
     label: 'Municipality',
     desc: 'Oversee operations, analytics and community impact data.',
-    route: '/dashboard',
+    route: '/register/municipality',
     style: {
       card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
