@@ -69,16 +69,6 @@ function HardHatIcon() {
   );
 }
 
-function BuildingIcon() {
-  return (
-    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M3 9h18M9 21V9" />
-      <rect x="13" y="13" width="3" height="3" />
-      <rect x="13" y="17" width="3" height="3" rx="0" />
-    </svg>
-  );
-}
 
 // ─── Step data ────────────────────────────────────────────────────────────────
 
@@ -152,24 +142,9 @@ const roles = [
   {
     id: 'collector',
     icon: <HardHatIcon />,
-    label: 'Collector',
-    desc: 'Manage your route, update collection status in real time.',
+    label: 'Collector / Disposal Center',
+    desc: 'Collect specialized waste streams, accept drop-offs, or run a recycling depot.',
     route: '/register/collector',
-    style: {
-      card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
-      icon: 'bg-primary-light text-primary',
-      label: 'text-content',
-      desc: 'text-content-secondary',
-      arrow: 'text-content-muted',
-    },
-    primary: false,
-  },
-  {
-    id: 'municipality',
-    icon: <BuildingIcon />,
-    label: 'Municipality',
-    desc: 'Oversee operations, analytics and community impact data.',
-    route: '/register/municipality',
     style: {
       card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
@@ -297,6 +272,31 @@ export function OnboardPage() {
                   </div>
                 </button>
               ))}
+            </div>
+
+            {/* Municipal notice */}
+            <div className="rounded-2xl border border-border bg-surface p-4 flex items-start gap-3.5 shadow-sm">
+              <div className="w-9 h-9 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0 mt-0.5">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2" />
+                  <line x1="9" y1="6" x2="9" y2="6.01" />
+                  <line x1="15" y1="6" x2="15" y2="6.01" />
+                  <line x1="9" y1="10" x2="9" y2="10.01" />
+                  <line x1="15" y1="10" x2="15" y2="10.01" />
+                  <line x1="9" y1="14" x2="9" y2="14.01" />
+                  <line x1="15" y1="14" x2="15" y2="14.01" />
+                  <path d="M10 22v-4h4v4" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-content">Municipal or Local Authority?</p>
+                <p className="text-xs text-content-muted mt-0.5 leading-relaxed">
+                  Council and municipal accounts are provisioned directly by the system administrator.{' '}
+                  <Link to="/login" className="text-secondary font-medium hover:underline">
+                    Sign in to your portal
+                  </Link>.
+                </p>
+              </div>
             </div>
 
             {/* Sign in — mobile fallback */}

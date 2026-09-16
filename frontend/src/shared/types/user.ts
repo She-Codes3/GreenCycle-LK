@@ -19,6 +19,12 @@ export interface User {
   designation?: string;
   employmentType?: string;
   username?: string;
+  organizationName?: string;
+  collectorType?: string;
+  brNumber?: string;
+  acceptedWasteTypes?: string[];
+  serviceModes?: string[];
+  operatingArea?: string;
   createdAt: string;
 }
 

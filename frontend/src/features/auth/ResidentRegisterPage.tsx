@@ -179,16 +179,20 @@ interface FieldProps {
   htmlFor: string;
   error?: string;
   required?: boolean;
+  hint?: string;
   children: React.ReactNode;
 }
 
-function Field({ label, htmlFor, error, required, children }: FieldProps) {
+function Field({ label, htmlFor, error, required, hint, children }: FieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium text-content">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
+      <div className="flex items-center justify-between">
+        <label htmlFor={htmlFor} className="block text-sm font-medium text-content">
+          {label}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
+        </label>
+        {hint && <span className="text-xs text-content-muted">{hint}</span>}
+      </div>
       {children}
       {error && (
         <p className="text-xs text-red-600 flex items-center gap-1">
@@ -364,8 +368,9 @@ export function ResidentRegisterPage() {
     else if (form.fullName.trim().length < 2) e.fullName = 'Name must be at least 2 characters.';
 
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!form.email.trim()) e.email = 'Email address is required.';
-    else if (!emailRe.test(form.email)) e.email = 'Enter a valid email address.';
+    if (form.email.trim() && !emailRe.test(form.email.trim())) {
+      e.email = 'Enter a valid email address.';
+    }
 
     const phoneClean = form.phone.replace(/[\s\-()]/g, '');
     const phoneRe = /^(\+94|0)?7[0-9]{8}$/;
@@ -549,8 +554,8 @@ export function ResidentRegisterPage() {
                 </div>
               </Field>
 
-              {/* Email */}
-              <Field label="Email Address" htmlFor="reg-email" error={errors.email} required>
+              {/* Email (Optional) */}
+              <Field label="Email Address" htmlFor="reg-email" error={errors.email} hint="Optional">
                 <div className="relative flex items-center">
                   <span className="absolute left-3.5 text-content-muted pointer-events-none"><MailIcon /></span>
                   <input
@@ -558,7 +563,7 @@ export function ResidentRegisterPage() {
                     type="email"
                     value={form.email}
                     onChange={(e) => setField('email', e.target.value)}
-                    placeholder="you@example.lk"
+                    placeholder="you@example.lk (optional)"
                     autoComplete="email"
                     className={`${errors.email ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                   />

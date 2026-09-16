@@ -5,38 +5,29 @@ import greenCycleLogo from '@/assets/GreenCycle-logo.png';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SRI_LANKA_MUNICIPALITIES = [
-  'Colombo Municipal Council (CMC)',
-  'Dehiwala-Mount Lavinia Municipal Council',
-  'Sri Jayawardenepura Kotte Municipal Council',
-  'Moratuwa Municipal Council',
-  'Kandy Municipal Council',
-  'Galle Municipal Council',
-  'Matara Municipal Council',
-  'Negombo Municipal Council',
-  'Kurunegala Municipal Council',
-  'Batticaloa Municipal Council',
-  'Jaffna Municipal Council',
-  'Anuradhapura Municipal Council',
-  'Badulla Municipal Council',
-  'Ratnapura Municipal Council',
-  'Gampaha Municipal Council',
-  'Kalutara Urban Council',
-  'Other Municipal Council / Urban Council',
+const SRI_LANKA_DISTRICTS = [
+  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo', 'Galle',
+  'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara', 'Kandy', 'Kegalle',
+  'Kilinochchi', 'Kurunegala', 'Mannar', 'Matale', 'Matara', 'Monaragala',
+  'Mullaitivu', 'Nuwara Eliya', 'Polonnaruwa', 'Puttalam', 'Ratnapura',
+  'Trincomalee', 'Vavuniya',
 ];
 
-const COLLECTOR_DESIGNATIONS = [
-  'Waste Collector',
-  'Collection Truck Driver',
-  'Route Supervisor',
-  'Recycling Operator',
-  'Sanitation Field Inspector',
+const WASTE_CATEGORIES = [
+  { id: 'E-Waste', label: 'E-Waste & Electronics', icon: '🔌', desc: 'Computers, appliances, circuit boards, batteries' },
+  { id: 'Plastics', label: 'Plastics & Polythene', icon: '♻️', desc: 'PET bottles, HDPE containers, industrial plastic' },
+  { id: 'Paper', label: 'Paper & Cardboard', icon: '📄', desc: 'Corrugated cartons, newspapers, office paper' },
+  { id: 'Metals', label: 'Metal & Scrap Iron', icon: '🥫', desc: 'Aluminium cans, steel, copper, automotive scrap' },
+  { id: 'Glass', label: 'Glass Bottles & Jars', icon: '🍾', desc: 'Beverage bottles, sheet glass, culinary glass' },
+  { id: 'Organic', label: 'Organic & Food Scraps', icon: '🍃', desc: 'Compostable restaurant & commercial food waste' },
+  { id: 'Hazardous', label: 'Hazardous & Chemicals', icon: '⚠️', desc: 'Solvents, medical, paints, industrial chemicals' },
+  { id: 'Bulky', label: 'Bulky & Construction Waste', icon: '🛋️', desc: 'Furniture, demolition rubble, heavy debris' },
 ];
 
-const EMPLOYMENT_TYPES = [
-  { id: 'Permanent', label: 'Permanent', desc: 'Full-time municipal staff' },
-  { id: 'Contract', label: 'Contract', desc: 'Fixed-term service agreement' },
-  { id: 'Temporary', label: 'Temporary', desc: 'Seasonal / on-demand staff' },
+const SERVICE_MODES = [
+  { id: 'Doorstep Pickup', label: 'Doorstep / On-site Pickup', desc: 'Fleet visits customer locations' },
+  { id: 'Public Drop-off', label: 'Accepts Public Drop-offs', desc: 'Public brings waste to your facility' },
+  { id: 'Buyback / Payment', label: 'Scrap Buyback / Payment', desc: 'We pay citizens or give GreenPoints' },
 ];
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -86,27 +77,6 @@ function PhoneIcon() {
   );
 }
 
-function IdCardIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <circle cx="9" cy="10" r="2" />
-      <line x1="15" y1="8" x2="17" y2="8" />
-      <line x1="15" y1="12" x2="17" y2="12" />
-      <line x1="7" y1="16" x2="17" y2="16" />
-    </svg>
-  );
-}
-
-function BadgeIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 15l-4 6 4-2 4 2-4-6z" />
-      <circle cx="12" cy="9" r="6" />
-    </svg>
-  );
-}
-
 function BuildingIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -122,6 +92,18 @@ function BuildingIcon() {
   );
 }
 
+function IdCardIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="2" />
+      <line x1="15" y1="8" x2="17" y2="8" />
+      <line x1="15" y1="12" x2="17" y2="12" />
+      <line x1="7" y1="16" x2="17" y2="16" />
+    </svg>
+  );
+}
+
 function MapPinIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -131,11 +113,13 @@ function MapPinIcon() {
   );
 }
 
-function BriefcaseIcon() {
+function HashIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect width="20" height="14" x="2" y="7" rx="2" />
-      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+      <line x1="4" x2="20" y1="9" y2="9" />
+      <line x1="4" x2="20" y1="15" y2="15" />
+      <line x1="10" x2="8" y1="3" y2="21" />
+      <line x1="16" x2="14" y1="3" y2="21" />
     </svg>
   );
 }
@@ -158,13 +142,14 @@ function CameraIcon() {
   );
 }
 
-function TruckIcon() {
+function RecycleIcon() {
   return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="1" y="3" width="15" height="13" rx="1" />
-      <path d="M16 8h4l3 5v4h-7V8z" />
-      <circle cx="5.5" cy="18.5" r="2.5" />
-      <circle cx="18.5" cy="18.5" r="2.5" />
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5" />
+      <path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12" />
+      <path d="m14 16 3 3-3 3" />
+      <path d="M8.293 13.596 5.5 9.5 9.4 2.768a1.84 1.84 0 0 1 1.565-.968h3.07a1.84 1.84 0 0 1 1.565.968L17.5 6.5" />
+      <path d="m17 4-3-3 3-3" />
     </svg>
   );
 }
@@ -256,21 +241,26 @@ const inputError = `${inputBase} border-red-300 bg-red-50/40 focus:border-red-40
 // ─── Form State Interfaces ───────────────────────────────────────────────────
 
 interface CollectorFormData {
-  // 1. Personal Information
-  fullName: string;
+  // 1. Organization / Facility Information
+  organizationName: string;
+  collectorType: string;
+  brNumber: string;
+  facilityAddress: string;
+  district: string;
+  operatingArea: string;
+
+  // 2. Waste Categories & Services
+  acceptedWasteTypes: string[];
+  serviceModes: string[];
+
+  // 3. Representative Contact Information
+  representativeName: string;
   email: string;
   phone: string;
   nic: string;
   profilePhoto: string | null;
 
-  // 2. Work Information
-  collectorId: string;
-  municipality: string;
-  assignedZone: string;
-  designation: string;
-  employmentType: string;
-
-  // 3. Login Information
+  // 4. Login Information
   username: string;
   password: string;
   confirmPassword: string;
@@ -278,15 +268,16 @@ interface CollectorFormData {
 }
 
 interface CollectorFormErrors {
-  fullName?: string;
+  organizationName?: string;
+  collectorType?: string;
+  facilityAddress?: string;
+  district?: string;
+  operatingArea?: string;
+  acceptedWasteTypes?: string;
+  representativeName?: string;
   email?: string;
   phone?: string;
   nic?: string;
-  collectorId?: string;
-  municipality?: string;
-  assignedZone?: string;
-  designation?: string;
-  employmentType?: string;
   username?: string;
   password?: string;
   confirmPassword?: string;
@@ -301,16 +292,19 @@ export function CollectorRegisterPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<CollectorFormData>({
-    fullName: '',
+    organizationName: '',
+    collectorType: 'Private Collection Service',
+    brNumber: '',
+    facilityAddress: '',
+    district: '',
+    operatingArea: '',
+    acceptedWasteTypes: ['E-Waste', 'Plastics'],
+    serviceModes: ['Doorstep Pickup', 'Public Drop-off'],
+    representativeName: '',
     email: '',
     phone: '',
     nic: '',
     profilePhoto: null,
-    collectorId: '',
-    municipality: '',
-    assignedZone: '',
-    designation: '',
-    employmentType: 'Permanent',
     username: '',
     password: '',
     confirmPassword: '',
@@ -332,10 +326,34 @@ export function CollectorRegisterPage() {
       }
       return next;
     });
+
     const errKey = key as keyof CollectorFormErrors;
     if (errors[errKey]) {
       setErrors((prev) => ({ ...prev, [errKey]: undefined }));
     }
+  };
+
+  const toggleWasteCategory = (id: string) => {
+    setForm((prev) => {
+      const exists = prev.acceptedWasteTypes.includes(id);
+      const updated = exists
+        ? prev.acceptedWasteTypes.filter((w) => w !== id)
+        : [...prev.acceptedWasteTypes, id];
+      return { ...prev, acceptedWasteTypes: updated };
+    });
+    if (errors.acceptedWasteTypes) {
+      setErrors((prev) => ({ ...prev, acceptedWasteTypes: undefined }));
+    }
+  };
+
+  const toggleServiceMode = (id: string) => {
+    setForm((prev) => {
+      const exists = prev.serviceModes.includes(id);
+      const updated = exists
+        ? prev.serviceModes.filter((m) => m !== id)
+        : [...prev.serviceModes, id];
+      return { ...prev, serviceModes: updated };
+    });
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -366,56 +384,57 @@ export function CollectorRegisterPage() {
   const validate = (): boolean => {
     const e: CollectorFormErrors = {};
 
-    // 1. Personal Information
-    if (!form.fullName.trim()) {
-      e.fullName = 'Full name is required.';
-    } else if (form.fullName.trim().length < 2) {
-      e.fullName = 'Name must be at least 2 characters.';
+    // 1. Organization / Facility Details
+    if (!form.organizationName.trim()) {
+      e.organizationName = 'Business or disposal center name is required.';
+    } else if (form.organizationName.trim().length < 2) {
+      e.organizationName = 'Name must be at least 2 characters.';
+    }
+
+    if (!form.facilityAddress.trim()) {
+      e.facilityAddress = 'Depot or facility address is required.';
+    }
+
+    if (!form.district) {
+      e.district = 'Please select the primary operational district.';
+    }
+
+    if (!form.operatingArea.trim()) {
+      e.operatingArea = 'Operating coverage area is required (e.g. Colombo & Suburbs).';
+    }
+
+    // 2. Waste Categories
+    if (form.acceptedWasteTypes.length === 0) {
+      e.acceptedWasteTypes = 'Please select at least one waste stream you collect or accept.';
+    }
+
+    // 3. Representative Information
+    if (!form.representativeName.trim()) {
+      e.representativeName = 'Representative contact name is required.';
+    } else if (form.representativeName.trim().length < 2) {
+      e.representativeName = 'Name must be at least 2 characters.';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) {
-      e.email = 'Email address is required.';
+      e.email = 'Official contact email is required.';
     } else if (!emailRegex.test(form.email.trim())) {
       e.email = 'Please enter a valid email address.';
     }
 
     const phoneClean = form.phone.replace(/[\s-]/g, '');
-    const phoneRegex = /^(?:\+94|0)?7[0-9]{8}$/;
+    const phoneRegex = /^(?:\+94|0)[0-9]{8,11}$/;
     if (!phoneClean) {
       e.phone = 'Phone number is required.';
     } else if (!phoneRegex.test(phoneClean)) {
-      e.phone = 'Enter a valid Sri Lankan mobile number (e.g. 077 123 4567).';
+      e.phone = 'Enter a valid Sri Lankan telephone or mobile number.';
     }
 
     if (!form.nic.trim()) {
-      e.nic = 'NIC or Employee ID is required for identity verification.';
-    } else if (form.nic.trim().length < 5) {
-      e.nic = 'Please enter a valid NIC or ID number.';
+      e.nic = 'NIC or Identification number is required for verification.';
     }
 
-    // 2. Work Information
-    if (!form.collectorId.trim()) {
-      e.collectorId = 'Collector / Employee ID issued by municipality is required.';
-    }
-
-    if (!form.municipality) {
-      e.municipality = 'Please select your municipality or local authority.';
-    }
-
-    if (!form.assignedZone.trim()) {
-      e.assignedZone = 'Assigned area / zone is required (e.g. Ward 05 or Zone 1).';
-    }
-
-    if (!form.designation) {
-      e.designation = 'Please select your designation.';
-    }
-
-    if (!form.employmentType) {
-      e.employmentType = 'Please select your employment type.';
-    }
-
-    // 3. Login Information
+    // 4. Login Information
     if (!form.username.trim()) {
       e.username = 'Username or login email is required.';
     } else if (form.username.trim().length < 3) {
@@ -435,7 +454,7 @@ export function CollectorRegisterPage() {
     }
 
     if (!form.agreed) {
-      e.agreed = 'You must agree to the Collector Code of Conduct and Terms.';
+      e.agreed = 'You must agree to the Environmental Handling Guidelines and Terms.';
     }
 
     setErrors(e);
@@ -454,17 +473,20 @@ export function CollectorRegisterPage() {
       login(
         {
           id: `col_${Date.now()}`,
-          fullName: form.fullName.trim(),
+          fullName: form.representativeName.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
           role: 'COLLECTOR',
           avatarUrl: form.profilePhoto || undefined,
+          organizationName: form.organizationName.trim(),
+          collectorType: form.collectorType,
+          brNumber: form.brNumber.trim() || undefined,
+          address: form.facilityAddress.trim(),
+          district: form.district,
+          operatingArea: form.operatingArea.trim(),
+          acceptedWasteTypes: form.acceptedWasteTypes,
+          serviceModes: form.serviceModes,
           nic: form.nic.trim(),
-          employeeId: form.collectorId.trim(),
-          municipality: form.municipality,
-          assignedZone: form.assignedZone.trim(),
-          designation: form.designation,
-          employmentType: form.employmentType,
           username: form.username.trim(),
           createdAt: new Date().toISOString(),
         },
@@ -489,7 +511,7 @@ export function CollectorRegisterPage() {
           </div>
           <h2 className="text-2xl font-bold text-content">Collector Registered!</h2>
           <p className="mt-2 text-sm text-content-secondary">
-            Welcome to the GreenCycle Fleet, {form.fullName.split(' ')[0]}. Initializing your route dashboard…
+            Welcome, {form.organizationName}. Your waste collection &amp; disposal center profile is ready!
           </p>
           <div className="mt-6 h-1.5 w-full rounded-full bg-border overflow-hidden">
             <div className="h-full bg-secondary rounded-full transition-all duration-[1600ms] ease-linear w-full" />
@@ -536,21 +558,21 @@ export function CollectorRegisterPage() {
         {/* Brand Body */}
         <div className="relative z-10 my-auto py-6">
           <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1 mb-4">
-            <span className="text-xs text-emerald-200 font-medium">🚚 Official Collector Fleet</span>
+            <span className="text-xs text-emerald-200 font-medium">♻️ Independent Collector &amp; Drop-off Network</span>
           </div>
           <h1 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-white tracking-tight leading-[1.18]">
-            Powering Sri Lanka&apos;s Clean Future.
+            Specialized Collection. Cleaner Island.
           </h1>
           <p className="mt-3 text-xs xl:text-sm text-emerald-100/80 leading-relaxed max-w-xs">
-            Join municipal waste collection officers across the island. Optimize routes, log pickups in real time, and keep our communities green.
+            Connect your specialized collection service or disposal depot with citizens and commercial entities seeking responsible waste disposal across Sri Lanka.
           </p>
 
           <div className="mt-6 space-y-3 xl:space-y-3.5">
             {[
-              { emoji: '🗺️', text: 'Optimized daily routes & turn-by-turn navigation' },
-              { emoji: '📦', text: 'Instant bin verification & waste stream logging' },
-              { emoji: '⚠️', text: 'Rapid hazard, road blockage & overflow reporting' },
-              { emoji: '📊', text: 'Shift analytics & transparent municipal logbook' },
+              { emoji: '📦', text: 'Targeted pickup requests for your specific waste categories' },
+              { emoji: '📍', text: 'Feature on GreenCycle’s island-wide public disposal map' },
+              { emoji: '💵', text: 'Support recyclable scrap buyback & citizen reward points' },
+              { emoji: '📊', text: 'Real-time tonnage tracking & transparent recycling records' },
             ].map(({ emoji, text }) => (
               <div key={text} className="flex items-center gap-3">
                 <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-xs xl:text-sm">
@@ -570,7 +592,7 @@ export function CollectorRegisterPage() {
               <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
               <path d="M2 12h20" />
             </svg>
-            <span>Authorized by Municipal Councils &amp; Local Authorities</span>
+            <span>Verified Waste Service Provider • Central Environmental Authority (CEA) Standards</span>
           </p>
         </div>
       </div>
@@ -601,39 +623,261 @@ export function CollectorRegisterPage() {
             {/* Title Header */}
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary-light text-primary text-xs font-semibold mb-2.5">
-                <TruckIcon />
-                <span>Collector Portal Registration</span>
+                <RecycleIcon />
+                <span>Third-Party Collector &amp; Drop-off Center</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-content tracking-tight">
-                Create your collector account
+                Register as a Waste Collector
               </h2>
               <p className="text-content-muted text-sm mt-1.5 leading-relaxed">
-                Fill in your identification and municipal employment details to set up your official collector profile.
+                List your independent collection service or disposal hub to receive pickup bookings and accept drop-offs.
               </p>
             </div>
 
             {/* ── Form ── */}
-            <form onSubmit={handleSubmit} noValidate className="space-y-7">
-              {/* ════════ SECTION 1: Personal Information ════════ */}
+            <form onSubmit={handleSubmit} noValidate className="space-y-8">
+              {/* ════════ SECTION 1: Facility / Business Information ════════ */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-1 border-b border-border">
                   <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
                     1
                   </span>
                   <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                    Personal Information
+                    Collector / Facility Information
                   </h3>
                 </div>
 
-                {/* Profile Photo (Optional) */}
+                {/* Facility / Organization Name */}
+                <Field
+                  label="Organization / Facility Name"
+                  htmlFor="col-org-name"
+                  error={errors.organizationName}
+                  required
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BuildingIcon /></span>
+                    <input
+                      id="col-org-name"
+                      type="text"
+                      value={form.organizationName}
+                      onChange={(e) => setField('organizationName', e.target.value)}
+                      placeholder="e.g. Lanka Green Scrap Recyclers"
+                      className={`${errors.organizationName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                    />
+                  </div>
+                </Field>
+
+                {/* Business Registration (BR) Number */}
+                <Field
+                  label="Business Registration (BR) Number"
+                  htmlFor="col-br"
+                  hint="Optional for independent operators"
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><HashIcon /></span>
+                    <input
+                      id="col-br"
+                      type="text"
+                      value={form.brNumber}
+                      onChange={(e) => setField('brNumber', e.target.value)}
+                      placeholder="e.g. PV-00234567 or W/12345"
+                      className={`${inputNormal} pl-10 pr-4 py-2.5`}
+                    />
+                  </div>
+                </Field>
+
+                {/* Facility Address */}
+                <Field
+                  label="Depot / Facility Physical Address"
+                  htmlFor="col-facility-address"
+                  error={errors.facilityAddress}
+                  required
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                    <input
+                      id="col-facility-address"
+                      type="text"
+                      value={form.facilityAddress}
+                      onChange={(e) => setField('facilityAddress', e.target.value)}
+                      placeholder="e.g. 142/B Baseline Road, Dematagoda, Colombo 09"
+                      className={`${errors.facilityAddress ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                    />
+                  </div>
+                </Field>
+
+                {/* Primary District */}
+                <Field
+                  label="Primary Base District"
+                  htmlFor="col-district"
+                  error={errors.district}
+                  required
+                  hint="Main operating hub"
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                    <select
+                      id="col-district"
+                      value={form.district}
+                      onChange={(e) => setField('district', e.target.value)}
+                      className={`${errors.district ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
+                    >
+                      <option value="" disabled>Select primary district</option>
+                      {SRI_LANKA_DISTRICTS.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-3.5 pointer-events-none text-content-muted">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </span>
+                  </div>
+                </Field>
+
+                {/* Service Coverage Area - Full Width */}
+                <Field
+                  label="Service Coverage Area"
+                  htmlFor="col-coverage"
+                  error={errors.operatingArea}
+                  required
+                  hint="Cities, zones, or regions where you collect"
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                    <input
+                      id="col-coverage"
+                      type="text"
+                      value={form.operatingArea}
+                      onChange={(e) => setField('operatingArea', e.target.value)}
+                      placeholder="e.g. Colombo 01-15, Dehiwala, Gampaha District, or Island-wide"
+                      className={`${errors.operatingArea ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              {/* ════════ SECTION 2: Accepted Waste Streams & Services ════════ */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2 pb-1 border-b border-border">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
+                    2
+                  </span>
+                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
+                    Accepted Waste Categories &amp; Services
+                  </h3>
+                </div>
+
+                {/* Multi-select Waste Categories */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-content">
+                      Waste Types You Collect or Accept <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-xs text-content-muted">Select all that apply</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {WASTE_CATEGORIES.map((cat) => {
+                      const selected = form.acceptedWasteTypes.includes(cat.id);
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => toggleWasteCategory(cat.id)}
+                          className={`p-3 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                            selected
+                              ? 'border-secondary bg-secondary/5 ring-1 ring-secondary/30'
+                              : 'border-border bg-surface hover:bg-muted'
+                          }`}
+                        >
+                          <span className="text-2xl shrink-0 mt-0.5">{cat.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-semibold text-content">{cat.label}</p>
+                              <span
+                                className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ml-1.5 ${
+                                  selected ? 'border-secondary bg-secondary text-white' : 'border-border'
+                                }`}
+                              >
+                                {selected && (
+                                  <svg className="w-3 h-3 stroke-current stroke-[3]" viewBox="0 0 24 24" fill="none">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                )}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-content-muted leading-tight mt-0.5">{cat.desc}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.acceptedWasteTypes && (
+                    <p className="text-xs text-red-600">{errors.acceptedWasteTypes}</p>
+                  )}
+                </div>
+
+                {/* Service Modes Provided */}
+                <div className="space-y-2 pt-1">
+                  <label className="block text-sm font-medium text-content">
+                    Services Provided to Citizens &amp; Businesses
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {SERVICE_MODES.map((mode) => {
+                      const selected = form.serviceModes.includes(mode.id);
+                      return (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() => toggleServiceMode(mode.id)}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                            selected
+                              ? 'border-secondary bg-secondary/5 ring-1 ring-secondary/20'
+                              : 'border-border bg-surface hover:bg-muted'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-xs font-medium text-content">{mode.label}</span>
+                            <span
+                              className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                                selected ? 'border-secondary bg-secondary text-white' : 'border-border'
+                              }`}
+                            >
+                              {selected && (
+                                <svg className="w-2.5 h-2.5 stroke-current stroke-[3]" viewBox="0 0 24 24" fill="none">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              )}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-content-muted">{mode.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* ════════ SECTION 3: Authorized Representative ════════ */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2 pb-1 border-b border-border">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
+                    3
+                  </span>
+                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
+                    Authorized Representative
+                  </h3>
+                </div>
+
+                {/* Profile / Facility Photo (Optional) */}
                 <div>
                   <label className="block text-sm font-medium text-content mb-1.5">
-                    Profile Photo <span className="text-xs text-content-muted font-normal">(Optional)</span>
+                    Facility / Representative Photo <span className="text-xs text-content-muted font-normal">(Optional)</span>
                   </label>
                   <div className="flex items-center gap-4 p-3 rounded-xl border border-dashed border-border bg-surface">
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
                       {form.profilePhoto ? (
-                        <img src={form.profilePhoto} alt="Profile preview" className="w-full h-full object-cover" />
+                        <img src={form.profilePhoto} alt="Facility preview" className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-content-muted"><UserIcon /></span>
                       )}
@@ -658,7 +902,7 @@ export function CollectorRegisterPage() {
                           </button>
                         )}
                       </div>
-                      <p className="text-[11px] text-content-muted mt-1">PNG, JPG, or JPEG up to 5MB</p>
+                      <p className="text-[11px] text-content-muted mt-1">Logo, facility yard, or contact photo (PNG, JPG up to 5MB)</p>
                     </div>
                     <input
                       ref={fileInputRef}
@@ -670,24 +914,24 @@ export function CollectorRegisterPage() {
                   </div>
                 </div>
 
-                {/* Full Name */}
-                <Field label="Full Name" htmlFor="col-name" error={errors.fullName} required>
+                {/* Representative Full Name */}
+                <Field label="Representative Full Name" htmlFor="col-rep-name" error={errors.representativeName} required>
                   <div className="relative flex items-center">
                     <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><UserIcon /></span>
                     <input
-                      id="col-name"
+                      id="col-rep-name"
                       type="text"
-                      value={form.fullName}
-                      onChange={(e) => setField('fullName', e.target.value)}
-                      placeholder="e.g. Ruwan Jayasuriya"
+                      value={form.representativeName}
+                      onChange={(e) => setField('representativeName', e.target.value)}
+                      placeholder="e.g. Kasun Wickramasinghe"
                       autoComplete="name"
-                      className={`${errors.fullName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                      className={`${errors.representativeName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                     />
                   </div>
                 </Field>
 
-                {/* Email Address */}
-                <Field label="Email Address" htmlFor="col-email" error={errors.email} required>
+                {/* Official Contact Email */}
+                <Field label="Contact Email Address" htmlFor="col-email" error={errors.email} required>
                   <div className="relative flex items-center">
                     <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MailIcon /></span>
                     <input
@@ -695,7 +939,7 @@ export function CollectorRegisterPage() {
                       type="email"
                       value={form.email}
                       onChange={(e) => setField('email', e.target.value)}
-                      placeholder="e.g. ruwan.collector@example.lk"
+                      placeholder="contact@ecorecycle.lk"
                       autoComplete="email"
                       className={`${errors.email ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                     />
@@ -704,8 +948,7 @@ export function CollectorRegisterPage() {
 
                 {/* Phone & NIC (Grid) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Phone Number */}
-                  <Field label="Phone Number" htmlFor="col-phone" error={errors.phone} required>
+                  <Field label="Contact Phone Number" htmlFor="col-phone" error={errors.phone} required>
                     <div className="relative flex items-center">
                       <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><PhoneIcon /></span>
                       <input
@@ -713,15 +956,14 @@ export function CollectorRegisterPage() {
                         type="tel"
                         value={form.phone}
                         onChange={(e) => setField('phone', e.target.value)}
-                        placeholder="077 123 4567"
+                        placeholder="077 123 4567 or 011 234 5678"
                         autoComplete="tel"
                         className={`${errors.phone ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                       />
                     </div>
                   </Field>
 
-                  {/* NIC / Employee ID */}
-                  <Field label="NIC / Identification" htmlFor="col-nic" error={errors.nic} required hint="Sri Lankan NIC">
+                  <Field label="Representative NIC / ID" htmlFor="col-nic" error={errors.nic} required hint="Sri Lankan NIC">
                     <div className="relative flex items-center">
                       <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><IdCardIcon /></span>
                       <input
@@ -729,7 +971,7 @@ export function CollectorRegisterPage() {
                         type="text"
                         value={form.nic}
                         onChange={(e) => setField('nic', e.target.value)}
-                        placeholder="e.g. 199012345678 or 901234567V"
+                        placeholder="e.g. 198812345678 or 881234567V"
                         className={`${errors.nic ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                       />
                     </div>
@@ -737,157 +979,19 @@ export function CollectorRegisterPage() {
                 </div>
               </div>
 
-              {/* ════════ SECTION 2: Work Information ════════ */}
+              {/* ════════ SECTION 4: Login Information ════════ */}
               <div className="space-y-4 pt-2">
                 <div className="flex items-center gap-2 pb-1 border-b border-border">
                   <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
-                    2
+                    4
                   </span>
                   <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                    Work Information
-                  </h3>
-                </div>
-
-                {/* Collector / Employee ID */}
-                <Field
-                  label="Collector / Employee ID"
-                  htmlFor="col-employee-id"
-                  error={errors.collectorId}
-                  required
-                  hint="Issued by municipality"
-                >
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BadgeIcon /></span>
-                    <input
-                      id="col-employee-id"
-                      type="text"
-                      value={form.collectorId}
-                      onChange={(e) => setField('collectorId', e.target.value)}
-                      placeholder="e.g. CMC-COL-2024-089"
-                      className={`${errors.collectorId ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
-                  </div>
-                </Field>
-
-                {/* Municipality / Local Authority */}
-                <Field label="Municipality / Local Authority" htmlFor="col-muni" error={errors.municipality} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BuildingIcon /></span>
-                    <select
-                      id="col-muni"
-                      value={form.municipality}
-                      onChange={(e) => setField('municipality', e.target.value)}
-                      className={`${errors.municipality ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
-                    >
-                      <option value="" disabled>Select your municipal council</option>
-                      {SRI_LANKA_MUNICIPALITIES.map((m) => (
-                        <option key={m} value={m}>{m}</option>
-                      ))}
-                    </select>
-                    <span className="absolute right-3.5 pointer-events-none text-content-muted">
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="6 9 12 15 18 9" />
-                      </svg>
-                    </span>
-                  </div>
-                </Field>
-
-                {/* Assigned Area / Zone & Designation (Grid) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Assigned Area / Zone */}
-                  <Field label="Assigned Area / Zone" htmlFor="col-zone" error={errors.assignedZone} required>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
-                      <input
-                        id="col-zone"
-                        type="text"
-                        value={form.assignedZone}
-                        onChange={(e) => setField('assignedZone', e.target.value)}
-                        placeholder="e.g. Ward 05 / Cinnamon Gardens"
-                        className={`${errors.assignedZone ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                      />
-                    </div>
-                  </Field>
-
-                  {/* Designation */}
-                  <Field label="Designation" htmlFor="col-designation" error={errors.designation} required>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BriefcaseIcon /></span>
-                      <select
-                        id="col-designation"
-                        value={form.designation}
-                        onChange={(e) => setField('designation', e.target.value)}
-                        className={`${errors.designation ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
-                      >
-                        <option value="" disabled>Select designation</option>
-                        {COLLECTOR_DESIGNATIONS.map((d) => (
-                          <option key={d} value={d}>{d}</option>
-                        ))}
-                      </select>
-                      <span className="absolute right-3.5 pointer-events-none text-content-muted">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </span>
-                    </div>
-                  </Field>
-                </div>
-
-                {/* Employment Type */}
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-content">
-                    Employment Type <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                    {EMPLOYMENT_TYPES.map((type) => {
-                      const selected = form.employmentType === type.id;
-                      return (
-                        <button
-                          key={type.id}
-                          type="button"
-                          onClick={() => setField('employmentType', type.id)}
-                          className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                            selected
-                              ? 'border-secondary bg-secondary/5 ring-2 ring-secondary/20'
-                              : 'border-border bg-surface hover:bg-muted'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-xs font-semibold text-content">{type.label}</span>
-                            <span
-                              className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                selected ? 'border-secondary bg-secondary' : 'border-border'
-                              }`}
-                            >
-                              {selected && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-white block" />
-                              )}
-                            </span>
-                          </div>
-                          <span className="text-[11px] text-content-muted line-clamp-1">{type.desc}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {errors.employmentType && (
-                    <p className="text-xs text-red-600">{errors.employmentType}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* ════════ SECTION 3: Login Information ════════ */}
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center gap-2 pb-1 border-b border-border">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
-                    3
-                  </span>
-                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                    Login Information
+                    Portal Login Credentials
                   </h3>
                 </div>
 
                 {/* Username or Email */}
-                <Field label="Username or Email" htmlFor="col-username" error={errors.username} required>
+                <Field label="Username or Login Email" htmlFor="col-username" error={errors.username} required>
                   <div className="relative flex items-center">
                     <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
                       <span className="text-xs font-bold">@</span>
@@ -897,7 +1001,7 @@ export function CollectorRegisterPage() {
                       type="text"
                       value={form.username}
                       onChange={(e) => setField('username', e.target.value)}
-                      placeholder="e.g. ruwan.j or email address"
+                      placeholder="e.g. ecorecycle or email address"
                       autoComplete="username"
                       className={`${errors.username ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                     />
@@ -954,7 +1058,7 @@ export function CollectorRegisterPage() {
                 </Field>
               </div>
 
-              {/* ── Terms & Agreement Checkbox ── */}
+              {/* ── Terms & Environmental Code Agreement Checkbox ── */}
               <div className="space-y-1 pt-1">
                 <label className="flex items-start gap-3 cursor-pointer select-none group">
                   <input
@@ -966,8 +1070,10 @@ export function CollectorRegisterPage() {
                   <span className="text-xs text-content-secondary leading-relaxed">
                     I agree to the{' '}
                     <a href="#terms" className="text-secondary font-medium hover:underline">Terms of Service</a>,{' '}
-                    <a href="#code" className="text-secondary font-medium hover:underline">Collector Code of Conduct</a>, and{' '}
-                    <a href="#safety" className="text-secondary font-medium hover:underline">Municipal Safety Protocols</a>.
+                    <a href="#environmental" className="text-secondary font-medium hover:underline">
+                      Safe Environmental Waste Handling Protocols
+                    </a>
+                    , and verify that our collection facility operates in compliance with Central Environmental Authority standards.
                   </span>
                 </label>
                 {errors.agreed && (
@@ -987,7 +1093,7 @@ export function CollectorRegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
-                    <span>Registering collector profile…</span>
+                    <span>Registering collector &amp; disposal center profile…</span>
                   </>
                 ) : (
                   <>
@@ -1004,7 +1110,7 @@ export function CollectorRegisterPage() {
                 <svg className="w-3.5 h-3.5 text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <span>Encrypted transmission • Direct municipal dispatch authorization</span>
+                <span>Encrypted transmission • Direct integration into GreenCycle LK recycling network</span>
               </p>
             </form>
           </div>
