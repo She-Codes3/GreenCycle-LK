@@ -7,6 +7,11 @@ export interface User {
   role: Role;
   phone?: string;
   avatarUrl?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  district?: string;
+  province?: string;
   createdAt: string;
 }
 
