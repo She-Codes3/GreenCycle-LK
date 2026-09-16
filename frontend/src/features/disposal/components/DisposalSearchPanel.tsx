@@ -4,7 +4,7 @@ import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
-import { DisposalFilterState, WasteCategoryType } from '../types/disposal';
+import { DisposalFilterState, WasteCategoryType, ALL_WASTE_CATEGORIES } from '../types/disposal';
 
 export interface DisposalSearchPanelProps {
   filters: DisposalFilterState;
@@ -13,25 +13,13 @@ export interface DisposalSearchPanelProps {
   className?: string;
 }
 
-const ALL_CATEGORIES: WasteCategoryType[] = [
-  'Organic',
-  'Paper',
-  'Plastic',
-  'Glass',
-  'Metal',
-  'E-Waste',
-  'Hazardous',
-  'Bulky',
-  'General Residual',
-];
-
 export const DisposalSearchPanel: React.FC<DisposalSearchPanelProps> = ({
   filters,
   onFilterChange,
   onResetFilters,
   className,
 }) => {
-  const isAllSelected = filters.acceptedItems.length === ALL_CATEGORIES.length;
+  const isAllSelected = filters.acceptedItems.length === ALL_WASTE_CATEGORIES.length;
 
   const handleToggleCategory = (cat: WasteCategoryType) => {
     if (filters.acceptedItems.includes(cat)) {
@@ -49,7 +37,7 @@ export const DisposalSearchPanel: React.FC<DisposalSearchPanelProps> = ({
     if (isAllSelected) {
       onFilterChange({ acceptedItems: [] });
     } else {
-      onFilterChange({ acceptedItems: [...ALL_CATEGORIES] });
+      onFilterChange({ acceptedItems: [...ALL_WASTE_CATEGORIES] });
     }
   };
 
@@ -131,7 +119,7 @@ export const DisposalSearchPanel: React.FC<DisposalSearchPanelProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-y-2.5 gap-x-3 pt-1">
-          {ALL_CATEGORIES.map((cat) => (
+          {ALL_WASTE_CATEGORIES.map((cat) => (
             <Checkbox
               key={cat}
               label={cat}
