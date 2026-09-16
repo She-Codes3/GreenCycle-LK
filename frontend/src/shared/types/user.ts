@@ -9,6 +9,7 @@ export interface User {
   avatarUrl?: string;
   address?: string;
   city?: string;
+  postalCode?: string;
   district?: string;
   province?: string;
   createdAt: string;

@@ -3,25 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/providers';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
 
-// ─── Sri Lankan Locations ─────────────────────────────────────────────────────
+import postalCodesData from '@/shared/data/postalCodes.json';
 
-const SRI_LANKA_CITIES = [
-  'Colombo', 'Dehiwala-Mount Lavinia', 'Moratuwa', 'Sri Jayawardenepura Kotte',
-  'Negombo', 'Kandy', 'Kalutara', 'Galle', 'Matara', 'Jaffna',
-  'Batticaloa', 'Trincomalee', 'Anuradhapura', 'Polonnaruwa', 'Kurunegala',
-  'Puttalam', 'Ratnapura', 'Kegalle', 'Badulla', 'Monaragala',
-  'Ampara', 'Kalmunai', 'Nuwara Eliya', 'Matale', 'Hambantota',
-  'Vavuniya', 'Mannar', 'Kilinochchi', 'Mullaitivu', 'Gampaha',
-  'Panadura', 'Maharagama', 'Horana', 'Avissawella', 'Chilaw',
-];
+// ─── Sri Lankan Locations (Data-driven from postalCodes.json) ─────────────────
 
-const SRI_LANKA_DISTRICTS = [
-  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo',
-  'Galle', 'Gampaha', 'Hambantota', 'Jaffna', 'Kalutara',
-  'Kandy', 'Kegalle', 'Kilinochchi', 'Kurunegala', 'Mannar',
-  'Matale', 'Matara', 'Monaragala', 'Mullaitivu', 'Nuwara Eliya',
-  'Polonnaruwa', 'Puttalam', 'Ratnapura', 'Trincomalee', 'Vavuniya',
-];
+type PostalData = Record<string, Array<{ city: string; code: string }>>;
+const postalData = postalCodesData as PostalData;
+
+const SRI_LANKA_DISTRICTS = Object.keys(postalData).sort();
 
 const SRI_LANKA_PROVINCES = [
   'Central', 'Eastern', 'North Central', 'Northern', 'North Western',
@@ -41,6 +30,7 @@ const DISTRICT_TO_PROVINCE: Record<string, string> = {
   Jaffna: 'Northern',
   Kilinochchi: 'Northern',
   Mannar: 'Northern',
+  Mullativu: 'Northern',
   Mullaitivu: 'Northern',
   Vavuniya: 'Northern',
   Ampara: 'Eastern',
@@ -56,43 +46,27 @@ const DISTRICT_TO_PROVINCE: Record<string, string> = {
   Ratnapura: 'Sabaragamuwa',
 };
 
-const CITY_TO_DISTRICT: Record<string, string> = {
-  Colombo: 'Colombo',
-  'Dehiwala-Mount Lavinia': 'Colombo',
-  Moratuwa: 'Colombo',
-  'Sri Jayawardenepura Kotte': 'Colombo',
-  Maharagama: 'Colombo',
-  Avissawella: 'Colombo',
-  Negombo: 'Gampaha',
-  Gampaha: 'Gampaha',
-  Kalutara: 'Kalutara',
-  Panadura: 'Kalutara',
-  Horana: 'Kalutara',
-  Kandy: 'Kandy',
-  Matale: 'Matale',
-  'Nuwara Eliya': 'Nuwara Eliya',
-  Galle: 'Galle',
-  Matara: 'Matara',
-  Hambantota: 'Hambantota',
-  Jaffna: 'Jaffna',
-  Kilinochchi: 'Kilinochchi',
-  Mannar: 'Mannar',
-  Mullaitivu: 'Mullaitivu',
-  Vavuniya: 'Vavuniya',
-  Ampara: 'Ampara',
-  Kalmunai: 'Ampara',
-  Batticaloa: 'Batticaloa',
-  Trincomalee: 'Trincomalee',
-  Kurunegala: 'Kurunegala',
-  Puttalam: 'Puttalam',
-  Chilaw: 'Puttalam',
-  Anuradhapura: 'Anuradhapura',
-  Polonnaruwa: 'Polonnaruwa',
-  Badulla: 'Badulla',
-  Monaragala: 'Monaragala',
-  Kegalle: 'Kegalle',
-  Ratnapura: 'Ratnapura',
-};
+// Flattened list of all cities across Sri Lanka
+const ALL_CITIES = Object.entries(postalData).flatMap(([district, cities]) =>
+  cities.map((item) => ({
+    city: item.city,
+    code: item.code === '*' ? '' : item.code,
+    district,
+    province: DISTRICT_TO_PROVINCE[district] || '',
+  }))
+);
+
+// Map for instant O(1) city lookup
+const CITY_LOOKUP = new Map<string, { code: string; district: string; province: string }>();
+for (const item of ALL_CITIES) {
+  if (!CITY_LOOKUP.has(item.city)) {
+    CITY_LOOKUP.set(item.city, {
+      code: item.code,
+      district: item.district,
+      province: item.province,
+    });
+  }
+}
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -174,6 +148,17 @@ function MapIcon() {
       <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
       <line x1="8" y1="2" x2="8" y2="18" />
       <line x1="16" y1="6" x2="16" y2="22" />
+    </svg>
+  );
+}
+
+function HashIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="4" x2="20" y1="9" y2="9" />
+      <line x1="4" x2="20" y1="15" y2="15" />
+      <line x1="10" x2="8" y1="3" y2="21" />
+      <line x1="16" x2="14" y1="3" y2="21" />
     </svg>
   );
 }
@@ -275,6 +260,7 @@ interface FormData {
   phone: string;
   address: string;
   city: string;
+  postalCode: string;
   district: string;
   province: string;
   password: string;
@@ -288,6 +274,7 @@ interface FormErrors {
   phone?: string;
   address?: string;
   city?: string;
+  postalCode?: string;
   district?: string;
   province?: string;
   password?: string;
@@ -305,6 +292,7 @@ export function ResidentRegisterPage() {
     phone: '',
     address: '',
     city: '',
+    postalCode: '',
     district: '',
     province: '',
     password: '',
@@ -322,40 +310,52 @@ export function ResidentRegisterPage() {
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  const handleCityChange = (city: string) => {
-    const district = CITY_TO_DISTRICT[city];
-    const province = district ? DISTRICT_TO_PROVINCE[district] : undefined;
-
+  const handleCityChange = (cityName: string) => {
+    const match = CITY_LOOKUP.get(cityName);
     setForm((prev) => ({
       ...prev,
-      city,
-      district: district || prev.district,
-      province: province || prev.province,
+      city: cityName,
+      postalCode: match?.code || prev.postalCode,
+      district: match?.district || prev.district,
+      province: match?.province || prev.province,
     }));
 
     setErrors((prev) => ({
       ...prev,
       city: undefined,
-      ...(district ? { district: undefined } : {}),
-      ...(province ? { province: undefined } : {}),
+      postalCode: undefined,
+      ...(match ? { district: undefined, province: undefined } : {}),
     }));
   };
 
   const handleDistrictChange = (district: string) => {
-    const province = DISTRICT_TO_PROVINCE[district];
+    const province = DISTRICT_TO_PROVINCE[district] || '';
+    const districtCities = postalData[district] || [];
+    const cityStillValid = districtCities.some((c) => c.city === form.city);
 
     setForm((prev) => ({
       ...prev,
       district,
       province: province || prev.province,
+      city: cityStillValid ? prev.city : '',
+      postalCode: cityStillValid ? prev.postalCode : '',
     }));
 
     setErrors((prev) => ({
       ...prev,
       district: undefined,
       ...(province ? { province: undefined } : {}),
+      ...(cityStillValid ? {} : { city: undefined, postalCode: undefined }),
     }));
   };
+
+  // Filter cities by selected district or show all
+  const availableCities = form.district && postalData[form.district]
+    ? postalData[form.district].map((c) => ({
+        city: c.city,
+        code: c.code === '*' ? '' : c.code,
+      }))
+    : ALL_CITIES;
 
   const validate = (): boolean => {
     const e: FormErrors = {};
@@ -406,6 +406,7 @@ export function ResidentRegisterPage() {
           phone: form.phone.trim(),
           address: form.address.trim(),
           city: form.city,
+          postalCode: form.postalCode.trim(),
           district: form.district,
           province: form.province,
           role: 'RESIDENT',
@@ -597,28 +598,53 @@ export function ResidentRegisterPage() {
                 </div>
               </Field>
 
-              {/* City */}
-              <Field label="City" htmlFor="reg-city" error={errors.city} required>
-                <div className="relative flex items-center">
-                  <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
-                  <select
-                    id="reg-city"
-                    value={form.city}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    className={`${errors.city ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
-                  >
-                    <option value="" disabled>Select your city</option>
-                    {SRI_LANKA_CITIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <span className="absolute right-3.5 pointer-events-none text-content-muted">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </span>
+              {/* City & Postal Code */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div className="sm:col-span-2">
+                  <Field label="City" htmlFor="reg-city" error={errors.city} required>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                      <select
+                        id="reg-city"
+                        value={form.city}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className={`${errors.city ? inputError : inputNormal} pl-10 pr-9 py-2.5 appearance-none cursor-pointer`}
+                      >
+                        <option value="" disabled>
+                          {form.district ? `Select city in ${form.district}` : 'Select your city'}
+                        </option>
+                        {availableCities.map((c) => (
+                          <option key={`${c.city}-${c.code}`} value={c.city}>
+                            {c.city} {c.code ? `(${c.code})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="absolute right-3.5 pointer-events-none text-content-muted">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </span>
+                    </div>
+                  </Field>
                 </div>
-              </Field>
+
+                <div className="sm:col-span-1">
+                  <Field label="Postal Code" htmlFor="reg-postalcode" error={errors.postalCode}>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><HashIcon /></span>
+                      <input
+                        id="reg-postalcode"
+                        type="text"
+                        value={form.postalCode}
+                        onChange={(e) => setField('postalCode', e.target.value)}
+                        placeholder="Postal code"
+                        maxLength={10}
+                        className={`${errors.postalCode ? inputError : inputNormal} pl-10 pr-3 py-2.5`}
+                      />
+                    </div>
+                  </Field>
+                </div>
+              </div>
 
               {/* District & Province */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
