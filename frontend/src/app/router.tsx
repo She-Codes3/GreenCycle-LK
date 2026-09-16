@@ -9,6 +9,15 @@ import { CollectorDashboardPage } from '@/features/collector/pages/CollectorDash
 import { HomePage } from '@/features/home/HomePage';
 import { OnboardPage } from '@/features/home/onboard';
 import { LoginPage, ResidentRegisterPage } from '@/features/auth';
+import {
+  AdminDashboardPage,
+  AdminUsersPage,
+  AdminMunicipalitiesPage,
+  AdminDisposalCentersPage,
+  AdminComplaintsPage,
+  AdminActivityPage,
+  AdminSettingsPage,
+} from '@/features/admin';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -51,6 +60,16 @@ export function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<OnboardPage />} />
       <Route path="/register/resident" element={<ResidentRegisterPage />} />
+
+      {/* Admin Dashboard Routes */}
+      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+      <Route path="/admin/users" element={<AdminUsersPage />} />
+      <Route path="/admin/municipalities" element={<AdminMunicipalitiesPage />} />
+      <Route path="/admin/disposal-centers" element={<AdminDisposalCentersPage />} />
+      <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
+      <Route path="/admin/activity" element={<AdminActivityPage />} />
+      <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
       <Route
         path="/collector/dashboard"
