@@ -8,29 +8,128 @@ import { WasteCategory } from '@/shared/types/common';
 export interface DisposalCenterCardProps {
   id: string;
   name: string;
-  type: string;
+  type?: string;
   address: string;
   distanceKm?: number;
   openingHours: string;
   isOpenNow?: boolean;
+  nextStatusText?: string;
   acceptedWaste: (WasteCategory | string)[];
   onDirections?: () => void;
   onViewDetails?: () => void;
   className?: string;
+  isSelected?: boolean;
+  variant?: 'default' | 'compact';
 }
 
 export const DisposalCenterCard: React.FC<DisposalCenterCardProps> = ({
   name,
-  type,
+  type = 'Disposal',
   address,
   distanceKm,
   openingHours,
   isOpenNow = true,
+  nextStatusText,
   acceptedWaste,
   onDirections,
   onViewDetails,
   className,
+  isSelected = false,
+  variant = 'default',
 }) => {
+  if (variant === 'compact') {
+    return (
+      <InteractiveCard
+        onClick={onViewDetails}
+        className={cn(
+          'p-4 bg-surface rounded-2xl border transition-all text-left relative overflow-hidden',
+          isSelected
+            ? 'border-border border-l-4 border-l-primary shadow-sm bg-surface'
+            : 'border-border hover:border-border-strong bg-surface',
+          className
+        )}
+      >
+        {/* Top line: Status dot + OPEN / CLOSED · Opening Hours + Chevron */}
+        <div className="flex items-center justify-between text-xs mb-1.5">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                'w-2 h-2 rounded-full shrink-0',
+                isOpenNow ? 'bg-emerald-500' : 'bg-gray-400'
+              )}
+            />
+            <span
+              className={cn(
+                'font-bold uppercase tracking-wide text-[11px]',
+                isOpenNow ? 'text-emerald-700' : 'text-content-muted'
+              )}
+            >
+              {isOpenNow ? 'OPEN' : 'CLOSED'}
+            </span>
+            <span className="text-content-muted">•</span>
+            <span className="text-content-secondary font-medium">
+              {isOpenNow ? openingHours : nextStatusText || openingHours}
+            </span>
+          </div>
+
+          <span className="text-content-muted text-sm font-semibold">›</span>
+        </div>
+
+        {/* Center Name */}
+        <h3 className="font-bold text-base text-content tracking-tight leading-snug mb-1">
+          {name}
+        </h3>
+
+        {/* Distance and Location */}
+        <div className="flex items-center gap-1.5 text-xs text-content-secondary mb-2.5">
+          <svg
+            className="w-3.5 h-3.5 text-secondary shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+          </svg>
+          {distanceKm !== undefined && (
+            <span className="font-bold text-content">{distanceKm.toFixed(1)} km</span>
+          )}
+          <span className="text-content-muted">•</span>
+          <span className="truncate">{address}</span>
+        </div>
+
+        {/* Accepted Waste Tags */}
+        {acceptedWaste.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {acceptedWaste.map((tag, idx) => {
+              const tagStr = String(tag);
+              const isHazardOrEwaste = /e-waste|hazardous|batteries/i.test(tagStr);
+              const isOrganic = /organic|compost/i.test(tagStr);
+              return (
+                <span
+                  key={idx}
+                  className={cn(
+                    'text-[11px] px-2.5 py-0.5 rounded-full font-medium',
+                    isHazardOrEwaste
+                      ? 'bg-red-50 text-red-700 border border-red-200'
+                      : isOrganic
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-muted text-content-secondary border border-border/80'
+                  )}
+                >
+                  {tagStr}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </InteractiveCard>
+    );
+  }
   return (
     <InteractiveCard
       onClick={onViewDetails}
