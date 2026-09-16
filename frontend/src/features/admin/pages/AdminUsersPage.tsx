@@ -87,7 +87,7 @@ export const AdminUsersPage: React.FC = () => {
               Users
             </h1>
             <p className="text-xs sm:text-sm text-content-secondary mt-1">
-              Manage citizen accounts, municipal officers, certified collectors, and platform admins.
+              Manage citizen accounts, municipal users, certified collectors, and platform admins.
             </p>
           </div>
 
@@ -131,7 +131,7 @@ export const AdminUsersPage: React.FC = () => {
             >
               <option value="all">All Roles</option>
               <option value="Citizen">Citizen</option>
-              <option value="Municipal Officer">Municipal Officer</option>
+              <option value="Municipal User">Municipal User</option>
               <option value="Collector">Collector</option>
               <option value="System Admin">System Admin</option>
             </select>
@@ -250,7 +250,7 @@ export const AdminUsersPage: React.FC = () => {
                             className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                               user.role === 'System Admin'
                                 ? 'bg-purple-50 text-purple-800 border-purple-200'
-                                : user.role === 'Municipal Officer'
+                                : user.role === 'Municipal User'
                                 ? 'bg-blue-50 text-blue-800 border-blue-200'
                                 : user.role === 'Collector'
                                 ? 'bg-amber-50 text-amber-800 border-amber-200'

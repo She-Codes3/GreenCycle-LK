@@ -134,7 +134,7 @@ export function LoginPage() {
       login(
         {
           id: `usr_${Date.now()}`,
-          fullName: isCollector ? 'Saman Kumara' : isAdmin ? 'Municipal Officer' : 'Kasun Perera',
+          fullName: isCollector ? 'Saman Kumara' : isAdmin ? 'Municipal User' : 'Kasun Perera',
           email: trimmedIdentifier.includes('@') ? trimmedIdentifier : `${trimmedIdentifier}@greencycle.lk`,
           phone: trimmedIdentifier.includes('@') ? '0771234567' : trimmedIdentifier,
           role,
@@ -404,10 +404,10 @@ export function LoginPage() {
               </Link>
             </div>
 
-            {/* Notice for Collectors and Municipal Officers */}
+            {/* Notice for Collectors and Municipal Users */}
             <div className="mt-6 p-4 rounded-xl bg-[#f0f9f4] border border-secondary/20 text-center">
               <p className="text-xs text-content-secondary leading-relaxed">
-                Collector or municipal officer?{' '}
+                Collector or municipal user?{' '}
                 <span className="font-semibold text-content block sm:inline">
                   Use the credentials issued by your council.
                 </span>

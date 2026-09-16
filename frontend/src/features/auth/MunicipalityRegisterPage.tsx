@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/app/providers';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
+import type { AdminMunicipality } from '@/features/admin/types/admin';
 
 // ─── Sri Lankan Geographic Constants ──────────────────────────────────────────
 
@@ -46,42 +46,7 @@ const DISTRICT_TO_PROVINCE: Record<string, string> = {
   Ratnapura: 'Sabaragamuwa',
 };
 
-const AUTHORITY_TYPES = [
-  { id: 'Municipal Council', label: 'Municipal Council', desc: 'Major city administration (e.g. CMC, KMC)' },
-  { id: 'Urban Council', label: 'Urban Council', desc: 'Township / suburban council' },
-  { id: 'Pradeshiya Sabha', label: 'Pradeshiya Sabha', desc: 'Regional / rural division council' },
-];
-
-const DESIGNATION_SUGGESTIONS = [
-  'Municipal Commissioner',
-  'Director of Solid Waste Management',
-  'Chief Medical Officer of Health (MOH)',
-  'Superintending Engineer / Works Director',
-  'Environmental Officer / Sanitation Head',
-  'IT / Smart City Systems Administrator',
-  'Council Secretary / Administrative Officer',
-];
-
 // ─── Inline Icons ─────────────────────────────────────────────────────────────
-
-function EyeIcon({ visible }: { visible: boolean }) {
-  if (visible) {
-    return (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    );
-  }
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-      <line x1="2" x2="22" y1="2" y2="22" />
-    </svg>
-  );
-}
 
 function BuildingIcon() {
   return (
@@ -156,24 +121,6 @@ function IdCardIcon() {
   );
 }
 
-function BriefcaseIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect width="20" height="14" x="2" y="7" rx="2" />
-      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
-
 function FileTextIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -220,7 +167,7 @@ function Field({ label, htmlFor, error, required, hint, children }: FieldProps) 
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label htmlFor={htmlFor} className="block text-sm font-medium text-content">
+        <label htmlFor={htmlFor} className="block text-xs sm:text-sm font-semibold text-content">
           {label}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
@@ -241,52 +188,11 @@ function Field({ label, htmlFor, error, required, hint, children }: FieldProps) 
   );
 }
 
-// ─── Password Strength Indicator ──────────────────────────────────────────────
-
-function PasswordStrength({ password }: { password: string }) {
-  if (!password) return null;
-
-  const checks = {
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    number: /[0-9]/.test(password),
-    special: /[^A-Za-z0-9]/.test(password),
-  };
-  const passed = Object.values(checks).filter(Boolean).length;
-  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-  const barColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-secondary'];
-  const textColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-600', 'text-secondary'];
-
-  return (
-    <div className="mt-2 space-y-1.5">
-      <div className="flex gap-1">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-              i <= passed ? barColors[passed] : 'bg-border'
-            }`}
-          />
-        ))}
-      </div>
-      {passed > 0 && (
-        <p className={`text-xs font-medium ${textColors[passed]}`}>
-          {labels[passed]} password
-          {passed < 4 && (
-            <span className="text-content-muted font-normal ml-1">
-              — try adding {!checks.uppercase && 'uppercase, '}{!checks.number && 'numbers, '}{!checks.special && 'symbols'}
-            </span>
-          )}
-        </p>
-      )}
-    </div>
-  );
-}
-
 // ─── Input Base Classes ───────────────────────────────────────────────────────
 
-const inputBase = 'w-full rounded-xl border text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 transition-all';
-const inputNormal = `${inputBase} border-border bg-surface focus:border-secondary focus:ring-secondary/15`;
+const inputBase =
+  'w-full rounded-xl border text-xs sm:text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 transition-all';
+const inputNormal = `${inputBase} border-border bg-surface focus:border-primary/60 focus:ring-primary/10`;
 const inputError = `${inputBase} border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-200`;
 
 // ─── Form State Interfaces ───────────────────────────────────────────────────
@@ -294,104 +200,95 @@ const inputError = `${inputBase} border-red-300 bg-red-50/40 focus:border-red-40
 interface MunicipalityFormData {
   // 1. Municipality Information
   municipalityName: string;
-  authorityType: string;
+  municipalityCode: string;
   district: string;
   province: string;
   officeAddress: string;
-  postalCode: string;
   officialPhone: string;
   officialEmail: string;
 
-  // 2. Authorized Administrator
-  adminFullName: string;
-  adminDesignation: string;
-  adminContactNumber: string;
-  adminEmail: string;
-  adminNic: string;
+  // 2. Primary Municipal User
+  primaryFullName: string;
+  primaryEmail: string;
+  primaryPhone: string;
+  primaryNic: string;
 
-  // 3. Account Information
-  username: string;
-  password: string;
-  confirmPassword: string;
-
-  // 4. Verification
+  // 3. Verification
   documentFile: File | null;
   documentFileName: string;
+  declarationAgreed: boolean;
   termsAgreed: boolean;
-  authorizationDeclared: boolean;
 }
 
 interface MunicipalityFormErrors {
   municipalityName?: string;
-  authorityType?: string;
+  municipalityCode?: string;
   district?: string;
   province?: string;
   officeAddress?: string;
-  postalCode?: string;
   officialPhone?: string;
   officialEmail?: string;
 
-  adminFullName?: string;
-  adminDesignation?: string;
-  adminContactNumber?: string;
-  adminEmail?: string;
-  adminNic?: string;
-
-  username?: string;
-  password?: string;
-  confirmPassword?: string;
+  primaryFullName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  primaryNic?: string;
 
   documentFile?: string;
+  declarationAgreed?: string;
   termsAgreed?: string;
-  authorizationDeclared?: string;
 }
 
 // ─── MunicipalityRegisterPage Component ──────────────────────────────────────
 
 export function MunicipalityRegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const docInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<MunicipalityFormData>({
     municipalityName: '',
-    authorityType: 'Municipal Council',
+    municipalityCode: '',
     district: '',
     province: '',
     officeAddress: '',
-    postalCode: '',
     officialPhone: '',
     officialEmail: '',
 
-    adminFullName: '',
-    adminDesignation: '',
-    adminContactNumber: '',
-    adminEmail: '',
-    adminNic: '',
-
-    username: '',
-    password: '',
-    confirmPassword: '',
+    primaryFullName: '',
+    primaryEmail: '',
+    primaryPhone: '',
+    primaryNic: '',
 
     documentFile: null,
     documentFileName: '',
+    declarationAgreed: false,
     termsAgreed: false,
-    authorizationDeclared: false,
   });
 
   const [errors, setErrors] = useState<MunicipalityFormErrors>({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const setField = <K extends keyof MunicipalityFormData>(key: K, value: MunicipalityFormData[K]) => {
+  const setField = <K extends keyof MunicipalityFormData>(
+    key: K,
+    value: MunicipalityFormData[K]
+  ) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
 
-      // Auto-suggest username if adminEmail changes and username is empty
-      if (key === 'adminEmail' && !prev.username) {
-        next.username = String(value).split('@')[0] || '';
+      // Auto-suggest municipality code if name changes and code is empty or short
+      if (key === 'municipalityName') {
+        const words = String(value).trim().split(/\s+/);
+        if (words.length > 0 && words[0]) {
+          const autoCode = words
+            .map((w) => w[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 5);
+          if (!prev.municipalityCode || prev.municipalityCode.length <= 4) {
+            next.municipalityCode = autoCode;
+          }
+        }
       }
 
       // Auto-fill province when district is changed
@@ -443,11 +340,11 @@ export function MunicipalityRegisterPage() {
 
     // 1. Municipality Information
     if (!form.municipalityName.trim()) {
-      e.municipalityName = 'Municipality / Local Authority name is required.';
+      e.municipalityName = 'Municipality Name is required.';
     }
 
-    if (!form.authorityType) {
-      e.authorityType = 'Please select a local authority type.';
+    if (!form.municipalityCode.trim()) {
+      e.municipalityCode = 'Municipality Code is required (e.g. CMC).';
     }
 
     if (!form.district) {
@@ -459,11 +356,7 @@ export function MunicipalityRegisterPage() {
     }
 
     if (!form.officeAddress.trim()) {
-      e.officeAddress = 'Official office address is required.';
-    }
-
-    if (!form.postalCode.trim()) {
-      e.postalCode = 'Postal code is required.';
+      e.officeAddress = 'Municipality Address is required.';
     }
 
     const phoneRegex = /^(?:\+94|0)[0-9\s-]{8,12}$/;
@@ -475,64 +368,41 @@ export function MunicipalityRegisterPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.officialEmail.trim()) {
-      e.officialEmail = 'Official email address is required.';
+      e.officialEmail = 'Official council email is required.';
     } else if (!emailRegex.test(form.officialEmail.trim())) {
-      e.officialEmail = 'Please enter a valid official email.';
+      e.officialEmail = 'Please enter a valid official council email.';
     }
 
-    // 2. Authorized Administrator
-    if (!form.adminFullName.trim()) {
-      e.adminFullName = 'Administrator full name is required.';
-    } else if (form.adminFullName.trim().length < 2) {
-      e.adminFullName = 'Name must be at least 2 characters.';
+    // 2. Primary Municipal User
+    if (!form.primaryFullName.trim()) {
+      e.primaryFullName = "Municipal User's full name is required.";
+    } else if (form.primaryFullName.trim().length < 2) {
+      e.primaryFullName = 'Full name must be at least 2 characters.';
     }
 
-    if (!form.adminDesignation.trim()) {
-      e.adminDesignation = 'Designation or position is required.';
+    if (!form.primaryEmail.trim()) {
+      e.primaryEmail = 'Official Municipal User email is required.';
+    } else if (!emailRegex.test(form.primaryEmail.trim())) {
+      e.primaryEmail = 'Please enter a valid email address.';
     }
 
-    if (!form.adminContactNumber.trim()) {
-      e.adminContactNumber = 'Administrator contact number is required.';
-    } else if (!phoneRegex.test(form.adminContactNumber.trim())) {
-      e.adminContactNumber = 'Enter a valid Sri Lankan mobile number (e.g. 077 123 4567).';
+    if (!form.primaryPhone.trim()) {
+      e.primaryPhone = 'Phone number is required.';
+    } else if (!phoneRegex.test(form.primaryPhone.trim())) {
+      e.primaryPhone = 'Enter a valid mobile number (e.g. 077 987 6543).';
     }
 
-    if (!form.adminEmail.trim()) {
-      e.adminEmail = 'Administrator email address is required.';
-    } else if (!emailRegex.test(form.adminEmail.trim())) {
-      e.adminEmail = 'Please enter a valid email.';
+    if (!form.primaryNic.trim()) {
+      e.primaryNic = 'NIC or Municipal Employee ID is required.';
     }
 
-    if (!form.adminNic.trim()) {
-      e.adminNic = 'NIC or Municipal Employee ID is required for verification.';
+    // 3. Verification
+    if (!form.declarationAgreed) {
+      e.declarationAgreed = 'You must declare authorization to register this municipality.';
     }
 
-    // 3. Account Information
-    if (!form.username.trim()) {
-      e.username = 'Username or login email is required.';
-    } else if (form.username.trim().length < 3) {
-      e.username = 'Username must be at least 3 characters.';
-    }
-
-    if (!form.password) {
-      e.password = 'Password is required.';
-    } else if (form.password.length < 8) {
-      e.password = 'Password must be at least 8 characters.';
-    }
-
-    if (!form.confirmPassword) {
-      e.confirmPassword = 'Please confirm your password.';
-    } else if (form.password !== form.confirmPassword) {
-      e.confirmPassword = 'Passwords do not match.';
-    }
-
-    // 4. Verification
     if (!form.termsAgreed) {
       e.termsAgreed = 'You must agree to the GreenCycle Terms & Conditions.';
-    }
-
-    if (!form.authorizationDeclared) {
-      e.authorizationDeclared = 'You must declare that you are legally authorized to register this municipality.';
     }
 
     setErrors(e);
@@ -548,48 +418,111 @@ export function MunicipalityRegisterPage() {
       setLoading(false);
       setSuccess(true);
 
-      login(
-        {
-          id: `muni_${Date.now()}`,
-          fullName: form.adminFullName.trim(),
-          email: form.adminEmail.trim(),
-          phone: form.adminContactNumber.trim(),
-          role: 'ADMIN',
-          municipality: form.municipalityName.trim(),
-          district: form.district,
-          province: form.province,
-          address: form.officeAddress.trim(),
-          postalCode: form.postalCode.trim(),
-          nic: form.adminNic.trim(),
-          designation: form.adminDesignation.trim(),
-          username: form.username.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        `token_${Date.now()}`
-      );
+      const newMuni: AdminMunicipality = {
+        id: `MUN-${String(Date.now()).slice(-4)}`,
+        name: form.municipalityName.trim(),
+        code: form.municipalityCode.trim().toUpperCase() || 'MUNI',
+        province: form.province.includes('Province') ? form.province : `${form.province} Province`,
+        district: form.district,
+        contactOfficer: form.primaryFullName.trim(),
+        phone: form.primaryPhone.trim(),
+        email: form.primaryEmail.trim(),
+        usersCount: 0,
+        centersCount: 0,
+        complaintsCount: 0,
+        status: 'Active',
+        joinedDate: new Date().toISOString().split('T')[0],
+        description: `Official municipal authority jurisdiction in ${form.district} district. Primary Municipal User: ${form.primaryFullName.trim()} (${form.primaryEmail.trim()}).`,
+      };
 
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1600);
-    }, 900);
+      try {
+        const stored = localStorage.getItem('greencycle_admin_municipalities');
+        const list = stored ? JSON.parse(stored) : [];
+        localStorage.setItem(
+          'greencycle_admin_municipalities',
+          JSON.stringify([newMuni, ...list])
+        );
+      } catch {
+        // ignore
+      }
+
+      // Auto-redirect to /admin/municipalities after 2.8 seconds
+      setTimeout(() => navigate('/admin/municipalities', { replace: true }), 2800);
+    }, 800);
   };
 
   // ── Success Splash Screen ───────────────────────────────────────────────────
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-canvas font-sans">
-        <div className="text-center max-w-sm px-6 py-12 animate-[fadeIn_.4s_ease]">
-          <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+      <div className="min-h-screen flex items-center justify-center bg-canvas font-sans p-6">
+        <div className="bg-surface border border-border rounded-3xl p-8 sm:p-10 max-w-lg w-full text-center shadow-elevated animate-[fadeIn_.3s_ease]">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-600/25">
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-content">Municipality Registered!</h2>
-          <p className="mt-2 text-sm text-content-secondary">
-            Welcome, {form.municipalityName}. Redirecting to your municipal administrative overview…
+
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 mb-3">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+            Municipality Registered Successfully
+          </span>
+
+          <h2 className="text-2xl sm:text-3xl font-black text-content tracking-tight">
+            {form.municipalityName}
+          </h2>
+          <p className="text-xs sm:text-sm text-content-secondary mt-1">
+            has been added to GreenCycle LK.
           </p>
-          <div className="mt-6 h-1.5 w-full rounded-full bg-border overflow-hidden">
-            <div className="h-full bg-secondary rounded-full transition-all duration-[1600ms] ease-linear w-full" />
+
+          <div className="my-6 p-4 rounded-2xl bg-muted/40 border border-border text-left space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-content uppercase tracking-wider">
+                Primary Municipal User
+              </span>
+              <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                Municipal User
+              </span>
+            </div>
+
+            <div>
+              <p className="text-xs text-content-muted">Full Name:</p>
+              <p className="text-xs font-bold text-content">{form.primaryFullName}</p>
+            </div>
+
+            <div className="pt-2 border-t border-border/60">
+              <p className="text-xs text-content-secondary mb-1">
+                A Municipal User account has been prepared for:
+              </p>
+              <p className="font-mono font-bold text-primary text-xs sm:text-sm bg-surface px-3 py-2 rounded-xl border border-border break-all">
+                {form.primaryEmail}
+              </p>
+            </div>
+
+            <div className="flex items-start gap-2 pt-1 text-[11px] text-content-muted leading-relaxed">
+              <svg className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <span>
+                Login credentials will be sent to the registered official email.
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/municipalities', { replace: true })}
+              className="w-full py-2.5 px-4 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/90 transition-all shadow-sm cursor-pointer"
+            >
+              Go to Municipalities List
+            </button>
+            <p className="text-[11px] text-content-muted">
+              Auto-redirecting back to Admin Municipalities…
+            </p>
           </div>
         </div>
       </div>
@@ -601,7 +534,7 @@ export function MunicipalityRegisterPage() {
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden w-full flex flex-col lg:flex-row bg-surface font-sans">
       {/* ── LEFT: Brand Panel (Fixed / Stationary) ── */}
-      <div className="relative hidden lg:flex lg:w-[40%] xl:w-[36%] lg:h-full shrink-0 bg-[#094833] text-white flex-col justify-between p-8 xl:p-12 2xl:p-14 overflow-hidden select-none">
+      <div className="relative hidden lg:flex lg:w-[38%] xl:w-[35%] lg:h-full shrink-0 bg-[#094833] text-white flex-col justify-between p-8 xl:p-12 overflow-hidden select-none">
         {/* Decorative background waves */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07]"
@@ -621,11 +554,11 @@ export function MunicipalityRegisterPage() {
 
         {/* Logo */}
         <div className="relative z-10 shrink-0">
-          <Link to="/" className="inline-flex items-center gap-3 group">
+          <Link to="/admin/municipalities" className="inline-flex items-center gap-3 group">
             <img src={greenCycleLogo} alt="GreenCycle LK" className="w-9 h-9 object-contain brightness-0 invert" />
             <div>
               <span className="text-lg font-bold tracking-tight text-white block leading-tight">GreenCycle LK</span>
-              <span className="text-xs text-emerald-200/70">Smarter Waste. Greener Sri Lanka.</span>
+              <span className="text-xs text-emerald-200/70">Admin • Local Authority Management</span>
             </div>
           </Link>
         </div>
@@ -633,27 +566,27 @@ export function MunicipalityRegisterPage() {
         {/* Brand Body */}
         <div className="relative z-10 my-auto py-6">
           <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1 mb-4">
-            <span className="text-xs text-emerald-200 font-medium">🏛️ Municipal Authority Portal</span>
+            <span className="text-xs text-emerald-200 font-medium">🏛️ Municipality Onboarding</span>
           </div>
-          <h1 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-white tracking-tight leading-[1.18]">
-            Empowering Municipalities Across Sri Lanka.
+          <h1 className="text-2xl xl:text-3xl font-bold text-white tracking-tight leading-[1.2]">
+            Registering Local Authorities for Sustainable Waste Governance.
           </h1>
-          <p className="mt-3 text-xs xl:text-sm text-emerald-100/80 leading-relaxed max-w-xs">
-            Unify your council’s waste operations. Dispatch collection fleets, track ward diversion rates, and manage smart recycling infrastructure.
+          <p className="mt-3 text-xs xl:text-sm text-emerald-100/80 leading-relaxed max-w-sm">
+            Onboard new municipal councils, urban councils, and pradeshiya sabhas. The designated Primary Municipal User will manage collection teams and dispatch operations.
           </p>
 
-          <div className="mt-6 space-y-3 xl:space-y-3.5">
+          <div className="mt-6 space-y-3">
             {[
-              { emoji: '📊', text: 'City-wide waste stream analytics & diversion KPIs' },
-              { emoji: '🚛', text: 'Real-time fleet dispatch & collector route oversight' },
-              { emoji: '📍', text: 'Ward & zone-based collection schedules & citizen alerts' },
-              { emoji: '📑', text: 'Transparent municipal reporting & complaint resolution' },
+              { emoji: '🏛️', text: 'Official local government jurisdiction record creation' },
+              { emoji: '👤', text: 'Primary Municipal User account preparation' },
+              { emoji: '🔐', text: 'Secure login credentials dispatched to official email' },
+              { emoji: '🚛', text: 'Authority to add and manage certified waste collectors' },
             ].map(({ emoji, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-xs xl:text-sm">
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-xs">
                   {emoji}
                 </div>
-                <span className="text-xs xl:text-sm text-emerald-50 font-medium">{text}</span>
+                <span className="text-xs text-emerald-50 font-medium">{text}</span>
               </div>
             ))}
           </div>
@@ -667,7 +600,7 @@ export function MunicipalityRegisterPage() {
               <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
               <path d="M2 12h20" />
             </svg>
-            <span>Sri Lanka Local Government &amp; Environmental Authority Integration</span>
+            <span>GreenCycle LK • Ministry of Local Government &amp; Provincial Councils</span>
           </p>
         </div>
       </div>
@@ -675,23 +608,21 @@ export function MunicipalityRegisterPage() {
       {/* ── RIGHT: Form Panel (Scrollable) ── */}
       <div className="w-full lg:flex-1 lg:h-full bg-canvas overflow-y-auto">
         <div className="min-h-full flex items-start justify-center">
-          <div className="w-full max-w-xl px-6 sm:px-10 py-10 lg:py-12">
+          <div className="w-full max-w-2xl px-6 sm:px-10 py-10 lg:py-12">
             {/* Top Navigation */}
             <div className="flex items-center justify-between mb-8">
               <Link
-                to="/register"
+                to="/admin/municipalities"
                 className="inline-flex items-center gap-1.5 text-xs text-content-muted hover:text-content transition-colors font-medium"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Back to roles
+                Back to Municipalities
               </Link>
-              <span className="text-xs text-content-muted">
-                Already registered?{' '}
-                <Link to="/login" className="text-secondary font-semibold hover:underline">
-                  Sign in
-                </Link>
+
+              <span className="text-xs font-semibold text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-2.5 py-1 rounded-lg">
+                Admin Onboarding Form
               </span>
             </div>
 
@@ -699,93 +630,89 @@ export function MunicipalityRegisterPage() {
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary-light text-primary text-xs font-semibold mb-2.5">
                 <BuildingIcon />
-                <span>Municipal &amp; Local Authority Portal</span>
+                <span>Admin Portal • Municipality Registration</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-content tracking-tight">
-                Register your Municipality
+                Register Municipality
               </h2>
-              <p className="text-content-muted text-sm mt-1.5 leading-relaxed">
-                Connect your municipal council, urban council, or pradeshiya sabha to start coordinating city-wide waste collection.
+              <p className="text-content-muted text-xs sm:text-sm mt-1.5 leading-relaxed">
+                Register a new municipal authority into GreenCycle LK and designate its Primary Municipal User.
               </p>
             </div>
 
             {/* ── Form ── */}
             <form onSubmit={handleSubmit} noValidate className="space-y-8">
-              {/* ════════ SECTION 1: Municipality Information ════════ */}
+              {/* ════════ 1. MUNICIPALITY INFORMATION ════════ */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-1 border-b border-border">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold">
                     1
                   </span>
-                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
+                  <h3 className="text-xs sm:text-sm font-bold text-content uppercase tracking-wider">
                     Municipality Information
                   </h3>
                 </div>
 
-                {/* Local Authority Type Selection */}
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-content">
-                    Local Authority Type <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {AUTHORITY_TYPES.map((type) => {
-                      const selected = form.authorityType === type.id;
-                      return (
-                        <button
-                          key={type.id}
-                          type="button"
-                          onClick={() => setField('authorityType', type.id)}
-                          className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                            selected
-                              ? 'border-secondary bg-secondary/5 ring-2 ring-secondary/20'
-                              : 'border-border bg-surface hover:bg-muted'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full mb-1">
-                            <span className="text-xs font-semibold text-content">{type.label}</span>
-                            <span
-                              className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                selected ? 'border-secondary bg-secondary' : 'border-border'
-                              }`}
-                            >
-                              {selected && <span className="w-1.5 h-1.5 rounded-full bg-white block" />}
-                            </span>
-                          </div>
-                          <span className="text-[11px] text-content-muted line-clamp-1">{type.desc}</span>
-                        </button>
-                      );
-                    })}
+                {/* Municipality Name & Code (Grid) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div className="sm:col-span-2">
+                    <Field
+                      label="Municipality Name"
+                      htmlFor="muni-name"
+                      error={errors.municipalityName}
+                      required
+                      hint="e.g. Colombo Municipal Council"
+                    >
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                          <BuildingIcon />
+                        </span>
+                        <input
+                          id="muni-name"
+                          type="text"
+                          value={form.municipalityName}
+                          onChange={(e) => setField('municipalityName', e.target.value)}
+                          placeholder="e.g. Colombo Municipal Council"
+                          className={`${errors.municipalityName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                        />
+                      </div>
+                    </Field>
                   </div>
-                  {errors.authorityType && <p className="text-xs text-red-600">{errors.authorityType}</p>}
-                </div>
 
-                {/* Municipality / Local Authority Name */}
-                <Field
-                  label="Municipality / Local Authority Name"
-                  htmlFor="muni-name"
-                  error={errors.municipalityName}
-                  required
-                  hint="e.g. Colombo Municipal Council"
-                >
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BuildingIcon /></span>
-                    <input
-                      id="muni-name"
-                      type="text"
-                      value={form.municipalityName}
-                      onChange={(e) => setField('municipalityName', e.target.value)}
-                      placeholder="e.g. Colombo Municipal Council"
-                      className={`${errors.municipalityName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
+                  <div className="sm:col-span-1">
+                    <Field
+                      label="Municipality Code"
+                      htmlFor="muni-code"
+                      error={errors.municipalityCode}
+                      required
+                      hint="e.g. CMC, KMC"
+                    >
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                          <HashIcon />
+                        </span>
+                        <input
+                          id="muni-code"
+                          type="text"
+                          value={form.municipalityCode}
+                          onChange={(e) => setField('municipalityCode', e.target.value.toUpperCase())}
+                          placeholder="CMC"
+                          maxLength={6}
+                          className={`${errors.municipalityCode ? inputError : inputNormal} pl-10 pr-4 py-2.5 font-mono uppercase font-bold`}
+                        />
+                      </div>
+                    </Field>
                   </div>
-                </Field>
+                </div>
 
                 {/* District & Province (Grid) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* District */}
                   <Field label="District" htmlFor="muni-district" error={errors.district} required>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <MapPinIcon />
+                      </span>
                       <select
                         id="muni-district"
                         value={form.district}
@@ -808,7 +735,9 @@ export function MunicipalityRegisterPage() {
                   {/* Province */}
                   <Field label="Province" htmlFor="muni-province" error={errors.province} required>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <MapPinIcon />
+                      </span>
                       <select
                         id="muni-province"
                         value={form.province}
@@ -829,47 +758,36 @@ export function MunicipalityRegisterPage() {
                   </Field>
                 </div>
 
-                {/* Office Address & Postal Code (Grid) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <div className="sm:col-span-2">
-                    <Field label="Municipality Office Address" htmlFor="muni-address" error={errors.officeAddress} required>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MapPinIcon /></span>
-                        <input
-                          id="muni-address"
-                          type="text"
-                          value={form.officeAddress}
-                          onChange={(e) => setField('officeAddress', e.target.value)}
-                          placeholder="e.g. Town Hall, Colombo 07"
-                          className={`${errors.officeAddress ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                        />
-                      </div>
-                    </Field>
+                {/* Municipality Office Address */}
+                <Field
+                  label="Municipality Address"
+                  htmlFor="muni-address"
+                  error={errors.officeAddress}
+                  required
+                  hint="Official administrative office"
+                >
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                      <MapPinIcon />
+                    </span>
+                    <input
+                      id="muni-address"
+                      type="text"
+                      value={form.officeAddress}
+                      onChange={(e) => setField('officeAddress', e.target.value)}
+                      placeholder="e.g. Town Hall, Colombo 07"
+                      className={`${errors.officeAddress ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                    />
                   </div>
+                </Field>
 
-                  <div className="sm:col-span-1">
-                    <Field label="Postal Code" htmlFor="muni-postal" error={errors.postalCode} required>
-                      <div className="relative flex items-center">
-                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><HashIcon /></span>
-                        <input
-                          id="muni-postal"
-                          type="text"
-                          value={form.postalCode}
-                          onChange={(e) => setField('postalCode', e.target.value)}
-                          placeholder="00700"
-                          maxLength={10}
-                          className={`${errors.postalCode ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                        />
-                      </div>
-                    </Field>
-                  </div>
-                </div>
-
-                {/* Official Contact Phone & Email (Grid) */}
+                {/* Official Council Phone & Official Council Email (Grid) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Field label="Official Phone Number" htmlFor="muni-phone" error={errors.officialPhone} required>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><PhoneIcon /></span>
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <PhoneIcon />
+                      </span>
                       <input
                         id="muni-phone"
                         type="tel"
@@ -881,9 +799,11 @@ export function MunicipalityRegisterPage() {
                     </div>
                   </Field>
 
-                  <Field label="Official Email Address" htmlFor="muni-email" error={errors.officialEmail} required>
+                  <Field label="Official Council Email" htmlFor="muni-email" error={errors.officialEmail} required>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MailIcon /></span>
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <MailIcon />
+                      </span>
                       <input
                         id="muni-email"
                         type="email"
@@ -897,213 +817,139 @@ export function MunicipalityRegisterPage() {
                 </div>
               </div>
 
-              {/* ════════ SECTION 2: Authorized Administrator ════════ */}
+              {/* ════════ 2. PRIMARY MUNICIPAL USER ════════ */}
               <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold">
                       2
                     </span>
-                    <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                      Authorized Administrator
+                    <h3 className="text-xs sm:text-sm font-bold text-content uppercase tracking-wider">
+                      Primary Municipal User
                     </h3>
                   </div>
+                  <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    Municipal User Role
+                  </span>
                 </div>
                 <p className="text-xs text-content-muted -mt-1">
-                  This person will manage the municipality&apos;s GreenCycle-LK account and fleet operations.
+                  Designate the Primary Municipal User for this authority. Login credentials will be generated and dispatched to the official email below.
                 </p>
 
-                {/* Administrator Full Name */}
-                <Field label="Administrator Full Name" htmlFor="muni-admin-name" error={errors.adminFullName} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><UserIcon /></span>
-                    <input
-                      id="muni-admin-name"
-                      type="text"
-                      value={form.adminFullName}
-                      onChange={(e) => setField('adminFullName', e.target.value)}
-                      placeholder="e.g. Eng. Priyantha Dissanayake"
-                      autoComplete="name"
-                      className={`${errors.adminFullName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
-                  </div>
-                </Field>
-
-                {/* Designation / Position */}
+                {/* Primary User Full Name */}
                 <Field
-                  label="Designation / Position"
-                  htmlFor="muni-admin-desig"
-                  error={errors.adminDesignation}
+                  label="Full Name"
+                  htmlFor="primary-name"
+                  error={errors.primaryFullName}
                   required
-                  hint="Official title"
+                  hint="Municipal User"
                 >
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><BriefcaseIcon /></span>
-                    <input
-                      id="muni-admin-desig"
-                      type="text"
-                      list="designation-suggestions"
-                      value={form.adminDesignation}
-                      onChange={(e) => setField('adminDesignation', e.target.value)}
-                      placeholder="e.g. Director of Solid Waste Management"
-                      className={`${errors.adminDesignation ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
-                    <datalist id="designation-suggestions">
-                      {DESIGNATION_SUGGESTIONS.map((s) => (
-                        <option key={s} value={s} />
-                      ))}
-                    </datalist>
-                  </div>
-                </Field>
-
-                {/* Administrator Phone & Email (Grid) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <Field label="Contact Number" htmlFor="muni-admin-phone" error={errors.adminContactNumber} required>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><PhoneIcon /></span>
-                      <input
-                        id="muni-admin-phone"
-                        type="tel"
-                        value={form.adminContactNumber}
-                        onChange={(e) => setField('adminContactNumber', e.target.value)}
-                        placeholder="077 987 6543"
-                        autoComplete="tel"
-                        className={`${errors.adminContactNumber ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                      />
-                    </div>
-                  </Field>
-
-                  <Field label="Administrator Email" htmlFor="muni-admin-email" error={errors.adminEmail} required>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><MailIcon /></span>
-                      <input
-                        id="muni-admin-email"
-                        type="email"
-                        value={form.adminEmail}
-                        onChange={(e) => setField('adminEmail', e.target.value)}
-                        placeholder="priyantha.d@colombo.mc.gov.lk"
-                        autoComplete="email"
-                        className={`${errors.adminEmail ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                      />
-                    </div>
-                  </Field>
-                </div>
-
-                {/* NIC / Employee ID */}
-                <Field
-                  label="NIC / Employee ID"
-                  htmlFor="muni-admin-nic"
-                  error={errors.adminNic}
-                  required
-                  hint="Official verification"
-                >
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><IdCardIcon /></span>
-                    <input
-                      id="muni-admin-nic"
-                      type="text"
-                      value={form.adminNic}
-                      onChange={(e) => setField('adminNic', e.target.value)}
-                      placeholder="e.g. 198012345678 or CMC-EMP-1042"
-                      className={`${errors.adminNic ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
-                  </div>
-                </Field>
-              </div>
-
-              {/* ════════ SECTION 3: Account Information ════════ */}
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center gap-2 pb-1 border-b border-border">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
-                    3
-                  </span>
-                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                    Account Information
-                  </h3>
-                </div>
-
-                {/* Username / Official Email */}
-                <Field label="Username / Official Email" htmlFor="muni-username" error={errors.username} required>
                   <div className="relative flex items-center">
                     <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
-                      <span className="text-xs font-bold">@</span>
+                      <UserIcon />
                     </span>
                     <input
-                      id="muni-username"
+                      id="primary-name"
                       type="text"
-                      value={form.username}
-                      onChange={(e) => setField('username', e.target.value)}
-                      placeholder="e.g. cmc.admin or official email"
-                      autoComplete="username"
-                      className={`${errors.username ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                      value={form.primaryFullName}
+                      onChange={(e) => setField('primaryFullName', e.target.value)}
+                      placeholder="e.g. Priyantha De Silva"
+                      autoComplete="name"
+                      className={`${errors.primaryFullName ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
                     />
                   </div>
                 </Field>
 
-                {/* Password */}
-                <Field label="Password" htmlFor="muni-password" error={errors.password} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
-                    <input
-                      id="muni-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={(e) => setField('password', e.target.value)}
-                      placeholder="Min. 8 characters"
-                      autoComplete="new-password"
-                      className={`${errors.password ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      <EyeIcon visible={showPassword} />
-                    </button>
+                {/* Official Email with explicit credential notice */}
+                <div>
+                  <Field
+                    label="Official Email"
+                    htmlFor="primary-email"
+                    error={errors.primaryEmail}
+                    required
+                  >
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <MailIcon />
+                      </span>
+                      <input
+                        id="primary-email"
+                        type="email"
+                        value={form.primaryEmail}
+                        onChange={(e) => setField('primaryEmail', e.target.value)}
+                        placeholder="priyantha.d@colombo.mc.gov.lk"
+                        autoComplete="email"
+                        className={`${errors.primaryEmail ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                      />
+                    </div>
+                  </Field>
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 font-medium">
+                    <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>Login credentials will be sent to this official municipal email.</span>
                   </div>
-                  <PasswordStrength password={form.password} />
-                </Field>
+                </div>
 
-                {/* Confirm Password */}
-                <Field label="Confirm Password" htmlFor="muni-confirm" error={errors.confirmPassword} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
-                    <input
-                      id="muni-confirm"
-                      type={showConfirm ? 'text' : 'password'}
-                      value={form.confirmPassword}
-                      onChange={(e) => setField('confirmPassword', e.target.value)}
-                      placeholder="Re-enter your password"
-                      autoComplete="new-password"
-                      className={`${errors.confirmPassword ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
-                      aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                    >
-                      <EyeIcon visible={showConfirm} />
-                    </button>
-                  </div>
-                </Field>
+                {/* Phone & NIC/Employee ID (Grid) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <Field label="Phone Number" htmlFor="primary-phone" error={errors.primaryPhone} required>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <PhoneIcon />
+                      </span>
+                      <input
+                        id="primary-phone"
+                        type="tel"
+                        value={form.primaryPhone}
+                        onChange={(e) => setField('primaryPhone', e.target.value)}
+                        placeholder="077 987 6543"
+                        autoComplete="tel"
+                        className={`${errors.primaryPhone ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                      />
+                    </div>
+                  </Field>
+
+                  <Field
+                    label="NIC / Employee ID"
+                    htmlFor="primary-nic"
+                    error={errors.primaryNic}
+                    required
+                    hint="Official ID"
+                  >
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                        <IdCardIcon />
+                      </span>
+                      <input
+                        id="primary-nic"
+                        type="text"
+                        value={form.primaryNic}
+                        onChange={(e) => setField('primaryNic', e.target.value)}
+                        placeholder="198012345678 / CMC-EMP-1042"
+                        className={`${errors.primaryNic ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                      />
+                    </div>
+                  </Field>
+                </div>
               </div>
 
-              {/* ════════ SECTION 4: Verification ════════ */}
+              {/* ════════ 3. VERIFICATION ════════ */}
               <div className="space-y-4 pt-2">
                 <div className="flex items-center gap-2 pb-1 border-b border-border">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
-                    4
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                    3
                   </span>
-                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
+                  <h3 className="text-xs sm:text-sm font-bold text-content uppercase tracking-wider">
                     Verification
                   </h3>
                 </div>
 
-                {/* Official Authorization / Registration Document Upload */}
+                {/* Official Document Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-content mb-1">
+                  <label className="block text-xs sm:text-sm font-semibold text-content mb-1">
                     Official Authorization / Registration Document{' '}
                     <span className="text-xs text-content-muted font-normal">(Optional upload)</span>
                   </label>
@@ -1130,7 +976,7 @@ export function MunicipalityRegisterPage() {
                       <button
                         type="button"
                         onClick={() => docInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-content bg-surface hover:bg-muted transition-colors inline-flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-content bg-surface hover:bg-muted transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                       >
                         <UploadIcon />
                         {form.documentFileName ? 'Change file' : 'Browse document'}
@@ -1139,7 +985,7 @@ export function MunicipalityRegisterPage() {
                         <button
                           type="button"
                           onClick={removeDocument}
-                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         >
                           Remove
                         </button>
@@ -1162,16 +1008,16 @@ export function MunicipalityRegisterPage() {
                     <label className="flex items-start gap-3 cursor-pointer select-none group">
                       <input
                         type="checkbox"
-                        checked={form.authorizationDeclared}
-                        onChange={(e) => setField('authorizationDeclared', e.target.checked)}
-                        className="mt-0.5 w-4 h-4 rounded border-border text-secondary accent-secondary focus:ring-secondary/20 cursor-pointer"
+                        checked={form.declarationAgreed}
+                        onChange={(e) => setField('declarationAgreed', e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-border text-primary accent-primary focus:ring-primary/20 cursor-pointer"
                       />
                       <span className="text-xs text-content-secondary leading-relaxed font-medium">
-                        I hereby declare that I am an authorized official legally empowered to register this municipal authority on the GreenCycle LK platform. <span className="text-red-500">*</span>
+                        I hereby declare that this municipality information is accurate and authorized for registration on GreenCycle LK. <span className="text-red-500">*</span>
                       </span>
                     </label>
-                    {errors.authorizationDeclared && (
-                      <p className="text-xs text-red-600 pl-7 mt-1">{errors.authorizationDeclared}</p>
+                    {errors.declarationAgreed && (
+                      <p className="text-xs text-red-600 pl-7 mt-1">{errors.declarationAgreed}</p>
                     )}
                   </div>
 
@@ -1182,17 +1028,17 @@ export function MunicipalityRegisterPage() {
                         type="checkbox"
                         checked={form.termsAgreed}
                         onChange={(e) => setField('termsAgreed', e.target.checked)}
-                        className="mt-0.5 w-4 h-4 rounded border-border text-secondary accent-secondary focus:ring-secondary/20 cursor-pointer"
+                        className="mt-0.5 w-4 h-4 rounded border-border text-primary accent-primary focus:ring-primary/20 cursor-pointer"
                       />
                       <span className="text-xs text-content-secondary leading-relaxed">
                         I agree to the{' '}
-                        <a href="#terms" className="text-secondary font-medium hover:underline">
+                        <span className="text-primary font-medium hover:underline">
                           Terms &amp; Conditions
-                        </a>
+                        </span>
                         ,{' '}
-                        <a href="#privacy" className="text-secondary font-medium hover:underline">
+                        <span className="text-primary font-medium hover:underline">
                           Municipal Data Sharing Protocol
-                        </a>
+                        </span>
                         , and environmental governance policies. <span className="text-red-500">*</span>
                       </span>
                     </label>
@@ -1203,32 +1049,42 @@ export function MunicipalityRegisterPage() {
                 </div>
               </div>
 
-              {/* ── Submit Button ── */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary/90 active:scale-[0.99] text-white font-semibold text-sm transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              >
-                {loading ? (
-                  <>
-                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                    <span>Submitting municipal verification…</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Submit Municipal Registration</span>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </>
-                )}
-              </button>
+              {/* ════════ 4. SUBMISSION ════════ */}
+              <div className="pt-4 border-t border-border flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/municipalities')}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-content-secondary hover:bg-muted transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 active:scale-[0.99] text-white font-bold text-xs transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      <span>Registering Municipality…</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Register Municipality</span>
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Security Footnote */}
-              <p className="text-center text-[11px] text-content-muted flex items-center justify-center gap-1.5">
+              <p className="text-center text-[11px] text-content-muted flex items-center justify-center gap-1.5 pt-2">
                 <ShieldCheckIcon />
                 <span>SSL Encrypted • Direct Ministry &amp; Local Government Authorization</span>
               </p>

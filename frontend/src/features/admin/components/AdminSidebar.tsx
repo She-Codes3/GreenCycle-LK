@@ -5,18 +5,21 @@ import {
   Users,
   Building2,
   Recycle,
+  Truck,
   AlertTriangle,
   History,
   Settings,
   ShieldCheck,
-  ArrowLeftRight,
+  LogOut,
 } from 'lucide-react';
 import logoImage from '@/assets/GreenCycle-logo.png';
+import { useAuth } from '@/app/providers';
 import { AdminSidebarItem } from '../types/admin';
 
 export interface AdminSidebarProps {
   activeItem?: AdminSidebarItem;
   onItemSelect?: (item: AdminSidebarItem) => void;
+  onLogout?: () => void;
   className?: string;
 }
 
@@ -25,7 +28,6 @@ interface NavEntry {
   label: string;
   href: string;
   icon: React.ReactNode;
-  badge?: string | number;
 }
 
 interface NavSection {
@@ -36,10 +38,21 @@ interface NavSection {
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeItem,
   onItemSelect,
+  onLogout,
   className = '',
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      logout();
+      navigate('/login');
+    }
+  };
 
   // Determine active item from prop or pathname
   const currentActive =
@@ -50,6 +63,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       ? 'municipalities'
       : location.pathname.includes('/admin/disposal-centers')
       ? 'disposal-centers'
+      : location.pathname.includes('/admin/collection-requests')
+      ? 'collection-requests'
       : location.pathname.includes('/admin/complaints')
       ? 'complaints'
       : location.pathname.includes('/admin/activity')
@@ -77,21 +92,24 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           label: 'Users',
           href: '/admin/users',
           icon: <Users className="w-4 h-4 stroke-[2.2]" />,
-          badge: '1.2k',
         },
         {
           id: 'municipalities',
           label: 'Municipalities',
           href: '/admin/municipalities',
           icon: <Building2 className="w-4 h-4 stroke-[2.2]" />,
-          badge: '25',
         },
         {
           id: 'disposal-centers',
           label: 'Disposal Centers',
           href: '/admin/disposal-centers',
           icon: <Recycle className="w-4 h-4 stroke-[2.2]" />,
-          badge: '138',
+        },
+        {
+          id: 'collection-requests',
+          label: 'Collection Requests',
+          href: '/admin/collection-requests',
+          icon: <Truck className="w-4 h-4 stroke-[2.2]" />,
         },
       ],
     },
@@ -103,7 +121,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           label: 'Complaints / Reports',
           href: '/admin/complaints',
           icon: <AlertTriangle className="w-4 h-4 stroke-[2.2]" />,
-          badge: '12',
         },
         {
           id: 'activity',
@@ -195,17 +212,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                       {item.icon}
                     </span>
                     <span className="flex-1 text-left truncate">{item.label}</span>
-                    {item.badge && (
-                      <span
-                        className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                          isActive
-                            ? 'bg-white/30 text-white'
-                            : 'bg-emerald-950/60 text-emerald-200 border border-emerald-500/20'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
                   </button>
                 );
               })}
@@ -214,29 +220,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         ))}
       </nav>
 
-      {/* Footer: User Mode Switch & System Status */}
-      <div className="mt-auto border-t border-emerald-700/60 pt-3 space-y-2">
+      {/* Footer: Logout */}
+      <div className="mt-auto border-t border-white/10 pt-3">
         <button
           type="button"
-          onClick={() => navigate('/disposal-centers')}
-          className="flex w-full items-center justify-between gap-2 rounded-xl bg-emerald-900/50 hover:bg-emerald-800/80 px-3 py-2 text-left text-xs font-semibold text-emerald-100 transition-colors border border-emerald-600/40"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white"
         >
-          <div className="flex items-center gap-2">
-            <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-300" />
-            <span className="text-[11px]">Resident View</span>
-          </div>
-          <span className="text-[10px] bg-emerald-950 px-1.5 py-0.5 rounded text-emerald-300 font-mono">
-            Switch
-          </span>
+          <LogOut className="h-4 w-4 text-emerald-200/90" strokeWidth={2.2} />
+          <span>Logout</span>
         </button>
-
-        <div className="px-3 py-1.5 flex items-center justify-between text-[11px] text-emerald-200/70">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>System v2.4 Live</span>
-          </div>
-          <span className="font-mono text-[10px] text-emerald-300">CMC-PROD</span>
-        </div>
       </div>
     </aside>
   );

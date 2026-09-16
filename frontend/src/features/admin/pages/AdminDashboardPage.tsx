@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Recycle, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react';
+import { Users, Building2, Recycle, AlertTriangle, ArrowRight, ExternalLink, Truck } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { UserGrowthChart } from '../components/charts/UserGrowthChart';
@@ -96,7 +96,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <span className="text-xs text-content-muted">Jan – Aug 2026</span>
               </div>
               <p className="text-xs text-content-secondary mb-4">
-                Platform registrations across citizens, collectors, and municipal officers.
+                Platform registrations across citizens, collectors, and municipal users.
               </p>
             </div>
             <UserGrowthChart />
@@ -158,7 +158,52 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4. Bottom Grid: Municipality Overview Table + Recent Activity */}
+        {/* 4. Collection Requests Operational Summary Card */}
+        <div className="bg-gradient-to-r from-emerald-950 via-[#046a38] to-emerald-900 text-white rounded-2xl p-5 sm:p-6 shadow-card border border-emerald-800/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="space-y-1.5 max-w-md">
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center border border-emerald-400/30">
+                <Truck className="w-4 h-4" />
+              </span>
+              <h3 className="font-extrabold text-base text-white tracking-tight">
+                Collection Requests
+              </h3>
+            </div>
+            <p className="text-xs text-emerald-100/80 leading-relaxed">
+              Real-time monitoring of citizen waste pickup requests across all municipal service zones.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+            <div className="bg-white/10 border border-white/15 px-3 py-2 rounded-xl text-center min-w-[72px]">
+              <span className="text-xs font-bold text-amber-300 block">24</span>
+              <span className="text-[10px] text-emerald-200/80 font-medium">Pending</span>
+            </div>
+            <div className="bg-white/10 border border-white/15 px-3 py-2 rounded-xl text-center min-w-[72px]">
+              <span className="text-xs font-bold text-blue-300 block">18</span>
+              <span className="text-[10px] text-emerald-200/80 font-medium">Assigned</span>
+            </div>
+            <div className="bg-white/10 border border-white/15 px-3 py-2 rounded-xl text-center min-w-[72px]">
+              <span className="text-xs font-bold text-indigo-300 block">31</span>
+              <span className="text-[10px] text-emerald-200/80 font-medium">In Progress</span>
+            </div>
+            <div className="bg-white/10 border border-white/15 px-3 py-2 rounded-xl text-center min-w-[72px]">
+              <span className="text-xs font-bold text-emerald-300 block">49</span>
+              <span className="text-[10px] text-emerald-200/80 font-medium">Completed</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate('/admin/collection-requests')}
+              className="ml-auto md:ml-2 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* 5. Bottom Grid: Municipality Overview Table + Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left: Municipality Overview (7 cols) */}
           <div className="lg:col-span-7 bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-card flex flex-col">
