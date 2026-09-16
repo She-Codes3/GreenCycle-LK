@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import { Page } from '@/components/layout/Page';
-import { Navbar } from '@/components/layout/Navbar';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Container } from '@/components/layout/Container';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { DashboardLayout } from '@/components/dashboard';
+import { MobileMenu } from '@/components/layout';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+
+import { UserNavbar, UserSidebar } from '@/features/user/components';
 
 import { DisposalSearchPanel } from '@/features/disposal/components/DisposalSearchPanel';
 import { DisposalMapView } from '@/features/disposal/components/DisposalMapView';
@@ -14,9 +16,11 @@ import { MOCK_DISPOSAL_CENTERS } from '@/features/disposal/data/disposalCenters.
 import {
   DisposalFilterState,
   DisposalSortOption,
-  DisposalCenter,
+  DisposalCenterView,
+  ALL_WASTE_CATEGORIES,
 } from '@/features/disposal/types/disposal';
 import {
+  enrichCenters,
   filterDisposalCenters,
   sortDisposalCenters,
 } from '@/features/disposal/utils/disposalFilters';
@@ -24,7 +28,7 @@ import {
 const INITIAL_FILTERS: DisposalFilterState = {
   keyword: '',
   streamGroup: 'all',
-  acceptedItems: ['Organic', 'Paper', 'Plastic', 'Glass', 'Metal', 'E-Waste', 'Bulky'],
+  acceptedItems: [...ALL_WASTE_CATEGORIES],
   openNowOnly: false,
   distanceRadius: 25,
 };
@@ -32,157 +36,69 @@ const INITIAL_FILTERS: DisposalFilterState = {
 export const DisposalCentersPage: React.FC = () => {
   const [filters, setFilters] = useState<DisposalFilterState>(INITIAL_FILTERS);
   const [sortBy, setSortBy] = useState<DisposalSortOption>('nearest');
-  const [selectedCenterId, setSelectedCenterId] = useState<string | null>(
-    'colombo-recycling-center'
-  );
+  const [selectedCenterId, setSelectedCenterId] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleNavigateToDetails = (center: DisposalCenter) => {
-    navigate(`/disposal-centers/${center.code || center.id}`);
-  };
+  // Enrich raw data with computed distance + isOpen
+  const enrichedCenters = useMemo(() => enrichCenters(MOCK_DISPOSAL_CENTERS), []);
 
   // Filter and sort centers
   const filteredCenters = useMemo(() => {
-    const filtered = filterDisposalCenters(MOCK_DISPOSAL_CENTERS, filters);
+    const filtered = filterDisposalCenters(enrichedCenters, filters);
     return sortDisposalCenters(filtered, sortBy);
-  }, [filters, sortBy]);
+  }, [enrichedCenters, filters, sortBy]);
+
+  // Auto-select nearest center when filters change if nothing is selected or current selection is excluded
+  useEffect(() => {
+    if (filteredCenters.length > 0 && (!selectedCenterId || !filteredCenters.find(c => c.id === selectedCenterId))) {
+      setSelectedCenterId(filteredCenters[0].id);
+    }
+  }, [filteredCenters, selectedCenterId]);
+
+  const handleNavigateToDetails = (center: DisposalCenterView) => {
+    navigate(`/disposal-centers/${center.code || center.id}`);
+  };
 
   const handleFilterChange = (updated: Partial<DisposalFilterState>) => {
     setFilters((prev) => ({ ...prev, ...updated }));
   };
 
   const handleResetFilters = () => {
-    setFilters({
-      keyword: '',
-      streamGroup: 'all',
-      acceptedItems: [
-        'Organic',
-        'Paper',
-        'Plastic',
-        'Glass',
-        'Metal',
-        'E-Waste',
-        'Bulky',
-      ],
-      openNowOnly: false,
-      distanceRadius: 50,
-    });
+    setFilters({ ...INITIAL_FILTERS, distanceRadius: 50 });
   };
 
   const handleUseMyLocation = () => {
-    // Recenter around Havelock Town demo coordinate
-    setSelectedCenterId('thimbirigasyaya-bio-waste-hub');
+    // In demo mode, recenter around nearest center
+    if (filteredCenters.length > 0) {
+      setSelectedCenterId(filteredCenters[0].id);
+    }
   };
 
   return (
-    <Page className="bg-canvas min-h-screen flex flex-col font-sans">
-      {/* 1. Global Navigation Bar (Matching Stitch Design) */}
-      <Navbar
-        brand={
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-lg text-white shadow-sm shrink-0">
-              🌱
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg text-content tracking-tight">
-                  GreenCycle LK
-                </span>
-                <span className="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  CMC
-                </span>
-              </div>
-              <span className="text-[11px] text-content-secondary block font-medium">
-                Colombo Municipal Solid Waste Management Directive
-              </span>
-            </div>
-          </div>
-        }
-        navigation={
-          <div className="flex items-center gap-1.5 ml-4">
-            <a
-              href="#home"
-              className="px-3.5 py-1.5 rounded-xl text-sm font-medium text-content-secondary hover:text-primary transition-colors"
-            >
-              Home
-            </a>
-            <a
-              href="/disposal-centers"
-              className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-white shadow-sm"
-            >
-              Map
-            </a>
-            <a
-              href="#report"
-              className="px-3.5 py-1.5 rounded-xl text-sm font-medium text-content-secondary hover:text-primary transition-colors"
-            >
-              Report
-            </a>
-            <a
-              href="#rewards"
-              className="px-3.5 py-1.5 rounded-xl text-sm font-medium text-content-secondary hover:text-primary transition-colors"
-            >
-              Rewards
-            </a>
-            <a
-              href="#bulky"
-              className="px-3.5 py-1.5 rounded-xl text-sm font-medium text-content-secondary hover:text-primary transition-colors"
-            >
-              Bulky
-            </a>
-            <a
-              href="#about"
-              className="px-3.5 py-1.5 rounded-xl text-sm font-medium text-content-secondary hover:text-primary transition-colors"
-            >
-              About
-            </a>
-          </div>
-        }
-        actions={
-          <div className="flex items-center gap-3">
-            {/* Quick Header Search */}
-            <div className="relative w-64 hidden xl:block">
-              <input
-                type="text"
-                placeholder="Search ward, zone, e-waste centers."
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/60 border border-border rounded-full text-content placeholder:text-content-muted focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface"
-              />
-              <svg
-                className="w-4 h-4 text-content-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-
-            {/* Hotline 1910 Pill */}
-            <a
-              href="tel:1910"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-colors shadow-sm"
-              title="Colombo Municipal Solid Waste Hotline"
-            >
-              <span className="text-sm">📞</span>
-              <div className="flex flex-col text-left leading-none">
-                <span className="text-[9px] uppercase font-bold tracking-wider text-red-600">
-                  HOTLINE
-                </span>
-                <span className="text-xs font-black tracking-tight text-red-700">1910</span>
-              </div>
-            </a>
-          </div>
-        }
-      />
-
-      {/* 2. Main Page Container */}
+    <DashboardLayout
+      sidebar={<UserSidebar activeItem="disposal-centers" />}
+      mobileMenu={
+        <MobileMenu
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          brandName="GreenCycle LK"
+        >
+          <UserSidebar activeItem="disposal-centers" />
+        </MobileMenu>
+      }
+      navbar={
+        <UserNavbar
+          isMenuOpen={isMenuOpen}
+          onMenuToggle={() => setIsMenuOpen((open) => !open)}
+        />
+      }
+      className="p-0 sm:p-0 lg:p-0"
+      contentClassName="max-w-none"
+    >
+      {/* Main Page Container */}
       <Container size="full" className="px-6 py-6 flex-1 flex flex-col">
-        {/* Page Header matching Stitch */}
+        {/* Page Header */}
         <PageHeader
           title={
             <div className="flex items-center gap-3">
@@ -234,9 +150,9 @@ export const DisposalCentersPage: React.FC = () => {
           className="mb-5 pb-4 border-b border-border/60"
         />
 
-        {/* 3. Three-Column Desktop Layout (Filter Panel | Map View | Results Panel) */}
+        {/* Three-Column Desktop Layout (Filter Panel | Map View | Results Panel) */}
         <main className="grid grid-cols-12 gap-5 flex-1 items-start">
-          {/* Left Column: Filter Panel (width approx 280px) */}
+          {/* Left Column: Filter Panel */}
           <div className="col-span-3">
             <DisposalSearchPanel
               filters={filters}
@@ -245,7 +161,7 @@ export const DisposalCentersPage: React.FC = () => {
             />
           </div>
 
-          {/* Center Column: Dominant Map View (width approx 550-600px) */}
+          {/* Center Column: Dominant Map View */}
           <div className="col-span-5">
             <DisposalMapView
               centers={filteredCenters}
@@ -255,7 +171,7 @@ export const DisposalCentersPage: React.FC = () => {
             />
           </div>
 
-          {/* Right Column: Results Panel (width approx 370px) */}
+          {/* Right Column: Results Panel */}
           <div className="col-span-4">
             <DisposalResultsPanel
               centers={filteredCenters}
@@ -269,21 +185,7 @@ export const DisposalCentersPage: React.FC = () => {
           </div>
         </main>
       </Container>
-
-
-      {/* 5. Civic Footer matching Stitch */}
-      <footer className="border-t border-border/80 bg-surface/80 py-4 px-8 mt-8 text-xs text-content-secondary flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-content">GreenCycle LK</span>
-          <span>•</span>
-          <span>Colombo Municipal Solid Waste Portal</span>
-        </div>
-        <div>
-          © 2025 Colombo Municipal Council (CMC). Environmental Services & Waste
-          Management Division. All rights reserved.
-        </div>
-      </footer>
-    </Page>
+    </DashboardLayout>
   );
 };
 

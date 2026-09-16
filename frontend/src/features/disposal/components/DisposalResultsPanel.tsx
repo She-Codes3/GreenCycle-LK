@@ -1,13 +1,13 @@
 import React from 'react';
-import { DisposalCenter, DisposalSortOption } from '../types/disposal';
+import { DisposalCenterView, DisposalSortOption } from '../types/disposal';
 import { DisposalCenterCard } from '@/components/disposal/DisposalCenterCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface DisposalResultsPanelProps {
-  centers: DisposalCenter[];
+  centers: DisposalCenterView[];
   selectedCenterId: string | null;
   onSelectCenter: (id: string) => void;
-  onViewDetails: (center: DisposalCenter) => void;
+  onViewDetails: (center: DisposalCenterView) => void;
   sortBy: DisposalSortOption;
   onSortChange: (sort: DisposalSortOption) => void;
   onClearFilters: () => void;
@@ -83,7 +83,7 @@ export const DisposalResultsPanel: React.FC<DisposalResultsPanelProps> = ({
                 type={center.type}
                 address={center.address}
                 distanceKm={center.distanceKm}
-                openingHours={center.openingHours}
+                openingHours={center.openingHoursDisplay}
                 isOpenNow={center.isOpen}
                 nextStatusText={center.nextStatusText}
                 acceptedWaste={center.acceptedWasteTypes}
