@@ -1,6 +1,8 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { ComponentShowcase } from '@/components/ComponentShowcase';
+import { DisposalCentersPage } from '@/pages/disposal/DisposalCentersPage';
+import { DisposalCenterDetailsPage } from '@/pages/disposal/DisposalCenterDetailsPage';
 
 import { CollectionHistory } from '@/features/collector/pages/CollectionHistory';
 import { CollectorDashboardPage } from '@/features/collector/pages/CollectorDashboardPage';
@@ -40,6 +42,10 @@ export function AppRouter() {
 
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/disposal-centers" replace />} />
+      <Route path="/disposal-centers" element={<DisposalCentersPage />} />
+      <Route path="/disposal-centers/:id" element={<DisposalCenterDetailsPage />} />
+      <Route path="/map" element={<Navigate to="/disposal-centers" replace />} />
       <Route path="/" element={<HomePage />} />
       <Route path="/components" element={<ComponentShowcase />} />
       <Route path="/login" element={<LoginPage />} />
