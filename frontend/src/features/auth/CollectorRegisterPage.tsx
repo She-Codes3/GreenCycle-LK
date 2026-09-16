@@ -542,7 +542,7 @@ export function CollectorRegisterPage() {
             Powering Sri Lanka&apos;s Clean Future.
           </h1>
           <p className="mt-3 text-xs xl:text-sm text-emerald-100/80 leading-relaxed max-w-xs">
-            Join municipal waste collection officers across the island. Optimize routes, log pickups in real time, and keep our communities green.
+            Join municipal waste collectors and collection teams across the island. Optimize routes, log pickups in real time, and keep our communities green.
           </p>
 
           <div className="mt-6 space-y-3 xl:space-y-3.5">

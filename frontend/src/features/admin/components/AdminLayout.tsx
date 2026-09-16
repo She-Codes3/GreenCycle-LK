@@ -10,6 +10,7 @@ export interface AdminLayoutProps {
   activeItem?: AdminSidebarItem;
   pageTitle?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
+  onLogout?: () => void;
   className?: string;
   contentClassName?: string;
 }
@@ -19,6 +20,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   activeItem,
   pageTitle,
   breadcrumbs,
+  onLogout,
   className,
   contentClassName,
 }) => {
@@ -26,7 +28,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   return (
     <DashboardLayout
-      sidebar={<AdminSidebar activeItem={activeItem} />}
+      sidebar={<AdminSidebar activeItem={activeItem} onLogout={onLogout} />}
       mobileMenu={
         <MobileMenu
           isOpen={isMenuOpen}
@@ -36,6 +38,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           <AdminSidebar
             activeItem={activeItem}
             onItemSelect={() => setIsMenuOpen(false)}
+            onLogout={onLogout}
           />
         </MobileMenu>
       }

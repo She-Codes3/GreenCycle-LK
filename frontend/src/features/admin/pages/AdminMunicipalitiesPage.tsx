@@ -9,16 +9,35 @@ import {
   List,
   ExternalLink,
   Plus,
-  CheckCircle2,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../components/AdminLayout';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalFooter } from '@/components/ui/Modal';
 import { MOCK_ADMIN_MUNICIPALITIES } from '../data/adminMockData';
-import { AdminMunicipality, MunicipalityStatus } from '../types/admin';
+import { AdminMunicipality } from '../types/admin';
 
 export const AdminMunicipalitiesPage: React.FC = () => {
-  const [municipalities, setMunicipalities] = useState<AdminMunicipality[]>(MOCK_ADMIN_MUNICIPALITIES);
+  const navigate = useNavigate();
+
+  // Load municipalities from mock data + any newly registered councils stored in localStorage
+  const [municipalities] = useState<AdminMunicipality[]>(() => {
+    try {
+      const stored = localStorage.getItem('greencycle_admin_municipalities');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(MOCK_ADMIN_MUNICIPALITIES.map((m) => m.id));
+          const custom = parsed.filter((m: AdminMunicipality) => !existingIds.has(m.id));
+          return [...custom, ...MOCK_ADMIN_MUNICIPALITIES];
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return MOCK_ADMIN_MUNICIPALITIES;
+  });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvince, setSelectedProvince] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -27,23 +46,8 @@ export const AdminMunicipalitiesPage: React.FC = () => {
   // Selected council for detail inspection
   const [activeCouncil, setActiveCouncil] = useState<AdminMunicipality | null>(null);
 
-  // Add Municipality Modal State
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [addSuccessNotice, setAddSuccessNotice] = useState<string | null>(null);
-  const [newCouncil, setNewCouncil] = useState({
-    name: '',
-    code: '',
-    province: 'Western Province',
-    district: '',
-    contactOfficer: '',
-    phone: '',
-    email: '',
-    description: '',
-    status: 'Onboarding' as MunicipalityStatus,
-  });
-
   // Distinct provinces
-  const provincesList = Array.from(new Set(MOCK_ADMIN_MUNICIPALITIES.map((m) => m.province)));
+  const provincesList = Array.from(new Set(municipalities.map((m) => m.province)));
 
   // Filter logic
   const filteredCouncils = useMemo(() => {
@@ -74,46 +78,6 @@ export const AdminMunicipalitiesPage: React.FC = () => {
     setSelectedStatus('all');
   };
 
-  const handleCreateMunicipality = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCouncil.name.trim() || !newCouncil.code.trim()) return;
-
-    const created: AdminMunicipality = {
-      id: `MUN-${String(municipalities.length + 1).padStart(3, '0')}`,
-      name: newCouncil.name.trim(),
-      code: newCouncil.code.trim().toUpperCase(),
-      province: newCouncil.province,
-      district: newCouncil.district.trim() || 'Western',
-      contactOfficer: newCouncil.contactOfficer.trim() || 'Designated Municipal Officer',
-      phone: newCouncil.phone.trim() || '+94 11 200 0000',
-      email: newCouncil.email.trim() || `waste@${newCouncil.code.toLowerCase()}.mc.gov.lk`,
-      usersCount: 0,
-      centersCount: 0,
-      complaintsCount: 0,
-      status: newCouncil.status,
-      joinedDate: new Date().toISOString().split('T')[0],
-      description: newCouncil.description.trim() || 'Newly onboarded municipal council authority in the GreenCycle LK platform.',
-    };
-
-    setMunicipalities((prev) => [created, ...prev]);
-    setIsAddModalOpen(false);
-    setAddSuccessNotice(`Successfully onboarded ${created.name} (${created.code}) into the GreenCycle LK system!`);
-    setTimeout(() => setAddSuccessNotice(null), 5000);
-
-    // Reset form
-    setNewCouncil({
-      name: '',
-      code: '',
-      province: 'Western Province',
-      district: '',
-      contactOfficer: '',
-      phone: '',
-      email: '',
-      description: '',
-      status: 'Onboarding',
-    });
-  };
-
   return (
     <AdminLayout activeItem="municipalities" pageTitle="Municipality Management">
       <div className="space-y-6">
@@ -136,7 +100,7 @@ export const AdminMunicipalitiesPage: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setIsAddModalOpen(true)}
+              onClick={() => navigate('/admin/municipalities/register')}
               leftIcon={<Plus className="w-4 h-4" />}
               className="rounded-xl text-xs font-bold shadow-sm"
             >
@@ -144,14 +108,6 @@ export const AdminMunicipalitiesPage: React.FC = () => {
             </Button>
           </div>
         </div>
-
-        {/* Success Notice Banner */}
-        {addSuccessNotice && (
-          <div className="p-3.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-2 animate-fade-in shadow-sm">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{addSuccessNotice}</span>
-          </div>
-        )}
 
         {/* Toolbar: Search, Filters & View Toggle */}
         <div className="bg-surface rounded-2xl border border-border p-4 shadow-card flex flex-col md:flex-row items-center justify-between gap-3">
@@ -302,11 +258,15 @@ export const AdminMunicipalitiesPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Officer Info */}
+                  {/* Primary Municipal User Info */}
                   <div className="text-xs text-content-secondary space-y-1">
                     <div className="flex items-center gap-1.5 truncate">
-                      <span className="text-content-muted font-bold">Officer:</span>
-                      <span className="truncate">{council.contactOfficer}</span>
+                      <span className="text-content-muted font-bold">Primary User:</span>
+                      <span className="truncate font-medium">{council.contactOfficer}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="text-content-muted font-bold">Official Email:</span>
+                      <span className="truncate text-content-secondary">{council.email}</span>
                     </div>
                   </div>
                 </div>
@@ -464,8 +424,13 @@ export const AdminMunicipalitiesPage: React.FC = () => {
                 </h4>
                 <div className="p-3 rounded-xl border border-border bg-surface flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-content-muted">Senior Environmental Officer:</span>
-                    <span className="font-bold text-content">{activeCouncil.contactOfficer}</span>
+                    <span className="text-content-muted">Primary Municipal User:</span>
+                    <span className="font-bold text-content flex items-center gap-1.5">
+                      <span>{activeCouncil.contactOfficer}</span>
+                      <span className="text-[10px] text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-bold">
+                        Municipal User
+                      </span>
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-content-muted">Direct Hotline:</span>
@@ -489,171 +454,6 @@ export const AdminMunicipalitiesPage: React.FC = () => {
                 Close
               </Button>
             </ModalFooter>
-          </Modal>
-        )}
-
-        {/* Add Municipality Modal Form */}
-        {isAddModalOpen && (
-          <Modal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            title="Onboard New Municipality"
-            description="Register a new local government authority / municipal council into GreenCycle LK"
-            size="lg"
-          >
-            <form onSubmit={handleCreateMunicipality} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Council Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newCouncil.name}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, name: e.target.value })}
-                    placeholder="e.g. Gampaha Municipal Council"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Council Code (Short ID) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newCouncil.code}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, code: e.target.value })}
-                    placeholder="e.g. GMC"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-mono font-bold uppercase"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Province *
-                  </label>
-                  <select
-                    value={newCouncil.province}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, province: e.target.value })}
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium cursor-pointer"
-                  >
-                    <option value="Western Province">Western Province</option>
-                    <option value="Central Province">Central Province</option>
-                    <option value="Southern Province">Southern Province</option>
-                    <option value="Northern Province">Northern Province</option>
-                    <option value="North Western Province">North Western Province</option>
-                    <option value="Eastern Province">Eastern Province</option>
-                    <option value="North Central Province">North Central Province</option>
-                    <option value="Uva Province">Uva Province</option>
-                    <option value="Sabaragamuwa Province">Sabaragamuwa Province</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    District
-                  </label>
-                  <input
-                    type="text"
-                    value={newCouncil.district}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, district: e.target.value })}
-                    placeholder="e.g. Gampaha"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Designated Contact Officer
-                  </label>
-                  <input
-                    type="text"
-                    value={newCouncil.contactOfficer}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, contactOfficer: e.target.value })}
-                    placeholder="e.g. Eng. Sunil Jayatissa"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Direct Telephone Hotline
-                  </label>
-                  <input
-                    type="text"
-                    value={newCouncil.phone}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, phone: e.target.value })}
-                    placeholder="e.g. +94 33 222 2275"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-mono"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Official Email
-                  </label>
-                  <input
-                    type="email"
-                    value={newCouncil.email}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, email: e.target.value })}
-                    placeholder="e.g. solidwaste@gampaha.mc.gov.lk"
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                    Initial Registration Status
-                  </label>
-                  <select
-                    value={newCouncil.status}
-                    onChange={(e) => setNewCouncil({ ...newCouncil, status: e.target.value as MunicipalityStatus })}
-                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium cursor-pointer"
-                  >
-                    <option value="Onboarding">Onboarding (Technical setup)</option>
-                    <option value="Active">Active (Fully operational)</option>
-                    <option value="Pending">Pending (Council review)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-bold text-content uppercase tracking-wider text-[10px] block">
-                  Jurisdiction Scope / Description
-                </label>
-                <textarea
-                  rows={2}
-                  value={newCouncil.description}
-                  onChange={(e) => setNewCouncil({ ...newCouncil, description: e.target.value })}
-                  placeholder="Urban wards covered, compost yards, or special municipal waste requirements..."
-                  className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface font-medium resize-none"
-                />
-              </div>
-
-              <ModalFooter className="mt-4 pt-3 border-t border-border flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="rounded-xl text-xs"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  leftIcon={<Plus className="w-4 h-4" />}
-                  className="rounded-xl text-xs font-bold"
-                >
-                  Onboard Municipality
-                </Button>
-              </ModalFooter>
-            </form>
           </Modal>
         )}
       </div>

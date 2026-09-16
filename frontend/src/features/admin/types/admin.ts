@@ -1,4 +1,4 @@
-export type AdminRole = 'Citizen' | 'Municipal Officer' | 'Collector' | 'System Admin';
+export type AdminRole = 'Citizen' | 'Municipal User' | 'Collector' | 'System Admin';
 export type AdminUserStatus = 'Active' | 'Inactive' | 'Suspended';
 
 export interface AdminUser {
@@ -129,6 +129,7 @@ export type AdminSidebarItem =
   | 'users'
   | 'municipalities'
   | 'disposal-centers'
+  | 'collection-requests'
   | 'complaints'
   | 'activity'
   | 'settings';
