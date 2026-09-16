@@ -154,7 +154,7 @@ const roles = [
     icon: <HardHatIcon />,
     label: 'Collector',
     desc: 'Manage your route, update collection status in real time.',
-    route: '/collector/dashboard',
+    route: '/register/collector',
     style: {
       card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
@@ -169,7 +169,7 @@ const roles = [
     icon: <BuildingIcon />,
     label: 'Municipality',
     desc: 'Oversee operations, analytics and community impact data.',
-    route: '/dashboard',
+    route: '/register/municipality',
     style: {
       card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',

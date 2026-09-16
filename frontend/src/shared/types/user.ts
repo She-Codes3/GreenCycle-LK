@@ -12,6 +12,13 @@ export interface User {
   postalCode?: string;
   district?: string;
   province?: string;
+  nic?: string;
+  employeeId?: string;
+  municipality?: string;
+  assignedZone?: string;
+  designation?: string;
+  employmentType?: string;
+  username?: string;
   createdAt: string;
 }
 

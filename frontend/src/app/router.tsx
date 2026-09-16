@@ -18,6 +18,7 @@ import {
   AdminActivityPage,
   AdminSettingsPage,
 } from '@/features/admin';
+import { LoginPage, ResidentRegisterPage, CollectorRegisterPage, MunicipalityRegisterPage } from '@/features/auth';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -60,6 +61,8 @@ export function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<OnboardPage />} />
       <Route path="/register/resident" element={<ResidentRegisterPage />} />
+      <Route path="/register/collector" element={<CollectorRegisterPage />} />
+      <Route path="/register/municipality" element={<MunicipalityRegisterPage />} />
 
       {/* Admin Dashboard Routes */}
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
