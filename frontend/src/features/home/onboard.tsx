@@ -154,7 +154,7 @@ const roles = [
     icon: <HardHatIcon />,
     label: 'Collector',
     desc: 'Manage your route, update collection status in real time.',
-    route: '/collector/dashboard',
+    route: '/register/collector',
     style: {
       card: 'bg-secondary-light hover:bg-secondary-dark border-primary',
       icon: 'bg-primary-light text-primary',
