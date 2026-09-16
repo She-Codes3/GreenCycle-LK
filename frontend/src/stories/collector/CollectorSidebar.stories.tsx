@@ -15,6 +15,6 @@ export const Dashboard: Story = {
   render: () => <div className="h-screen"><CollectorSidebar /></div>,
 };
 
-export const MonitoringActive: Story = {
-  render: () => <div className="h-screen"><CollectorSidebar activeItem="monitoring" /></div>,
+export const CollectionHistoryActive: Story = {
+  render: () => <div className="h-screen"><CollectorSidebar activeItem="collection-history" /></div>,
 };

@@ -12,6 +12,7 @@ export interface MapContainerProps {
   scrollWheelZoom?: boolean;
   tileLayerUrl?: string;
   attribution?: string;
+  zoomControl?: boolean;
 }
 
 // Default center: Colombo, Sri Lanka
@@ -30,6 +31,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   scrollWheelZoom = true,
   tileLayerUrl = DEFAULT_TILE_URL,
   attribution = DEFAULT_ATTRIBUTION,
+  zoomControl = true,
 }) => {
   const heightStyle = typeof height === 'number' ? `${height}px` : height;
 
@@ -42,6 +44,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         center={center}
         zoom={zoom}
         scrollWheelZoom={scrollWheelZoom}
+        zoomControl={zoomControl}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer url={tileLayerUrl} attribution={attribution} />
