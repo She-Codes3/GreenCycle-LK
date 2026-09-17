@@ -24,6 +24,16 @@ import {
   AdminActivityPage,
   AdminSettingsPage,
 } from '@/features/admin';
+import {
+  MunicipalDashboardPage,
+  MunicipalCollectionRequestsPage,
+  MunicipalDisposalCentersPage,
+  MunicipalCollectorsPage,
+  MunicipalComplaintsPage,
+  MunicipalSchedulePage,
+  MunicipalActivityPage,
+  MunicipalSettingsPage,
+} from '@/features/municipal';
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -80,6 +90,18 @@ export function AppRouter() {
       <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
       <Route path="/admin/activity" element={<AdminActivityPage />} />
       <Route path="/admin/settings" element={<AdminSettingsPage />} />
+
+      {/* Municipal Dashboard Routes */}
+      <Route path="/municipal" element={<Navigate to="/municipal/dashboard" replace />} />
+      <Route path="/municipal/dashboard" element={<MunicipalDashboardPage />} />
+      <Route path="/municipal/collection-requests" element={<MunicipalCollectionRequestsPage />} />
+      <Route path="/municipal/disposal-centers" element={<MunicipalDisposalCentersPage />} />
+      <Route path="/municipal/collectors" element={<MunicipalCollectorsPage />} />
+      <Route path="/municipal/collectors/register" element={<CollectorRegisterPage />} />
+      <Route path="/municipal/complaints" element={<MunicipalComplaintsPage />} />
+      <Route path="/municipal/schedule" element={<MunicipalSchedulePage />} />
+      <Route path="/municipal/activity" element={<MunicipalActivityPage />} />
+      <Route path="/municipal/settings" element={<MunicipalSettingsPage />} />
 
       <Route
         path="/collector/dashboard"

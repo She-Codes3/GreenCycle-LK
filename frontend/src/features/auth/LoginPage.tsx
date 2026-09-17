@@ -127,17 +127,19 @@ export function LoginPage() {
         trimmedIdentifier.toLowerCase().includes('collector') ||
         trimmedIdentifier.includes('71') ||
         trimmedIdentifier.includes('col');
+      const isMunicipal = trimmedIdentifier.toLowerCase().includes('municipal');
       const isAdmin = trimmedIdentifier.toLowerCase().includes('admin') || trimmedIdentifier.toLowerCase().includes('council');
 
-      const role: Role = isCollector ? 'COLLECTOR' : isAdmin ? 'ADMIN' : 'RESIDENT';
+      const role: Role = isCollector ? 'COLLECTOR' : isMunicipal ? 'MUNICIPAL' : isAdmin ? 'ADMIN' : 'RESIDENT';
 
       login(
         {
           id: `usr_${Date.now()}`,
-          fullName: isCollector ? 'Saman Kumara' : isAdmin ? 'Municipal User' : 'Kasun Perera',
+          fullName: isCollector ? 'Saman Kumara' : isMunicipal ? 'Eng. Sunil Jayatissa' : isAdmin ? 'Municipal User' : 'Kasun Perera',
           email: trimmedIdentifier.includes('@') ? trimmedIdentifier : `${trimmedIdentifier}@greencycle.lk`,
           phone: trimmedIdentifier.includes('@') ? '0771234567' : trimmedIdentifier,
           role,
+          ...(isMunicipal && { municipality: 'Kandy Municipal Council' }),
           createdAt: new Date().toISOString(),
         },
         `token_${Date.now()}`
@@ -149,6 +151,8 @@ export function LoginPage() {
         navigate(from, { replace: true });
       } else if (role === 'COLLECTOR') {
         navigate('/collector/dashboard', { replace: true });
+      } else if (role === 'MUNICIPAL') {
+        navigate('/municipal/dashboard', { replace: true });
       } else if (role === 'ADMIN') {
         navigate('/dashboard', { replace: true });
       } else {
