@@ -1,6 +1,24 @@
 export type AdminRole = 'Citizen' | 'Municipal User' | 'Collector' | 'System Admin';
 export type AdminUserStatus = 'Active' | 'Inactive' | 'Suspended';
 
+export interface SuspensionRecord {
+  reason: string;
+  note: string;
+  suspendedAt: string;
+  suspendedBy: string;
+  suspendedByRole?: string;
+}
+
+export interface AccountActivityRecord {
+  id: string;
+  action: 'Suspended' | 'Restored' | 'Activated' | 'Created';
+  date: string;
+  performedBy: string;
+  performedByRole?: string;
+  reason?: string;
+  note?: string;
+}
+
 export interface AdminUser {
   id: string;
   name: string;
@@ -12,6 +30,8 @@ export interface AdminUser {
   joinedDate: string;
   avatarUrl?: string;
   lastActive?: string;
+  suspension?: SuspensionRecord;
+  history?: AccountActivityRecord[];
 }
 
 export type MunicipalityStatus = 'Active' | 'Onboarding' | 'Pending';

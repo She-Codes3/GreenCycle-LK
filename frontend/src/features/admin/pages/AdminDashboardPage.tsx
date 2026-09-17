@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Recycle, AlertTriangle, ArrowRight, ExternalLink, Truck } from 'lucide-react';
+import { Users, Building2, Recycle, AlertTriangle, ArrowRight, ExternalLink, Truck, ShieldCheck } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { UserGrowthChart } from '../components/charts/UserGrowthChart';
@@ -8,18 +8,19 @@ import { ComplaintsDonutChart } from '../components/charts/ComplaintsDonutChart'
 import {
   MOCK_ADMIN_STATS,
   MOCK_ADMIN_MUNICIPALITIES,
-  MOCK_ADMIN_ACTIVITY_LOGS,
   MOCK_ADMIN_QUICK_ACTIONS,
 } from '../data/adminMockData';
+import { useAdminData } from '../data/adminStore';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { userStats, logs } = useAdminData();
 
   // Top 4 municipalities for dashboard summary
   const topMunicipalities = MOCK_ADMIN_MUNICIPALITIES.slice(0, 5);
 
-  // Recent 5 activity logs
-  const recentLogs = MOCK_ADMIN_ACTIVITY_LOGS.slice(0, 5);
+  // Live recent 5 activity logs from store
+  const recentLogs = logs.slice(0, 5);
 
   return (
     <AdminLayout activeItem="dashboard" pageTitle="Admin Dashboard">
@@ -84,6 +85,67 @@ export const AdminDashboardPage: React.FC = () => {
             description={MOCK_ADMIN_STATS.complaints.subtext}
             className="hover:border-amber-400/50 transition-colors shadow-card"
           />
+        </div>
+
+        {/* Account Status Summary Bar */}
+        <div className="bg-surface rounded-2xl border border-border p-4 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-content">Account Status</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted border border-border text-content-muted">
+                  {userStats.total} Total
+                </span>
+              </div>
+              <p className="text-xs text-content-secondary mt-0.5">
+                Overview of active users, disciplinary suspensions, and inactive accounts.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users?status=Active')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-900 transition-colors cursor-pointer text-xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="font-medium">Active:</span>
+              <span className="font-bold">{userStats.active}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users?status=Suspended')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50/70 hover:bg-red-100 text-red-900 transition-colors cursor-pointer text-xs group"
+            >
+              <span className="w-2 h-2 rounded-full bg-red-500 group-hover:animate-pulse" />
+              <span className="font-medium">Suspended:</span>
+              <span className="font-bold">{userStats.suspended}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users?status=Inactive')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer text-xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
+              <span className="font-medium">Inactive:</span>
+              <span className="font-bold">{userStats.inactive}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/admin/users')}
+              className="ml-auto text-xs font-bold text-primary hover:underline flex items-center gap-1 pl-2"
+            >
+              <span>Manage Users</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* 2. Charts Row: User Growth + Complaints Overview */}
