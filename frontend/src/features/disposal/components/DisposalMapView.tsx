@@ -4,13 +4,13 @@ import L from 'leaflet';
 import { MapContainer } from '@/components/maps/MapContainer';
 import { MapPopup } from '@/components/maps/MapPopup';
 import { UserLocationMarker } from '@/components/maps/UserLocationMarker';
-import { DisposalCenter } from '../types/disposal';
+import { DisposalCenterView } from '../types/disposal';
 
 export interface DisposalMapViewProps {
-  centers: DisposalCenter[];
+  centers: DisposalCenterView[];
   selectedCenterId: string | null;
   onSelectCenter: (id: string) => void;
-  onViewDetails: (center: DisposalCenter) => void;
+  onViewDetails: (center: DisposalCenterView) => void;
   className?: string;
 }
 
@@ -23,7 +23,7 @@ const SATELLITE_TILE =
 
 // Custom Map Controller to handle panTo and zoom actions from floating buttons
 const MapController: React.FC<{
-  selectedCenter: DisposalCenter | null;
+  selectedCenter: DisposalCenterView | null;
   recenterTrigger: number;
   zoomTrigger: number;
 }> = ({ selectedCenter, recenterTrigger, zoomTrigger }) => {

@@ -690,9 +690,9 @@ const testimonials = [
   },
   {
     id: 'testimonial-2',
-    quote: "As a municipal officer, the analytics dashboard gives us real data to improve collection routes. Diversion rates have gone up 34% since we onboarded.",
+    quote: "As a municipal user, the analytics dashboard gives us real data to improve collection routes. Diversion rates have gone up 34% since we onboarded.",
     name: 'Rohan Senanayake',
-    role: 'Municipal Officer, Kandy',
+    role: 'Municipal User, Kandy',
     avatar: 'RS',
   },
   {
