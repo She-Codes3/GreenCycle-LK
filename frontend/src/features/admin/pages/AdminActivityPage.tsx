@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { Button } from '@/components/ui/Button';
-import { MOCK_ADMIN_ACTIVITY_LOGS } from '../data/adminMockData';
+import { useAdminData } from '../data/adminStore';
 import { AdminActivityLog } from '../types/admin';
 
 export const AdminActivityPage: React.FC = () => {
-  const [logs] = useState<AdminActivityLog[]>(MOCK_ADMIN_ACTIVITY_LOGS);
+  const { logs } = useAdminData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedModule, setSelectedModule] = useState<string>('all');
   const [selectedDay, setSelectedDay] = useState<string>('all');

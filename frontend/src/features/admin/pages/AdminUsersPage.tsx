@@ -1,13 +1,36 @@
-import React, { useState, useMemo } from 'react';
-import { Search, UserCheck, UserX, Eye, Shield, MapPin, Mail, Phone, Calendar } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import {
+  Search,
+  UserCheck,
+  UserX,
+  Eye,
+  Shield,
+  RotateCcw,
+  CheckCircle2,
+  Users,
+  X,
+  UserMinus,
+} from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { Button } from '@/components/ui/Button';
-import { Modal, ModalFooter } from '@/components/ui/Modal';
-import { MOCK_ADMIN_USERS } from '../data/adminMockData';
-import { AdminUser, AdminUserStatus } from '../types/admin';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { AdminUser } from '../types/admin';
+import { useAdminData } from '../data/adminStore';
+import { SuspendUserModal } from '../components/SuspendUserModal';
+import { RestoreUserModal } from '../components/RestoreUserModal';
+import { UserDetailModal } from '../components/UserDetailModal';
+
+interface FeedbackToast {
+  type: 'suspend' | 'restore' | 'activate';
+  title: string;
+  message: string;
+}
 
 export const AdminUsersPage: React.FC = () => {
-  const [users, setUsers] = useState<AdminUser[]>(MOCK_ADMIN_USERS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { users, userStats, suspendUser, restoreUser, activateUser } = useAdminData();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -15,8 +38,42 @@ export const AdminUsersPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
 
-  // Selected user for Detail Modal
+  // Modals state
   const [activeUser, setActiveUser] = useState<AdminUser | null>(null);
+  const [userToSuspend, setUserToSuspend] = useState<AdminUser | null>(null);
+  const [userToRestore, setUserToRestore] = useState<AdminUser | null>(null);
+
+  // Success feedback notification toast
+  const [feedback, setFeedback] = useState<FeedbackToast | null>(null);
+
+  // Read URL query params on mount or URL change
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    if (statusParam && ['Active', 'Inactive', 'Suspended'].includes(statusParam)) {
+      setSelectedStatus(statusParam);
+      setCurrentPage(1);
+    }
+    const queryParam = searchParams.get('q');
+    if (queryParam) {
+      setSearchTerm(queryParam);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
+
+  // Dismiss feedback automatically after 5 seconds
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 5000);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  // Keep active modal user in sync with users state
+  useEffect(() => {
+    if (activeUser) {
+      const refreshed = users.find((u) => u.id === activeUser.id);
+      if (refreshed) setActiveUser(refreshed);
+    }
+  }, [users, activeUser]);
 
   // Filter users
   const filteredUsers = useMemo(() => {
@@ -56,13 +113,41 @@ export const AdminUsersPage: React.FC = () => {
     currentPage * pageSize
   );
 
-  // Handle toggle user status
-  const handleToggleStatus = (userId: string, newStatus: AdminUserStatus) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
-    );
-    if (activeUser && activeUser.id === userId) {
-      setActiveUser((prev) => (prev ? { ...prev, status: newStatus } : null));
+  // Handle suspending a user
+  const handleConfirmSuspend = (userId: string, reason: string, note: string) => {
+    const suspended = suspendUser(userId, reason, note);
+    setUserToSuspend(null);
+    if (suspended) {
+      setFeedback({
+        type: 'suspend',
+        title: 'User Suspended',
+        message: `${suspended.name} has been suspended successfully.`,
+      });
+    }
+  };
+
+  // Handle restoring a user
+  const handleConfirmRestore = (userId: string) => {
+    const restored = restoreUser(userId);
+    setUserToRestore(null);
+    if (restored) {
+      setFeedback({
+        type: 'restore',
+        title: 'User Restored',
+        message: `${restored.name}'s account is active again.`,
+      });
+    }
+  };
+
+  // Handle activating an inactive user
+  const handleActivateUser = (user: AdminUser) => {
+    const activated = activateUser(user.id);
+    if (activated) {
+      setFeedback({
+        type: 'activate',
+        title: 'User Activated',
+        message: `${activated.name}'s account is now active.`,
+      });
     }
   };
 
@@ -72,10 +157,23 @@ export const AdminUsersPage: React.FC = () => {
     setSelectedStatus('all');
     setSelectedMunicipality('all');
     setCurrentPage(1);
+    setSearchParams({});
+  };
+
+  const handleStatusTabClick = (status: string) => {
+    setSelectedStatus(status);
+    setCurrentPage(1);
+    if (status === 'all') {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('status');
+      setSearchParams(nextParams);
+    } else {
+      setSearchParams({ ...Object.fromEntries(searchParams.entries()), status });
+    }
   };
 
   // Distinct municipalities for dropdown
-  const municipalitiesList = Array.from(new Set(MOCK_ADMIN_USERS.map((u) => u.municipality)));
+  const municipalitiesList = Array.from(new Set(users.map((u) => u.municipality)));
 
   return (
     <AdminLayout activeItem="users" pageTitle="User Management">
@@ -87,16 +185,166 @@ export const AdminUsersPage: React.FC = () => {
               Users
             </h1>
             <p className="text-xs sm:text-sm text-content-secondary mt-1">
-              Manage citizen accounts, municipal users, certified collectors, and platform admins.
+              Manage citizen accounts, municipal users, certified collectors, and platform administrators.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-content-secondary bg-surface px-3 py-1.5 rounded-xl border border-border">
-              Total: {users.length} registered
+            <span className="text-xs font-bold text-content-secondary bg-surface px-3.5 py-2 rounded-xl border border-border shadow-xs">
+              Total: <strong>{userStats.total}</strong> registered
             </span>
           </div>
         </div>
+
+        {/* 1. Suspended Users Summary Metrics Section */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          {/* Card 1: Total Users */}
+          <button
+            type="button"
+            onClick={() => handleStatusTabClick('all')}
+            className={`p-4 rounded-2xl border text-left transition-all group cursor-pointer ${
+              selectedStatus === 'all'
+                ? 'bg-primary/5 border-primary shadow-sm'
+                : 'bg-surface border-border hover:border-border-strong shadow-card'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-content-secondary group-hover:text-primary transition-colors">
+                Total Users
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-muted text-content-secondary flex items-center justify-center">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-content tracking-tight">
+              {userStats.total}
+            </div>
+            <span className="text-[11px] text-content-muted mt-1 block">
+              All registered platform profiles
+            </span>
+          </button>
+
+          {/* Card 2: Active Users */}
+          <button
+            type="button"
+            onClick={() => handleStatusTabClick('Active')}
+            className={`p-4 rounded-2xl border text-left transition-all group cursor-pointer ${
+              selectedStatus === 'Active'
+                ? 'bg-emerald-500/10 border-emerald-500 shadow-sm'
+                : 'bg-surface border-border hover:border-emerald-300 shadow-card'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-content-secondary group-hover:text-emerald-700 transition-colors">
+                Active
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+                <UserCheck className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-emerald-700 tracking-tight">
+              {userStats.active}
+            </div>
+            <span className="text-[11px] text-emerald-600/80 mt-1 block">
+              Standard platform access
+            </span>
+          </button>
+
+          {/* Card 3: Suspended Users */}
+          <button
+            type="button"
+            onClick={() => handleStatusTabClick('Suspended')}
+            className={`p-4 rounded-2xl border text-left transition-all group cursor-pointer ${
+              selectedStatus === 'Suspended'
+                ? 'bg-red-500/10 border-red-500 shadow-sm'
+                : 'bg-surface border-border hover:border-red-300 shadow-card'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-content-secondary group-hover:text-red-700 transition-colors">
+                Suspended
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-red-50 text-red-700 border border-red-200 flex items-center justify-center">
+                <UserX className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-red-600 tracking-tight">
+              {userStats.suspended}
+            </div>
+            <span className="text-[11px] text-red-600/80 mt-1 block">
+              Disciplinary & security holds
+            </span>
+          </button>
+
+          {/* Card 4: Inactive Users */}
+          <button
+            type="button"
+            onClick={() => handleStatusTabClick('Inactive')}
+            className={`p-4 rounded-2xl border text-left transition-all group cursor-pointer ${
+              selectedStatus === 'Inactive'
+                ? 'bg-slate-500/10 border-slate-500 shadow-sm'
+                : 'bg-surface border-border hover:border-slate-300 shadow-card'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-content-secondary group-hover:text-slate-700 transition-colors">
+                Inactive
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center">
+                <UserMinus className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-700 tracking-tight">
+              {userStats.inactive}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block">
+              Dormant / pending activation
+            </span>
+          </button>
+        </div>
+
+        {/* Feedback Alert Toast */}
+        {feedback && (
+          <div
+            role="alert"
+            className={`p-4 rounded-2xl border text-xs font-medium flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200 shadow-card ${
+              feedback.type === 'suspend'
+                ? 'bg-red-50 border-red-200 text-red-900'
+                : feedback.type === 'restore'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                : 'bg-blue-50 border-blue-200 text-blue-900'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  feedback.type === 'suspend'
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-emerald-100 text-emerald-600'
+                }`}
+              >
+                {feedback.type === 'suspend' ? (
+                  <UserX className="w-4 h-4" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
+              </div>
+              <div>
+                <span className="font-bold text-sm block">{feedback.title}</span>
+                <p className="text-xs opacity-90 mt-0.5">{feedback.message}</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              aria-label="Dismiss message"
+              className="p-1 rounded-lg hover:bg-black/5 text-current opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Filter Toolbar */}
         <div className="bg-surface rounded-2xl border border-border p-4 shadow-card flex flex-col md:flex-row items-center gap-3 justify-between">
@@ -113,13 +361,50 @@ export const AdminUsersPage: React.FC = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search users by name, email..."
+              placeholder="Search users by name, email, council..."
               className="w-full bg-muted/50 border border-border rounded-xl pl-9 pr-4 py-2 text-xs text-content outline-none focus:border-primary/50 focus:bg-surface focus:ring-2 focus:ring-primary/10 transition-all"
             />
           </div>
 
           {/* Filters Group */}
           <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            {/* Quick Status Pills */}
+            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/80">
+              <button
+                type="button"
+                onClick={() => handleStatusTabClick('all')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                  selectedStatus === 'all'
+                    ? 'bg-surface text-content shadow-xs'
+                    : 'text-content-secondary hover:text-content'
+                }`}
+              >
+                All ({userStats.total})
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStatusTabClick('Active')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                  selectedStatus === 'Active'
+                    ? 'bg-surface text-emerald-800 shadow-xs'
+                    : 'text-content-secondary hover:text-emerald-700'
+                }`}
+              >
+                Active ({userStats.active})
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStatusTabClick('Suspended')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                  selectedStatus === 'Suspended'
+                    ? 'bg-surface text-red-800 shadow-xs'
+                    : 'text-content-secondary hover:text-red-700'
+                }`}
+              >
+                Suspended ({userStats.suspended})
+              </button>
+            </div>
+
             {/* Role Filter */}
             <select
               value={selectedRole}
@@ -136,13 +421,10 @@ export const AdminUsersPage: React.FC = () => {
               <option value="System Admin">System Admin</option>
             </select>
 
-            {/* Status Filter */}
+            {/* Status Dropdown Filter */}
             <select
               value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => handleStatusTabClick(e.target.value)}
               className="bg-muted/50 border border-border rounded-xl px-3 py-2 text-xs text-content font-medium outline-none focus:border-primary/50 cursor-pointer"
             >
               <option value="all">All Statuses</option>
@@ -168,7 +450,10 @@ export const AdminUsersPage: React.FC = () => {
               ))}
             </select>
 
-            {(searchTerm || selectedRole !== 'all' || selectedStatus !== 'all' || selectedMunicipality !== 'all') && (
+            {(searchTerm ||
+              selectedRole !== 'all' ||
+              selectedStatus !== 'all' ||
+              selectedMunicipality !== 'all') && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -188,7 +473,7 @@ export const AdminUsersPage: React.FC = () => {
               <UserX className="w-12 h-12 text-content-muted mx-auto mb-3 stroke-[1.5]" />
               <h4 className="text-base font-bold text-content">No users found</h4>
               <p className="text-xs text-content-secondary mt-1">
-                No users matched your search criteria. Try modifying your filters.
+                No users matched your search criteria. Try modifying your status or role filters.
               </p>
               <Button
                 variant="secondary"
@@ -221,6 +506,10 @@ export const AdminUsersPage: React.FC = () => {
                       .slice(0, 2)
                       .toUpperCase();
 
+                    const isSuspended = user.status === 'Suspended';
+                    const isActive = user.status === 'Active';
+                    const isSystemAdmin = user.role === 'System Admin';
+
                     return (
                       <tr
                         key={user.id}
@@ -230,13 +519,21 @@ export const AdminUsersPage: React.FC = () => {
                         {/* User Identity Column */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20">
+                            <div
+                              className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center shrink-0 border ${
+                                isSuspended
+                                  ? 'bg-red-50 text-red-700 border-red-200'
+                                  : 'bg-primary/10 text-primary border-primary/20'
+                              }`}
+                            >
                               {initials}
                             </div>
                             <div className="min-w-0">
-                              <span className="font-bold text-content group-hover:text-primary transition-colors block truncate">
-                                {user.name}
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-content group-hover:text-primary transition-colors block truncate">
+                                  {user.name}
+                                </span>
+                              </div>
                               <span className="text-[11px] text-content-muted block truncate">
                                 {user.email}
                               </span>
@@ -287,39 +584,69 @@ export const AdminUsersPage: React.FC = () => {
                           {user.joinedDate}
                         </td>
 
-                        {/* Actions */}
+                        {/* Actions Column */}
                         <td
                           className="py-3.5 px-4 text-right"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setActiveUser(user)}
-                              title="View details"
-                              className="p-1.5 rounded-lg text-content-secondary hover:text-primary hover:bg-muted transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
+                            {/* View Action */}
+                            <Tooltip content="View details" placement="top">
+                              <button
+                                type="button"
+                                onClick={() => setActiveUser(user)}
+                                aria-label={`View details for ${user.name}`}
+                                className="p-1.5 rounded-lg text-content-secondary hover:text-primary hover:bg-muted transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
 
-                            {user.status === 'Active' ? (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleStatus(user.id, 'Suspended')}
-                                title="Suspend user"
-                                className="p-1.5 rounded-lg text-content-secondary hover:text-red-600 hover:bg-red-50 transition-colors"
-                              >
-                                <UserX className="w-4 h-4" />
-                              </button>
+                            {/* Contextual Status Action */}
+                            {isActive ? (
+                              isSystemAdmin ? (
+                                <Tooltip
+                                  content="System Admin accounts cannot be suspended"
+                                  placement="top"
+                                >
+                                  <span className="p-1.5 rounded-lg text-content-muted/40 cursor-not-allowed">
+                                    <UserX className="w-4 h-4" />
+                                  </span>
+                                </Tooltip>
+                              ) : (
+                                <Tooltip content="Suspend User" placement="top">
+                                  <button
+                                    type="button"
+                                    onClick={() => setUserToSuspend(user)}
+                                    aria-label={`Suspend user ${user.name}`}
+                                    className="p-1.5 rounded-lg text-content-secondary hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                  >
+                                    <UserX className="w-4 h-4" />
+                                  </button>
+                                </Tooltip>
+                              )
+                            ) : isSuspended ? (
+                              <Tooltip content="Restore User" placement="top">
+                                <button
+                                  type="button"
+                                  onClick={() => setUserToRestore(user)}
+                                  aria-label={`Restore user ${user.name}`}
+                                  className="p-1.5 rounded-lg text-content-secondary hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                >
+                                  <RotateCcw className="w-4 h-4" />
+                                </button>
+                              </Tooltip>
                             ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleToggleStatus(user.id, 'Active')}
-                                title="Activate user"
-                                className="p-1.5 rounded-lg text-content-secondary hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                              >
-                                <UserCheck className="w-4 h-4" />
-                              </button>
+                              <Tooltip content="Activate User" placement="top">
+                                <button
+                                  type="button"
+                                  onClick={() => handleActivateUser(user)}
+                                  aria-label={`Activate user ${user.name}`}
+                                  className="p-1.5 rounded-lg text-content-secondary hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                >
+                                  <UserCheck className="w-4 h-4" />
+                                </button>
+                              </Tooltip>
                             )}
                           </div>
                         </td>
@@ -381,84 +708,29 @@ export const AdminUsersPage: React.FC = () => {
       </div>
 
       {/* User Detail Modal */}
-      {activeUser && (
-        <Modal
-          isOpen={Boolean(activeUser)}
-          onClose={() => setActiveUser(null)}
-          title={`User Profile — ${activeUser.name}`}
-          description={`ID: ${activeUser.id} • Registered Platform Account`}
-          size="md"
-        >
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/40 border border-border">
-              <div className="w-12 h-12 rounded-full bg-primary text-white text-base font-bold flex items-center justify-center">
-                {activeUser.name.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <h4 className="font-bold text-sm text-content">{activeUser.name}</h4>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-content-muted">{activeUser.role}</span>
-                  <span>•</span>
-                  <span className="text-xs text-content-muted">{activeUser.municipality}</span>
-                </div>
-              </div>
-            </div>
+      <UserDetailModal
+        user={activeUser}
+        isOpen={Boolean(activeUser)}
+        onClose={() => setActiveUser(null)}
+        onRequestSuspend={(u) => setUserToSuspend(u)}
+        onRequestRestore={(u) => setUserToRestore(u)}
+      />
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center gap-2 text-content">
-                <Mail className="w-4 h-4 text-content-muted" />
-                <span className="font-semibold">{activeUser.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-content">
-                <Phone className="w-4 h-4 text-content-muted" />
-                <span>{activeUser.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-content">
-                <MapPin className="w-4 h-4 text-content-muted" />
-                <span>{activeUser.municipality}</span>
-              </div>
-              <div className="flex items-center gap-2 text-content">
-                <Calendar className="w-4 h-4 text-content-muted" />
-                <span>Joined on {activeUser.joinedDate} (Active {activeUser.lastActive || 'recently'})</span>
-              </div>
-            </div>
+      {/* Suspend Confirmation Modal */}
+      <SuspendUserModal
+        user={userToSuspend}
+        isOpen={Boolean(userToSuspend)}
+        onClose={() => setUserToSuspend(null)}
+        onConfirm={handleConfirmSuspend}
+      />
 
-            <div className="p-3 rounded-xl border border-border bg-surface flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-content block">Account Status</span>
-                <span className="text-[11px] text-content-muted block">Change account access status</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {(['Active', 'Inactive', 'Suspended'] as AdminUserStatus[]).map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => handleToggleStatus(activeUser.id, st)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                      activeUser.status === st
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-muted hover:bg-muted/80 text-content-secondary'
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setActiveUser(null)}
-              className="rounded-xl"
-            >
-              Close
-            </Button>
-          </ModalFooter>
-        </Modal>
-      )}
+      {/* Restore Confirmation Modal */}
+      <RestoreUserModal
+        user={userToRestore}
+        isOpen={Boolean(userToRestore)}
+        onClose={() => setUserToRestore(null)}
+        onConfirm={handleConfirmRestore}
+      />
     </AdminLayout>
   );
 };
