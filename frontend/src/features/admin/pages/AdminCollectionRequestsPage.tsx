@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Truck,
@@ -11,15 +11,19 @@ import {
 import { AdminLayout } from '../components/AdminLayout';
 import { CollectionRequestTable } from '../components/collection/CollectionRequestTable';
 import { CollectionRequestDetails } from '../components/collection/CollectionRequestDetails';
-import { MOCK_COLLECTION_REQUESTS } from '../data/collectionRequestMockData';
 import {
   CollectionRequest,
   CollectionRequestStatus,
 } from '../types/collectionRequest';
 import { Button } from '@/components/ui/Button';
+import {
+  loadSharedCollectionRequests,
+  saveSharedCollectionRequests,
+  GC_COLLECTION_SYNC_EVENT,
+} from '@/shared/data/collectionStore';
 
 export const AdminCollectionRequestsPage: React.FC = () => {
-  const [requests, setRequests] = useState<CollectionRequest[]>(MOCK_COLLECTION_REQUESTS);
+  const [requests, setRequests] = useState<CollectionRequest[]>(loadSharedCollectionRequests);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>('all');
@@ -27,6 +31,15 @@ export const AdminCollectionRequestsPage: React.FC = () => {
 
   // Selected request for details modal
   const [activeRequest, setActiveRequest] = useState<CollectionRequest | null>(null);
+
+  // Sync with shared store events
+  useEffect(() => {
+    const handleSync = () => {
+      setRequests(loadSharedCollectionRequests());
+    };
+    window.addEventListener(GC_COLLECTION_SYNC_EVENT, handleSync);
+    return () => window.removeEventListener(GC_COLLECTION_SYNC_EVENT, handleSync);
+  }, []);
 
   // Derive distinct filter options
   const municipalitiesList = useMemo(
@@ -94,8 +107,8 @@ export const AdminCollectionRequestsPage: React.FC = () => {
     const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-    setRequests((prev) =>
-      prev.map((r) => {
+    setRequests((prev) => {
+      const next = prev.map((r) => {
         if (r.id !== requestId) return r;
 
         const updatedHistory = [
@@ -134,8 +147,10 @@ export const AdminCollectionRequestsPage: React.FC = () => {
           statusHistory: updatedHistory,
           completionInfo: updatedCompletion,
         };
-      })
-    );
+      });
+      saveSharedCollectionRequests(next);
+      return next;
+    });
 
     setActiveRequest((prev) => {
       if (!prev || prev.id !== requestId) return prev;

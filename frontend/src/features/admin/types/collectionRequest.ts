@@ -52,12 +52,14 @@ export interface CollectionRequest {
   location: string;
   area: string;
   city: string;
-  wasteType: CollectionWasteType;
+  wasteType: CollectionWasteType | string;
   quantity: string;
   status: CollectionRequestStatus;
   requestedDate: string;
   requestedTime: string;
   notes?: string;
+  assignedCollectorId?: string;
+  assignedCollectorName?: string;
   collector?: CollectorInfo;
   statusHistory: CollectionStatusHistoryEntry[];
   completionInfo?: CollectionCompletionInfo;

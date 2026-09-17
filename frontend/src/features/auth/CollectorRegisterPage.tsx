@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/providers';
 import greenCycleLogo from '@/assets/GreenCycle-logo.png';
 
@@ -297,6 +297,8 @@ interface CollectorFormErrors {
 
 export function CollectorRegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMunicipalMode = location.pathname.includes('/municipal');
   const { login } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -307,7 +309,7 @@ export function CollectorRegisterPage() {
     nic: '',
     profilePhoto: null,
     collectorId: '',
-    municipality: '',
+    municipality: isMunicipalMode ? 'Kandy Municipal Council' : '',
     assignedZone: '',
     designation: '',
     employmentType: 'Permanent',
@@ -415,27 +417,29 @@ export function CollectorRegisterPage() {
       e.employmentType = 'Please select your employment type.';
     }
 
-    // 3. Login Information
-    if (!form.username.trim()) {
-      e.username = 'Username or login email is required.';
-    } else if (form.username.trim().length < 3) {
-      e.username = 'Username must be at least 3 characters.';
-    }
+    // 3. Login Information (only required for self-registration)
+    if (!isMunicipalMode) {
+      if (!form.username.trim()) {
+        e.username = 'Username or login email is required.';
+      } else if (form.username.trim().length < 3) {
+        e.username = 'Username must be at least 3 characters.';
+      }
 
-    if (!form.password) {
-      e.password = 'Password is required.';
-    } else if (form.password.length < 8) {
-      e.password = 'Password must be at least 8 characters.';
-    }
+      if (!form.password) {
+        e.password = 'Password is required.';
+      } else if (form.password.length < 8) {
+        e.password = 'Password must be at least 8 characters.';
+      }
 
-    if (!form.confirmPassword) {
-      e.confirmPassword = 'Please confirm your password.';
-    } else if (form.password !== form.confirmPassword) {
-      e.confirmPassword = 'Passwords do not match.';
-    }
+      if (!form.confirmPassword) {
+        e.confirmPassword = 'Please confirm your password.';
+      } else if (form.password !== form.confirmPassword) {
+        e.confirmPassword = 'Passwords do not match.';
+      }
 
-    if (!form.agreed) {
-      e.agreed = 'You must agree to the Collector Code of Conduct and Terms.';
+      if (!form.agreed) {
+        e.agreed = 'You must agree to the Collector Code of Conduct and Terms.';
+      }
     }
 
     setErrors(e);
@@ -451,6 +455,60 @@ export function CollectorRegisterPage() {
       setLoading(false);
       setSuccess(true);
 
+      if (isMunicipalMode) {
+        // Municipal officer adding collector to municipal fleet
+        const newCollector = {
+          id: `col-${Date.now().toString().slice(-4)}`,
+          name: form.fullName.trim(),
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+          collectorId: form.collectorId.trim().toUpperCase(),
+          zone: form.assignedZone.trim(),
+          status: 'Active' as const,
+          vehicleType: form.designation?.includes('Driver') ? 'Compactor Truck' : 'Mini Truck',
+          vehicleNumber: `KMC-${Math.floor(1000 + Math.random() * 9000)}`,
+          completedToday: 0,
+          totalCompleted: 0,
+          joinedDate: new Date().toISOString().split('T')[0],
+        };
+
+        try {
+          const stored = localStorage.getItem('gc_municipal_collectors');
+          const list = stored ? JSON.parse(stored) : [];
+          localStorage.setItem(
+            'gc_municipal_collectors',
+            JSON.stringify([newCollector, ...list])
+          );
+          window.dispatchEvent(new CustomEvent('gc-municipal-store-sync'));
+        } catch {
+          // ignore
+        }
+
+        try {
+          const storedLogs = localStorage.getItem('gc_municipal_activity_logs');
+          const list = storedLogs ? JSON.parse(storedLogs) : [];
+          const newLog = {
+            id: `MLOG-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            dateGroup: 'Today',
+            title: `New collector added: ${newCollector.name}`,
+            description: `Municipal Officer Eng. Sunil Jayatissa registered field collector ${newCollector.name} (${newCollector.collectorId}) for ${newCollector.zone}.`,
+            module: 'Collectors',
+            performedBy: 'Eng. Sunil Jayatissa',
+            performedByRole: 'Municipal Officer',
+            severity: 'success',
+          };
+          localStorage.setItem('gc_municipal_activity_logs', JSON.stringify([newLog, ...list]));
+        } catch {
+          // ignore
+        }
+
+        setTimeout(() => navigate('/municipal/collectors', { replace: true }), 1800);
+        return;
+      }
+
+      // Standard public self-registration flow
       login(
         {
           id: `col_${Date.now()}`,
@@ -487,9 +545,13 @@ export function CollectorRegisterPage() {
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-content">Collector Registered!</h2>
+          <h2 className="text-2xl font-bold text-content">
+            {isMunicipalMode ? 'Collector Registered Successfully!' : 'Collector Registered!'}
+          </h2>
           <p className="mt-2 text-sm text-content-secondary">
-            Welcome to the GreenCycle Fleet, {form.fullName.split(' ')[0]}. Initializing your route dashboard…
+            {isMunicipalMode
+              ? `${form.fullName} has been added to the Kandy Municipal Council fleet. Returning to Collectors overview…`
+              : `Welcome to the GreenCycle Fleet, ${form.fullName.split(' ')[0]}. Initializing your route dashboard…`}
           </p>
           <div className="mt-6 h-1.5 w-full rounded-full bg-border overflow-hidden">
             <div className="h-full bg-secondary rounded-full transition-all duration-[1600ms] ease-linear w-full" />
@@ -582,33 +644,42 @@ export function CollectorRegisterPage() {
             {/* Top Navigation */}
             <div className="flex items-center justify-between mb-8">
               <Link
-                to="/register"
+                to={isMunicipalMode ? '/municipal/collectors' : '/register'}
                 className="inline-flex items-center gap-1.5 text-xs text-content-muted hover:text-content transition-colors font-medium"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Back to roles
+                {isMunicipalMode ? 'Back to Collectors' : 'Back to roles'}
               </Link>
-              <span className="text-xs text-content-muted">
-                Already registered?{' '}
-                <Link to="/login" className="text-secondary font-semibold hover:underline">
-                  Sign in
-                </Link>
-              </span>
+              {isMunicipalMode ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  Kandy Municipal Council
+                </span>
+              ) : (
+                <span className="text-xs text-content-muted">
+                  Already registered?{' '}
+                  <Link to="/login" className="text-secondary font-semibold hover:underline">
+                    Sign in
+                  </Link>
+                </span>
+              )}
             </div>
 
             {/* Title Header */}
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-primary-light text-primary text-xs font-semibold mb-2.5">
                 <TruckIcon />
-                <span>Collector Portal Registration</span>
+                <span>{isMunicipalMode ? 'Municipal Fleet Onboarding' : 'Collector Portal Registration'}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-content tracking-tight">
-                Create your collector account
+                {isMunicipalMode ? 'Add New Field Collector' : 'Create your collector account'}
               </h2>
               <p className="text-content-muted text-sm mt-1.5 leading-relaxed">
-                Fill in your identification and municipal employment details to set up your official collector profile.
+                {isMunicipalMode
+                  ? 'Register an authorized field collector or collection truck driver for Kandy Municipal Council.'
+                  : 'Fill in your identification and municipal employment details to set up your official collector profile.'}
               </p>
             </div>
 
@@ -875,105 +946,122 @@ export function CollectorRegisterPage() {
                 </div>
               </div>
 
-              {/* ════════ SECTION 3: Login Information ════════ */}
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center gap-2 pb-1 border-b border-border">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
-                    3
-                  </span>
-                  <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
-                    Login Information
-                  </h3>
+              {/* ════════ SECTION 3: Login Information (or Municipal Dispatch Notice) ════════ */}
+              {isMunicipalMode ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 sm:p-5 space-y-2 mt-2">
+                  <div className="flex items-center gap-2 text-emerald-800 font-semibold text-sm">
+                    <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    <span>Automated Credentials & Portal Access</span>
+                  </div>
+                  <p className="text-xs text-emerald-700 leading-relaxed">
+                    Login credentials and mobile onboarding instructions will be automatically generated and dispatched to the collector's email address ({form.email ? <span className="font-semibold text-emerald-900">{form.email}</span> : 'specified above'}) upon submission. The collector can immediately use them to log into GreenCycle LK.
+                  </p>
                 </div>
+              ) : (
+                <>
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center gap-2 pb-1 border-b border-border">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/15 text-secondary text-xs font-bold">
+                        3
+                      </span>
+                      <h3 className="text-sm font-semibold text-content uppercase tracking-wider">
+                        Login Information
+                      </h3>
+                    </div>
 
-                {/* Username or Email */}
-                <Field label="Username or Email" htmlFor="col-username" error={errors.username} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
-                      <span className="text-xs font-bold">@</span>
-                    </span>
-                    <input
-                      id="col-username"
-                      type="text"
-                      value={form.username}
-                      onChange={(e) => setField('username', e.target.value)}
-                      placeholder="e.g. ruwan.j or email address"
-                      autoComplete="username"
-                      className={`${errors.username ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
-                    />
+                    {/* Username or Email */}
+                    <Field label="Username or Email" htmlFor="col-username" error={errors.username} required>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10">
+                          <span className="text-xs font-bold">@</span>
+                        </span>
+                        <input
+                          id="col-username"
+                          type="text"
+                          value={form.username}
+                          onChange={(e) => setField('username', e.target.value)}
+                          placeholder="e.g. ruwan.j or email address"
+                          autoComplete="username"
+                          className={`${errors.username ? inputError : inputNormal} pl-10 pr-4 py-2.5`}
+                        />
+                      </div>
+                    </Field>
+
+                    {/* Password */}
+                    <Field label="Password" htmlFor="col-password" error={errors.password} required>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
+                        <input
+                          id="col-password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={form.password}
+                          onChange={(e) => setField('password', e.target.value)}
+                          placeholder="Min. 8 characters"
+                          autoComplete="new-password"
+                          className={`${errors.password ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          <EyeIcon visible={showPassword} />
+                        </button>
+                      </div>
+                      <PasswordStrength password={form.password} />
+                    </Field>
+
+                    {/* Confirm Password */}
+                    <Field label="Confirm Password" htmlFor="col-confirm" error={errors.confirmPassword} required>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
+                        <input
+                          id="col-confirm"
+                          type={showConfirm ? 'text' : 'password'}
+                          value={form.confirmPassword}
+                          onChange={(e) => setField('confirmPassword', e.target.value)}
+                          placeholder="Re-enter your password"
+                          autoComplete="new-password"
+                          className={`${errors.confirmPassword ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirm((v) => !v)}
+                          className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
+                          aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                        >
+                          <EyeIcon visible={showConfirm} />
+                        </button>
+                      </div>
+                    </Field>
                   </div>
-                </Field>
 
-                {/* Password */}
-                <Field label="Password" htmlFor="col-password" error={errors.password} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
-                    <input
-                      id="col-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={(e) => setField('password', e.target.value)}
-                      placeholder="Min. 8 characters"
-                      autoComplete="new-password"
-                      className={`${errors.password ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      <EyeIcon visible={showPassword} />
-                    </button>
+                  {/* ── Terms & Agreement Checkbox ── */}
+                  <div className="space-y-1 pt-1">
+                    <label className="flex items-start gap-3 cursor-pointer select-none group">
+                      <input
+                        type="checkbox"
+                        checked={form.agreed}
+                        onChange={(e) => setField('agreed', e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-border text-secondary accent-secondary focus:ring-secondary/20 cursor-pointer"
+                      />
+                      <span className="text-xs text-content-secondary leading-relaxed">
+                        I agree to the{' '}
+                        <a href="#terms" className="text-secondary font-medium hover:underline">Terms of Service</a>,{' '}
+                        <a href="#code" className="text-secondary font-medium hover:underline">Collector Code of Conduct</a>, and{' '}
+                        <a href="#safety" className="text-secondary font-medium hover:underline">Municipal Safety Protocols</a>.
+                      </span>
+                    </label>
+                    {errors.agreed && (
+                      <p className="text-xs text-red-600 pl-7">{errors.agreed}</p>
+                    )}
                   </div>
-                  <PasswordStrength password={form.password} />
-                </Field>
-
-                {/* Confirm Password */}
-                <Field label="Confirm Password" htmlFor="col-confirm" error={errors.confirmPassword} required>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-content-muted pointer-events-none z-10"><LockIcon /></span>
-                    <input
-                      id="col-confirm"
-                      type={showConfirm ? 'text' : 'password'}
-                      value={form.confirmPassword}
-                      onChange={(e) => setField('confirmPassword', e.target.value)}
-                      placeholder="Re-enter your password"
-                      autoComplete="new-password"
-                      className={`${errors.confirmPassword ? inputError : inputNormal} pl-10 pr-10 py-2.5`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm((v) => !v)}
-                      className="absolute right-3 text-content-muted hover:text-content transition-colors p-1"
-                      aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                    >
-                      <EyeIcon visible={showConfirm} />
-                    </button>
-                  </div>
-                </Field>
-              </div>
-
-              {/* ── Terms & Agreement Checkbox ── */}
-              <div className="space-y-1 pt-1">
-                <label className="flex items-start gap-3 cursor-pointer select-none group">
-                  <input
-                    type="checkbox"
-                    checked={form.agreed}
-                    onChange={(e) => setField('agreed', e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-border text-secondary accent-secondary focus:ring-secondary/20 cursor-pointer"
-                  />
-                  <span className="text-xs text-content-secondary leading-relaxed">
-                    I agree to the{' '}
-                    <a href="#terms" className="text-secondary font-medium hover:underline">Terms of Service</a>,{' '}
-                    <a href="#code" className="text-secondary font-medium hover:underline">Collector Code of Conduct</a>, and{' '}
-                    <a href="#safety" className="text-secondary font-medium hover:underline">Municipal Safety Protocols</a>.
-                  </span>
-                </label>
-                {errors.agreed && (
-                  <p className="text-xs text-red-600 pl-7">{errors.agreed}</p>
-                )}
-              </div>
+                </>
+              )}
 
               {/* ── Submit Button ── */}
               <button
@@ -991,7 +1079,7 @@ export function CollectorRegisterPage() {
                   </>
                 ) : (
                   <>
-                    <span>Complete Collector Registration</span>
+                    <span>{isMunicipalMode ? 'Add Collector to Municipal Fleet' : 'Complete Collector Registration'}</span>
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
