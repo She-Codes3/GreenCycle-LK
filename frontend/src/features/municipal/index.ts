@@ -9,6 +9,7 @@ export * from './pages/MunicipalCollectionRequestsPage';
 export * from './pages/MunicipalDisposalCentersPage';
 export * from './pages/MunicipalCollectorsPage';
 export * from './pages/MunicipalComplaintsPage';
+export * from './pages/MunicipalNotificationsPage';
 export * from './pages/MunicipalSchedulePage';
 export * from './pages/MunicipalActivityPage';
 export * from './pages/MunicipalSettingsPage';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Menu, Search, User } from 'lucide-react';
+import { Menu, Search, User } from 'lucide-react';
 import { cn } from '../ui/utils';
 
 export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
@@ -82,19 +82,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {actions || (
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                aria-label="View notifications"
-                onClick={onNotificationsClick}
-                className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-700 shadow-sm transition-colors hover:bg-slate-100"
-              >
-                <Bell className="h-5 w-5" strokeWidth={1.8} />
-                {notificationCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#046a38] text-[9px] font-extrabold text-white">
-                    {notificationCount}
-                  </span>
-                )}
-              </button>
               <button
                 type="button"
                 onClick={onProfileClick}

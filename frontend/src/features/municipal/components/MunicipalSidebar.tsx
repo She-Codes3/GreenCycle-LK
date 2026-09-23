@@ -6,6 +6,7 @@ import {
   Recycle,
   Users,
   AlertTriangle,
+  Bell,
   CalendarDays,
   History,
   Settings,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import logoImage from '@/assets/GreenCycle-logo.png';
 import { useAuth } from '@/app/providers';
+import { useNotifications } from '@/shared/data/notificationStore';
 import type { MunicipalSidebarItem } from '../types/municipal';
 
 export interface MunicipalSidebarProps {
@@ -28,6 +30,8 @@ interface NavEntry {
   label: string;
   href: string;
   icon: React.ReactNode;
+  badge?: string;
+  badgeColor?: string;
 }
 
 interface NavSection {
@@ -64,6 +68,8 @@ export const MunicipalSidebar: React.FC<MunicipalSidebarProps> = ({
       ? 'collectors'
       : location.pathname.includes('/municipal/complaints')
       ? 'complaints'
+      : location.pathname.includes('/municipal/notifications')
+      ? 'notifications'
       : location.pathname.includes('/municipal/schedule')
       ? 'schedule'
       : location.pathname.includes('/municipal/activity')
@@ -71,6 +77,8 @@ export const MunicipalSidebar: React.FC<MunicipalSidebarProps> = ({
       : location.pathname.includes('/municipal/settings')
       ? 'settings'
       : 'dashboard');
+
+  const { unreadCount } = useNotifications('MUNICIPAL');
 
   const navSections: NavSection[] = [
     {
@@ -114,6 +122,14 @@ export const MunicipalSidebar: React.FC<MunicipalSidebarProps> = ({
           label: 'Complaints / Reports',
           href: '/municipal/complaints',
           icon: <AlertTriangle className="w-4 h-4 stroke-[2.2]" />,
+        },
+        {
+          id: 'notifications',
+          label: 'Notifications',
+          href: '/municipal/notifications',
+          icon: <Bell className="w-4 h-4 stroke-[2.2]" />,
+          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
+          badgeColor: 'bg-rose-500/90 text-white font-extrabold',
         },
         {
           id: 'schedule',
@@ -211,6 +227,15 @@ export const MunicipalSidebar: React.FC<MunicipalSidebarProps> = ({
                       {item.icon}
                     </span>
                     <span className="flex-1 text-left truncate">{item.label}</span>
+                    {item.badge && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
+                          item.badgeColor || 'bg-rose-500 text-white'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}

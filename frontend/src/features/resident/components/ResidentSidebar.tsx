@@ -20,7 +20,8 @@ import {
 import logoImage from '@/assets/GreenCycle-logo.png';
 import { useAuth } from '@/app/providers';
 import type { ResidentSidebarItem } from '../types/resident';
-import { RESIDENT_USER, MOCK_RESIDENT_NOTIFICATIONS } from '../data/residentMockData';
+import { RESIDENT_USER } from '../data/residentMockData';
+import { useNotifications } from '@/shared/data/notificationStore';
 
 export interface ResidentSidebarProps {
   activeItem?: ResidentSidebarItem;
@@ -85,7 +86,7 @@ export const ResidentSidebar: React.FC<ResidentSidebarProps> = ({
       ? 'settings'
       : 'dashboard');
 
-  const unreadCount = MOCK_RESIDENT_NOTIFICATIONS.filter((n) => !n.isRead).length;
+  const { unreadCount } = useNotifications('RESIDENT');
 
   const navSections: NavSection[] = [
     {

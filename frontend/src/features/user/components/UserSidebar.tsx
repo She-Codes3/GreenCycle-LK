@@ -12,6 +12,7 @@ import {
   User,
 } from 'lucide-react';
 import { Sidebar, SidebarItem } from '@/components/layout';
+import { useNotifications } from '@/shared/data/notificationStore';
 
 export type UserSidebarItem =
   | 'dashboard'
@@ -37,7 +38,7 @@ const navigationItems: Array<{ id: UserSidebarItem; label: string; href: string;
   { id: 'report-issue', label: 'Report Issue', href: '/report-issue', icon: <AlertTriangle /> },
   { id: 'my-reports', label: 'My Reports', href: '/my-reports', icon: <FileText /> },
   { id: 'rewards', label: 'Rewards', href: '/rewards', icon: <Gift /> },
-  { id: 'notifications', label: 'Notifications', href: '/notifications', icon: <Bell /> },
+  { id: 'notifications', label: 'Notifications', href: '/resident/notifications', icon: <Bell /> },
   { id: 'settings', label: 'Settings', href: '/settings', icon: <Settings /> },
   { id: 'profile', label: 'Profile', href: '/profile', icon: <User /> },
 ];
@@ -47,33 +48,38 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   activeItem = 'dashboard',
   onItemSelect,
   onLogout,
-}) => (
-  <Sidebar
-    footer={
-      <button
-        type="button"
-        onClick={onLogout}
-        className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white"
-      >
-        <LogOut className="h-4 w-4 text-emerald-200/90" strokeWidth={2.2} />
-        <span>Logout</span>
-      </button>
-    }
-  >
-    {navigationItems.map((item) => (
-      <SidebarItem
-        key={item.id}
-        label={item.label}
-        href={item.href}
-        icon={React.cloneElement(item.icon as React.ReactElement, { className: 'h-4 w-4 stroke-[2.2]' })}
-        active={item.id === activeItem}
-        onClick={(event) => {
-          if (onItemSelect) {
-            event.preventDefault();
-            onItemSelect(item.id);
-          }
-        }}
-      />
-    ))}
-  </Sidebar>
-);
+}) => {
+  const { unreadCount } = useNotifications('RESIDENT');
+
+  return (
+    <Sidebar
+      footer={
+        <button
+          type="button"
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <LogOut className="h-4 w-4 text-emerald-200/90" strokeWidth={2.2} />
+          <span>Logout</span>
+        </button>
+      }
+    >
+      {navigationItems.map((item) => (
+        <SidebarItem
+          key={item.id}
+          label={item.label}
+          href={item.href}
+          icon={React.cloneElement(item.icon as React.ReactElement, { className: 'h-4 w-4 stroke-[2.2]' })}
+          active={item.id === activeItem}
+          badge={item.id === 'notifications' && unreadCount > 0 ? unreadCount : undefined}
+          onClick={(event) => {
+            if (onItemSelect) {
+              event.preventDefault();
+              onItemSelect(item.id);
+            }
+          }}
+        />
+      ))}
+    </Sidebar>
+  );
+};

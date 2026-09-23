@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, Menu, Search, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { UserMenu } from '@/components/layout/UserMenu';
-import { MOCK_ADMIN_NOTIFICATIONS } from '../data/adminMockData';
 
 export interface AdminHeaderProps {
   onMenuToggle?: () => void;
@@ -20,19 +19,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [searchValue, setSearchValue] = useState('');
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const notifRef = useRef<HTMLDivElement>(null);
-
-  // Close notifications when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setIsNotifOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Compute title based on route if not explicitly provided
   const getComputedTitle = () => {
@@ -42,6 +28,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     if (path.includes('/admin/municipalities')) return 'Municipality Management';
     if (path.includes('/admin/disposal-centers')) return 'Disposal Centers';
     if (path.includes('/admin/complaints')) return 'Complaints & Reports';
+    if (path.includes('/admin/notifications')) return 'Notifications & Alerts';
     if (path.includes('/admin/activity')) return 'Activity Logs';
     if (path.includes('/admin/settings')) return 'Admin Settings';
     return 'Dashboard Overview';
@@ -125,89 +112,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           </div>
         </form>
 
-        {/* Notifications Popover */}
-        <div className="relative" ref={notifRef}>
-          <button
-            type="button"
-            aria-label="View notifications"
-            onClick={() => setIsNotifOpen((prev) => !prev)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 hover:bg-muted text-content transition-colors border border-border/60"
-          >
-            <Bell className="h-4 w-4" strokeWidth={2} />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#046a38] text-[9px] font-black text-white shadow-sm ring-2 ring-surface">
-              3
-            </span>
-          </button>
-
-          {/* Notifications Dropdown Panel */}
-          {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface border border-border shadow-elevated z-50 overflow-hidden animate-fade-in">
-              <div className="p-3.5 border-b border-border/80 flex items-center justify-between bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-xs text-content">Admin Notifications</span>
-                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                    3 New
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsNotifOpen(false)}
-                  className="text-[11px] text-primary hover:underline font-semibold"
-                >
-                  Mark all read
-                </button>
-              </div>
-
-              <div className="divide-y divide-border/60 max-h-72 overflow-y-auto">
-                {MOCK_ADMIN_NOTIFICATIONS.map((n) => (
-                  <div
-                    key={n.id}
-                    onClick={() => {
-                      setIsNotifOpen(false);
-                      if (n.type === 'complaint') navigate('/admin/complaints');
-                      else if (n.type === 'capacity') navigate('/admin/disposal-centers');
-                      else navigate('/admin/municipalities');
-                    }}
-                    className="p-3 hover:bg-muted/50 transition-colors cursor-pointer flex items-start gap-3"
-                  >
-                    <div className="mt-0.5 shrink-0">
-                      {n.type === 'complaint' ? (
-                        <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                        </div>
-                      ) : (
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-content leading-tight line-clamp-1">
-                        {n.title}
-                      </p>
-                      <span className="text-[10px] text-content-muted mt-0.5 block">
-                        {n.time}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-2 border-t border-border/80 bg-muted/20 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsNotifOpen(false);
-                    navigate('/admin/activity');
-                  }}
-                  className="text-xs font-bold text-primary hover:underline py-1"
-                >
-                  View All Activity Logs →
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Admin User Profile Dropdown */}
         <UserMenu
