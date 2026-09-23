@@ -2,6 +2,7 @@ import React from 'react';
 import {
   AlertTriangle,
   Bell,
+  FileText,
   Gift,
   LayoutDashboard,
   LogOut,
@@ -17,6 +18,7 @@ export type UserSidebarItem =
   | 'collections'
   | 'disposal-centers'
   | 'report-issue'
+  | 'my-reports'
   | 'rewards'
   | 'notifications'
   | 'settings'
@@ -32,7 +34,8 @@ const navigationItems: Array<{ id: UserSidebarItem; label: string; href: string;
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard /> },
   { id: 'collections', label: 'My Collections', href: '/schedule', icon: <Recycle /> },
   { id: 'disposal-centers', label: 'Disposal Centers', href: '/disposal-centers', icon: <MapPinned /> },
-  { id: 'report-issue', label: 'Report Issue', href: '/report', icon: <AlertTriangle /> },
+  { id: 'report-issue', label: 'Report Issue', href: '/report-issue', icon: <AlertTriangle /> },
+  { id: 'my-reports', label: 'My Reports', href: '/my-reports', icon: <FileText /> },
   { id: 'rewards', label: 'Rewards', href: '/rewards', icon: <Gift /> },
   { id: 'notifications', label: 'Notifications', href: '/notifications', icon: <Bell /> },
   { id: 'settings', label: 'Settings', href: '/settings', icon: <Settings /> },
