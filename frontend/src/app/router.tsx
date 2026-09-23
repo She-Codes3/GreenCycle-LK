@@ -38,8 +38,6 @@ import {
   MunicipalActivityPage,
   MunicipalSettingsPage,
 } from '@/features/municipal';
-import { ResidentDashboardPage } from '@/features/resident';
-} from "@/features/municipal";
 
 /** Renders a placeholder page for routes that are not implemented yet. */
 function ComingSoon({ feature }: { feature: string }) {
@@ -170,31 +168,20 @@ export function AppRouter() {
 
       <Route path="/collector/collection-history" element={collectionHistory} />
 
-      <Route
-        path="/resident"
-        element={<Navigate to="/dashboard" replace />}
-      />
-      <Route
-        path="/resident/dashboard"
-        element={<Navigate to="/dashboard" replace />}
-      />
-
       {/* Resident Dashboard Routes */}
       <Route path="/resident" element={<Navigate to="/resident/dashboard" replace />} />
-      <Route path="/resident/dashboard" element={<ResidentDashboardPage />} />
+      <Route path="/resident/dashboard" element={residentDashboard} />
       <Route path="/resident/schedule" element={<ResidentDashboardPage />} />
       <Route path="/resident/tracking" element={<ResidentDashboardPage />} />
       <Route path="/resident/scanner" element={<ResidentDashboardPage />} />
       <Route path="/resident/pickup" element={<ResidentDashboardPage />} />
-      <Route path="/resident/disposal-centers" element={<ResidentDashboardPage />} />
+      <Route path="/resident/disposal-centers" element={<Navigate to="/disposal-centers" replace />} />
       <Route path="/resident/rewards" element={<ResidentDashboardPage />} />
-      <Route path="/resident/reports" element={<ResidentDashboardPage />} />
+      <Route path="/resident/reports" element={<Navigate to="/my-reports" replace />} />
+      <Route path="/resident/report-issue" element={<Navigate to="/report-issue" replace />} />
       <Route path="/resident/notifications" element={<ResidentDashboardPage />} />
       <Route path="/resident/settings" element={<ResidentDashboardPage />} />
 
-      <Route
-        path="/dashboard"
-        element={<Navigate to="/resident/dashboard" replace />}
       <Route
         path="/dashboard"
         element={residentDashboard}
