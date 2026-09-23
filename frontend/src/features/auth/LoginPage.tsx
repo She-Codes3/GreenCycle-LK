@@ -123,19 +123,45 @@ export function LoginPage() {
     // Simulate login authentication
     setTimeout(() => {
       setLoading(false);
-      const isCollector =
-        trimmedIdentifier.toLowerCase().includes('collector') ||
-        trimmedIdentifier.includes('71') ||
-        trimmedIdentifier.includes('col');
-      const isMunicipal = trimmedIdentifier.toLowerCase().includes('municipal');
-      const isAdmin = trimmedIdentifier.toLowerCase().includes('admin') || trimmedIdentifier.toLowerCase().includes('council');
+      const lower = trimmedIdentifier.toLowerCase();
+      const isExplicitResident = lower.includes('resident') || lower.includes('citizen') || lower.includes('kasun');
+      const isCollector = !isExplicitResident && (lower.includes('collector') || lower.includes('col'));
+      const isMunicipal = !isExplicitResident && lower.includes('municipal');
+      const isAdmin = !isExplicitResident && (lower.includes('admin') || lower.includes('council'));
 
+      // If not collector, municipal, or admin, standard credential signin is for RESIDENT
       const role: Role = isCollector ? 'COLLECTOR' : isMunicipal ? 'MUNICIPAL' : isAdmin ? 'ADMIN' : 'RESIDENT';
+
+      // Look up existing name if stored in local admin/citizen registry
+      let fullName = isCollector
+        ? 'Saman Kumara'
+        : isMunicipal
+        ? 'Eng. Sunil Jayatissa'
+        : isAdmin
+        ? 'Municipal User'
+        : 'Kasun Perera';
+
+      try {
+        const storedAdminUsers = localStorage.getItem('gc_admin_users_v2');
+        if (storedAdminUsers) {
+          const parsed = JSON.parse(storedAdminUsers);
+          const found = parsed.find(
+            (u: { email?: string; phone?: string; name?: string }) =>
+              u.email?.toLowerCase() === lower ||
+              u.phone?.replace(/\s+/g, '') === trimmedIdentifier.replace(/\s+/g, '')
+          );
+          if (found?.name) {
+            fullName = found.name;
+          }
+        }
+      } catch {
+        // ignore parse error
+      }
 
       login(
         {
           id: `usr_${Date.now()}`,
-          fullName: isCollector ? 'Saman Kumara' : isMunicipal ? 'Eng. Sunil Jayatissa' : isAdmin ? 'Municipal User' : 'Kasun Perera',
+          fullName,
           email: trimmedIdentifier.includes('@') ? trimmedIdentifier : `${trimmedIdentifier}@greencycle.lk`,
           phone: trimmedIdentifier.includes('@') ? '0771234567' : trimmedIdentifier,
           role,
@@ -145,18 +171,36 @@ export function LoginPage() {
         `token_${Date.now()}`
       );
 
-      // Redirect appropriately based on state or role
+      // Redirect appropriately based on role and target
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-      if (from) {
-        navigate(from, { replace: true });
+      const isValidTarget = Boolean(from && from !== '/' && from !== '/login' && from !== '/register');
+
+      if (role === 'RESIDENT') {
+        if (isValidTarget && (from?.startsWith('/resident') || from?.startsWith('/disposal-centers'))) {
+          navigate(from!, { replace: true });
+        } else {
+          navigate('/resident/dashboard', { replace: true });
+        }
       } else if (role === 'COLLECTOR') {
-        navigate('/collector/dashboard', { replace: true });
+        if (isValidTarget && from?.startsWith('/collector')) {
+          navigate(from!, { replace: true });
+        } else {
+          navigate('/collector/dashboard', { replace: true });
+        }
       } else if (role === 'MUNICIPAL') {
-        navigate('/municipal/dashboard', { replace: true });
+        if (isValidTarget && from?.startsWith('/municipal')) {
+          navigate(from!, { replace: true });
+        } else {
+          navigate('/municipal/dashboard', { replace: true });
+        }
       } else if (role === 'ADMIN') {
-        navigate('/dashboard', { replace: true });
+        if (isValidTarget && from?.startsWith('/admin')) {
+          navigate(from!, { replace: true });
+        } else {
+          navigate('/admin/dashboard', { replace: true });
+        }
       } else {
-        navigate('/', { replace: true });
+        navigate('/resident/dashboard', { replace: true });
       }
     }, 600);
   };
@@ -269,13 +313,74 @@ export function LoginPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-surface">
         <div className="w-full max-w-md">
           {/* Header */}
-          <div className="mb-7">
+          <div className="mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-content tracking-tight">
               Welcome back
             </h2>
             <p className="mt-1.5 text-sm text-content-secondary">
               Sign in to manage collections, reports, and your Green Points.
             </p>
+          </div>
+
+          {/* Quick Demo Sign-in Helper */}
+          <div className="mb-5 p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-emerald-950 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                Quick Demo Accounts:
+              </span>
+              <span className="text-[11px] text-emerald-700 font-medium">Click to fill</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              <button
+                type="button"
+                id="demo-resident-btn"
+                onClick={() => {
+                  setIdentifier('resident@greencycle.lk');
+                  setPassword('Resident@123');
+                  setError(null);
+                }}
+                className="px-2 py-1.5 text-xs font-semibold rounded-lg bg-white hover:bg-emerald-100/60 border border-emerald-300 text-emerald-900 transition-colors shadow-2xs text-center"
+              >
+                🌱 Resident
+              </button>
+              <button
+                type="button"
+                id="demo-collector-btn"
+                onClick={() => {
+                  setIdentifier('collector@greencycle.lk');
+                  setPassword('Collector@123');
+                  setError(null);
+                }}
+                className="px-2 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 transition-colors shadow-2xs text-center"
+              >
+                🚛 Collector
+              </button>
+              <button
+                type="button"
+                id="demo-municipal-btn"
+                onClick={() => {
+                  setIdentifier('municipal@greencycle.lk');
+                  setPassword('Municipal@123');
+                  setError(null);
+                }}
+                className="px-2 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 transition-colors shadow-2xs text-center"
+              >
+                🏛️ Municipal
+              </button>
+              <button
+                type="button"
+                id="demo-admin-btn"
+                onClick={() => {
+                  setIdentifier('admin@greencycle.lk');
+                  setPassword('Admin@123');
+                  setError(null);
+                }}
+                className="px-2 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 transition-colors shadow-2xs text-center"
+              >
+                🛡️ Admin
+              </button>
+            </div>
           </div>
 
           {/* Form */}
@@ -408,13 +513,16 @@ export function LoginPage() {
               </Link>
             </div>
 
-            {/* Notice for Collectors and Municipal Users */}
+            {/* Notice for Users */}
             <div className="mt-6 p-4 rounded-xl bg-[#f0f9f4] border border-secondary/20 text-center">
               <p className="text-xs text-content-secondary leading-relaxed">
-                Collector or municipal user?{' '}
+                Resident or Citizen?{' '}
                 <span className="font-semibold text-content block sm:inline">
-                  Use the credentials issued by your council.
+                  Sign in with your email or phone to access the Resident Eco-Dashboard.
                 </span>
+              </p>
+              <p className="text-[11px] text-content-muted mt-1">
+                Collectors &amp; Municipal officers can use their council credentials.
               </p>
             </div>
 
