@@ -37,6 +37,8 @@ import {
   MunicipalSchedulePage,
   MunicipalActivityPage,
   MunicipalSettingsPage,
+} from '@/features/municipal';
+import { ResidentDashboardPage } from '@/features/resident';
 } from "@/features/municipal";
 
 /** Renders a placeholder page for routes that are not implemented yet. */
@@ -176,6 +178,23 @@ export function AppRouter() {
         path="/resident/dashboard"
         element={<Navigate to="/dashboard" replace />}
       />
+
+      {/* Resident Dashboard Routes */}
+      <Route path="/resident" element={<Navigate to="/resident/dashboard" replace />} />
+      <Route path="/resident/dashboard" element={<ResidentDashboardPage />} />
+      <Route path="/resident/schedule" element={<ResidentDashboardPage />} />
+      <Route path="/resident/tracking" element={<ResidentDashboardPage />} />
+      <Route path="/resident/scanner" element={<ResidentDashboardPage />} />
+      <Route path="/resident/pickup" element={<ResidentDashboardPage />} />
+      <Route path="/resident/disposal-centers" element={<ResidentDashboardPage />} />
+      <Route path="/resident/rewards" element={<ResidentDashboardPage />} />
+      <Route path="/resident/reports" element={<ResidentDashboardPage />} />
+      <Route path="/resident/notifications" element={<ResidentDashboardPage />} />
+      <Route path="/resident/settings" element={<ResidentDashboardPage />} />
+
+      <Route
+        path="/dashboard"
+        element={<Navigate to="/resident/dashboard" replace />}
       <Route
         path="/dashboard"
         element={residentDashboard}

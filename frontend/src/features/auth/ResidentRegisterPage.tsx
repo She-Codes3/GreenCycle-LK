@@ -414,7 +414,7 @@ export function ResidentRegisterPage() {
         },
         `token_${Date.now()}`
       );
-      setTimeout(() => navigate('/', { replace: true }), 1600);
+      setTimeout(() => navigate('/resident/dashboard', { replace: true }), 1600);
     }, 900);
   };
 
