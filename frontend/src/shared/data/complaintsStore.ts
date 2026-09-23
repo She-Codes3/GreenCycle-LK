@@ -16,6 +16,7 @@ import type {
 
 import { MOCK_ADMIN_COMPLAINTS } from '@/features/admin/data/adminMockData';
 import { MOCK_MUNICIPAL_COMPLAINTS } from '@/features/municipal/data/municipalMockData';
+import { createNotification } from './notificationStore';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 export const GC_SHARED_COMPLAINTS_STORAGE_KEY = 'gc_shared_complaints_v2';
@@ -276,6 +277,43 @@ export function submitNewComplaint(payload: SubmitComplaintPayload): SharedCompl
   const updated = [complaint, ...existing];
   saveSharedComplaints(updated);
 
+  // ── Dispatch notifications across roles ─────────────────────────────────────
+  // 1. Resident Confirmation
+  createNotification({
+    recipientId: complaint.submittedBy,
+    recipientRole: 'RESIDENT',
+    type: 'complaint',
+    title: 'Report Submitted',
+    message: `Your complaint ${complaint.ticketNumber} (${complaint.category}) has been submitted successfully.`,
+    relatedEntityType: 'complaint',
+    relatedEntityId: complaint.id,
+    link: `/my-reports/${complaint.id}`,
+  });
+
+  // 2. Municipal Alert
+  createNotification({
+    recipientId: 'Eng. Sunil Jayatissa',
+    recipientRole: 'MUNICIPAL',
+    type: 'complaint',
+    title: 'New Complaint Received',
+    message: `A new resident complaint ${complaint.ticketNumber} (${complaint.category}) was submitted in ${complaint.municipality || 'Colombo'} and requires review.`,
+    relatedEntityType: 'complaint',
+    relatedEntityId: complaint.id,
+    link: '/municipal/complaints',
+  });
+
+  // 3. Admin System Log
+  createNotification({
+    recipientId: 'Eng. Anura Jayasinghe',
+    recipientRole: 'ADMIN',
+    type: 'complaint',
+    title: 'New Complaint Reported',
+    message: `A new resident complaint ${complaint.ticketNumber} was reported in ${complaint.municipality || 'Western Province'}.`,
+    relatedEntityType: 'complaint',
+    relatedEntityId: complaint.id,
+    link: '/admin/complaints',
+  });
+
   return complaint;
 }
 
@@ -302,8 +340,12 @@ export function updateSharedComplaintStatus(
     hour12: true,
   });
 
+  let targetComplaint: SharedComplaint | undefined;
+
   const updated = current.map((c) => {
     if (c.id !== complaintId) return c;
+
+    targetComplaint = c;
 
     const historyEntry: ComplaintStatusHistoryEntry = {
       timestamp: `${dateStr} — ${timeStr}`,
@@ -326,5 +368,55 @@ export function updateSharedComplaintStatus(
   });
 
   saveSharedComplaints(updated);
+
+  // ── Dispatch notifications based on status transition ───────────────────────
+  if (targetComplaint) {
+    const ticket = targetComplaint.ticketNumber;
+
+    let resTitle = 'Complaint Status Updated';
+    let resMsg = `Your complaint ${ticket} status has been updated to ${newStatus.replace(/_/g, ' ').toLowerCase()}.`;
+
+    if (newStatus === 'UNDER_REVIEW') {
+      resTitle = 'Report Under Review';
+      resMsg = `Your complaint ${ticket} is now being reviewed by the municipal team.`;
+    } else if (newStatus === 'ASSIGNED') {
+      resTitle = 'Report Assigned';
+      resMsg = `Your complaint ${ticket} has been assigned for action${assignedOfficer ? ` to ${assignedOfficer}` : ''}.`;
+    } else if (newStatus === 'IN_PROGRESS') {
+      resTitle = 'Report In Progress';
+      resMsg = `Work on your complaint ${ticket} is now in progress.`;
+    } else if (newStatus === 'RESOLVED') {
+      resTitle = 'Report Resolved';
+      resMsg = `Your complaint ${ticket} has been resolved.${notes ? ` Notes: ${notes}` : ''}`;
+    } else if (newStatus === 'CLOSED') {
+      resTitle = 'Report Closed';
+      resMsg = `Your complaint ${ticket} has been closed.${notes ? ` Notes: ${notes}` : ''}`;
+    }
+
+    createNotification({
+      recipientId: targetComplaint.submittedBy,
+      recipientRole: 'RESIDENT',
+      type: 'status_update',
+      title: resTitle,
+      message: resMsg,
+      relatedEntityType: 'complaint',
+      relatedEntityId: targetComplaint.id,
+      link: `/my-reports/${targetComplaint.id}`,
+    });
+
+    if (assignedOfficer) {
+      createNotification({
+        recipientId: 'Eng. Sunil Jayatissa',
+        recipientRole: 'MUNICIPAL',
+        type: 'complaint',
+        title: 'Complaint Assigned',
+        message: `Complaint ${ticket} has been assigned to ${assignedOfficer}.`,
+        relatedEntityType: 'complaint',
+        relatedEntityId: targetComplaint.id,
+        link: '/municipal/complaints',
+      });
+    }
+  }
+
   return updated;
 }

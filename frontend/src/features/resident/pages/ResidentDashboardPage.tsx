@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ResidentLayout } from '../components/ResidentLayout';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import {
   Compass,
   ArrowRight,
@@ -78,6 +79,15 @@ const ROUTE_CONFIG: Record<string, RouteInfo> = {
 export const ResidentDashboardPage: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // Dedicated interactive view for /resident/notifications
+  if (currentPath === '/resident/notifications') {
+    return (
+      <ResidentLayout>
+        <NotificationCenter role="RESIDENT" />
+      </ResidentLayout>
+    );
+  }
 
   const currentInfo = ROUTE_CONFIG[currentPath] || {
     title: 'Resident Portal',

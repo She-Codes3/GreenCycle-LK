@@ -7,6 +7,7 @@ import { ReportIssuePage } from "@/features/reports/pages/ReportIssuePage";
 import { MyReportsPage } from "@/features/reports/pages/MyReportsPage";
 import { ReportDetailPage } from "@/features/reports/pages/ReportDetailPage";
 import { ResidentDashboardPage } from "@/features/dashboard";
+import { ResidentNotificationsPage } from "@/features/resident";
 
 import { CollectionHistory } from "@/features/collector/pages/CollectionHistory";
 import { CollectorDashboardPage } from "@/features/collector/pages/CollectorDashboardPage";
@@ -25,6 +26,7 @@ import {
   AdminDisposalCentersPage,
   AdminCollectionRequestsPage,
   AdminComplaintsPage,
+  AdminNotificationsPage,
   AdminActivityPage,
   AdminSettingsPage,
 } from "@/features/admin";
@@ -34,6 +36,7 @@ import {
   MunicipalDisposalCentersPage,
   MunicipalCollectorsPage,
   MunicipalComplaintsPage,
+  MunicipalNotificationsPage,
   MunicipalSchedulePage,
   MunicipalActivityPage,
   MunicipalSettingsPage,
@@ -131,6 +134,7 @@ export function AppRouter() {
         element={<AdminCollectionRequestsPage />}
       />
       <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
+      <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
       <Route path="/admin/activity" element={<AdminActivityPage />} />
       <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
@@ -160,6 +164,10 @@ export function AppRouter() {
         path="/municipal/complaints"
         element={<MunicipalComplaintsPage />}
       />
+      <Route
+        path="/municipal/notifications"
+        element={<MunicipalNotificationsPage />}
+      />
       <Route path="/municipal/schedule" element={<MunicipalSchedulePage />} />
       <Route path="/municipal/activity" element={<MunicipalActivityPage />} />
       <Route path="/municipal/settings" element={<MunicipalSettingsPage />} />
@@ -179,7 +187,8 @@ export function AppRouter() {
       <Route path="/resident/rewards" element={<ResidentDashboardPage />} />
       <Route path="/resident/reports" element={<Navigate to="/my-reports" replace />} />
       <Route path="/resident/report-issue" element={<Navigate to="/report-issue" replace />} />
-      <Route path="/resident/notifications" element={<ResidentDashboardPage />} />
+      <Route path="/resident/notifications" element={<ResidentNotificationsPage />} />
+      <Route path="/notifications" element={<Navigate to="/resident/notifications" replace />} />
       <Route path="/resident/settings" element={<ResidentDashboardPage />} />
 
       <Route

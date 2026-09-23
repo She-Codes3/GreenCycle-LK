@@ -1,21 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Bell,
   Menu,
   Search,
-  AlertCircle,
-  Truck,
   Leaf,
-  Award,
-  Package,
-  ExternalLink,
   X,
 } from 'lucide-react';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAuth } from '@/app/providers';
-import { RESIDENT_USER, MOCK_RESIDENT_NOTIFICATIONS } from '../data/residentMockData';
-import type { ResidentBreadcrumb, ResidentNotification } from '../types/resident';
+import { RESIDENT_USER } from '../data/residentMockData';
+import type { ResidentBreadcrumb } from '../types/resident';
 
 export interface ResidentHeaderProps {
   onMenuToggle?: () => void;
@@ -34,7 +28,6 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
   pageTitle,
   pageSubtitle,
   breadcrumbs,
-  onNotificationsClick,
   onProfileClick,
   onLogout,
 }) => {
@@ -43,21 +36,6 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
   const { user, logout } = useAuth();
 
   const [searchValue, setSearchValue] = useState('');
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<ResidentNotification[]>(MOCK_RESIDENT_NOTIFICATIONS);
-  const notifRef = useRef<HTMLDivElement>(null);
-
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setIsNotifOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const getComputedTitle = () => {
     if (pageTitle) return pageTitle;
@@ -81,41 +59,12 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
     }
   };
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
-
-  const handleNotificationClick = (notif: ResidentNotification) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
-    );
-    setIsNotifOpen(false);
-    if (notif.link) {
-      navigate(notif.link);
-    }
-  };
-
   const handleLogoutAction = () => {
     if (onLogout) {
       onLogout();
     } else {
       logout();
       navigate('/login');
-    }
-  };
-
-  const getNotificationIcon = (category: string) => {
-    switch (category) {
-      case 'collection':
-        return <Truck className="h-4 w-4 text-emerald-600" />;
-      case 'pickup':
-        return <Package className="h-4 w-4 text-amber-600" />;
-      case 'reward':
-        return <Award className="h-4 w-4 text-emerald-500" />;
-      case 'alert':
-        return <AlertCircle className="h-4 w-4 text-rose-500" />;
-      default:
-        return <Bell className="h-4 w-4 text-primary" />;
     }
   };
 
@@ -218,101 +167,6 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
           </div>
         </button>
 
-        {/* Notifications Dropdown */}
-        <div className="relative" ref={notifRef}>
-          <button
-            type="button"
-            aria-label="View notifications"
-            onClick={() => {
-              setIsNotifOpen((prev) => !prev);
-              if (onNotificationsClick) onNotificationsClick();
-            }}
-            className="relative p-2 sm:p-2.5 rounded-xl text-content-secondary hover:bg-muted hover:text-content transition-colors border border-transparent hover:border-border"
-          >
-            <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-500 text-[10px] font-extrabold text-white ring-2 ring-surface animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface border border-border shadow-elevated z-dropdown overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-3.5 border-b border-border flex items-center justify-between bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-content">Resident Notifications</span>
-                  {unreadCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 text-[10px] font-extrabold">
-                      {unreadCount} new
-                    </span>
-                  )}
-                </div>
-                {unreadCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={markAllRead}
-                    className="text-[11px] font-semibold text-primary hover:underline"
-                  >
-                    Mark all as read
-                  </button>
-                )}
-              </div>
-
-              <div className="max-h-80 overflow-y-auto divide-y divide-border/60">
-                {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-content-muted">
-                    No new notifications
-                  </div>
-                ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      onClick={() => handleNotificationClick(n)}
-                      className={`p-3.5 flex items-start gap-3 hover:bg-muted/60 transition-colors cursor-pointer text-left ${
-                        !n.isRead ? 'bg-primary/5' : ''
-                      }`}
-                    >
-                      <div className="p-2 rounded-xl bg-surface border border-border/80 shrink-0 shadow-2xs mt-0.5">
-                        {getNotificationIcon(n.category)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <p className={`text-xs truncate ${!n.isRead ? 'font-bold text-content' : 'font-medium text-content-secondary'}`}>
-                            {n.title}
-                          </p>
-                          <span className="text-[10px] text-content-muted shrink-0">
-                            {n.timestamp}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-content-secondary line-clamp-2 leading-relaxed">
-                          {n.message}
-                        </p>
-                      </div>
-                      {!n.isRead && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-2" />
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="p-2.5 border-t border-border bg-muted/20 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsNotifOpen(false);
-                    navigate('/resident/notifications');
-                  }}
-                  className="text-xs font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1"
-                >
-                  <span>View All Notifications</span>
-                  <ExternalLink className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
         <div className="h-6 w-px bg-border hidden sm:block" />
 

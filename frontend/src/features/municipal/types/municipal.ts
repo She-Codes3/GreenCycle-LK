@@ -4,6 +4,7 @@ export type MunicipalSidebarItem =
   | 'disposal-centers'
   | 'collectors'
   | 'complaints'
+  | 'notifications'
   | 'schedule'
   | 'activity'
   | 'settings';

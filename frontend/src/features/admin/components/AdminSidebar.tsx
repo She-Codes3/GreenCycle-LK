@@ -7,6 +7,7 @@ import {
   Recycle,
   Truck,
   AlertTriangle,
+  Bell,
   History,
   Settings,
   ShieldCheck,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import logoImage from '@/assets/GreenCycle-logo.png';
 import { useAuth } from '@/app/providers';
+import { useNotifications } from '@/shared/data/notificationStore';
 import { AdminSidebarItem } from '../types/admin';
 
 export interface AdminSidebarProps {
@@ -28,6 +30,8 @@ interface NavEntry {
   label: string;
   href: string;
   icon: React.ReactNode;
+  badge?: string;
+  badgeColor?: string;
 }
 
 interface NavSection {
@@ -67,11 +71,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       ? 'collection-requests'
       : location.pathname.includes('/admin/complaints')
       ? 'complaints'
+      : location.pathname.includes('/admin/notifications')
+      ? 'notifications'
       : location.pathname.includes('/admin/activity')
       ? 'activity'
       : location.pathname.includes('/admin/settings')
       ? 'settings'
       : 'dashboard');
+
+  const { unreadCount } = useNotifications('ADMIN');
 
   const navSections: NavSection[] = [
     {
@@ -121,6 +129,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           label: 'Complaints / Reports',
           href: '/admin/complaints',
           icon: <AlertTriangle className="w-4 h-4 stroke-[2.2]" />,
+        },
+        {
+          id: 'notifications',
+          label: 'Notifications',
+          href: '/admin/notifications',
+          icon: <Bell className="w-4 h-4 stroke-[2.2]" />,
+          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
+          badgeColor: 'bg-rose-500/90 text-white font-extrabold',
         },
         {
           id: 'activity',
@@ -212,6 +228,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                       {item.icon}
                     </span>
                     <span className="flex-1 text-left truncate">{item.label}</span>
+                    {item.badge && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
+                          item.badgeColor || 'bg-rose-500 text-white'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}

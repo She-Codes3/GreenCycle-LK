@@ -16,6 +16,7 @@ export * from './pages/AdminMunicipalitiesPage';
 export * from './pages/AdminDisposalCentersPage';
 export * from './pages/AdminCollectionRequestsPage';
 export * from './pages/AdminComplaintsPage';
+export * from './pages/AdminNotificationsPage';
 export * from './pages/AdminActivityPage';
 export * from './pages/AdminSettingsPage';
 
