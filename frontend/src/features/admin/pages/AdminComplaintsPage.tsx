@@ -1,30 +1,94 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Search,
-  AlertTriangle,
   Clock,
   CheckCircle2,
-  XCircle,
   MapPin,
   User,
   Phone,
   Mail,
+  Image as ImageIcon,
+  FileSearch,
+  UserCheck,
+  Loader2,
+  Lock,
 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalFooter } from '@/components/ui/Modal';
-import { MOCK_ADMIN_COMPLAINTS } from '../data/adminMockData';
-import { AdminComplaint, ComplaintStatus } from '../types/admin';
+import {
+  loadSharedComplaints,
+  GC_COMPLAINTS_SYNC_EVENT,
+} from '@/shared/data/complaintsStore';
+import type { SharedComplaint, ComplaintStatus } from '@/shared/types/complaint';
+import { COMPLAINT_STATUS_LABELS, COMPLAINT_STATUS_ORDER } from '@/shared/types/complaint';
+
+// ── Status badge helper ───────────────────────────────────────────────────────
+function statusBadge(status: ComplaintStatus) {
+  const styles: Record<string, string> = {
+    SUBMITTED: 'bg-amber-50 text-amber-800 border-amber-200',
+    UNDER_REVIEW: 'bg-sky-50 text-sky-800 border-sky-200',
+    ASSIGNED: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+    IN_PROGRESS: 'bg-blue-50 text-blue-800 border-blue-200',
+    RESOLVED: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    CLOSED: 'bg-slate-100 text-slate-700 border-slate-200',
+  };
+  const icons: Record<string, React.ReactNode> = {
+    SUBMITTED: <Clock className="w-2.5 h-2.5" />,
+    UNDER_REVIEW: <FileSearch className="w-2.5 h-2.5" />,
+    ASSIGNED: <UserCheck className="w-2.5 h-2.5" />,
+    IN_PROGRESS: <Loader2 className="w-2.5 h-2.5" />,
+    RESOLVED: <CheckCircle2 className="w-2.5 h-2.5" />,
+    CLOSED: <Lock className="w-2.5 h-2.5" />,
+  };
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${styles[status] || styles.SUBMITTED}`}>
+      {icons[status]}
+      {COMPLAINT_STATUS_LABELS[status] || status}
+    </span>
+  );
+}
+
+// ── Status step color helper ──────────────────────────────────────────────────
+function getStatusDotColor(status: ComplaintStatus): string {
+  const map: Record<string, string> = {
+    SUBMITTED: 'text-amber-600 bg-amber-100 border-amber-300',
+    UNDER_REVIEW: 'text-sky-600 bg-sky-100 border-sky-300',
+    ASSIGNED: 'text-indigo-600 bg-indigo-100 border-indigo-300',
+    IN_PROGRESS: 'text-blue-600 bg-blue-100 border-blue-300',
+    RESOLVED: 'text-emerald-600 bg-emerald-100 border-emerald-300',
+    CLOSED: 'text-slate-600 bg-slate-100 border-slate-300',
+  };
+  return map[status] || map.SUBMITTED;
+}
 
 export const AdminComplaintsPage: React.FC = () => {
-  const [complaints, setComplaints] = useState<AdminComplaint[]>(MOCK_ADMIN_COMPLAINTS);
+  const [complaints, setComplaints] = useState<SharedComplaint[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>('all');
 
-  // Selected complaint for review/status updater modal
-  const [activeComplaint, setActiveComplaint] = useState<AdminComplaint | null>(null);
+  // Selected complaint for review modal
+  const [activeComplaint, setActiveComplaint] = useState<SharedComplaint | null>(null);
+
+  // Load & sync from shared store
+  useEffect(() => {
+    const load = () => setComplaints(loadSharedComplaints());
+    load();
+
+    const handleSync = () => load();
+    window.addEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
+    return () => window.removeEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
+  }, []);
+
+  // Refresh active complaint when complaints list changes
+  useEffect(() => {
+    if (activeComplaint) {
+      const updated = complaints.find((c) => c.id === activeComplaint.id);
+      if (updated) setActiveComplaint(updated);
+    }
+  }, [complaints]);
 
   // Filter complaints
   const filteredComplaints = useMemo(() => {
@@ -54,16 +118,6 @@ export const AdminComplaintsPage: React.FC = () => {
     });
   }, [complaints, searchTerm, selectedStatus, selectedCategory, selectedMunicipality]);
 
-  // Status changer action
-  const handleUpdateStatus = (ticketId: string, newStatus: ComplaintStatus) => {
-    setComplaints((prev) =>
-      prev.map((c) => (c.id === ticketId ? { ...c, status: newStatus } : c))
-    );
-    if (activeComplaint && activeComplaint.id === ticketId) {
-      setActiveComplaint((prev) => (prev ? { ...prev, status: newStatus } : null));
-    }
-  };
-
   const handleResetFilters = () => {
     setSearchTerm('');
     setSelectedStatus('all');
@@ -71,8 +125,10 @@ export const AdminComplaintsPage: React.FC = () => {
     setSelectedMunicipality('all');
   };
 
-  const categories = Array.from(new Set(MOCK_ADMIN_COMPLAINTS.map((c) => c.category)));
-  const municipalities = Array.from(new Set(MOCK_ADMIN_COMPLAINTS.map((c) => c.municipality)));
+  const categories = Array.from(new Set(complaints.map((c) => c.category)));
+  const municipalities = Array.from(new Set(complaints.map((c) => c.municipality)));
+
+  const pendingCount = complaints.filter((c) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW').length;
 
   return (
     <AdminLayout activeItem="complaints" pageTitle="Complaints & Reports">
@@ -90,7 +146,7 @@ export const AdminComplaintsPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
-              {complaints.filter((c) => c.status === 'Pending').length} Pending Action
+              {pendingCount} Pending Action
             </span>
           </div>
         </div>
@@ -119,10 +175,9 @@ export const AdminComplaintsPage: React.FC = () => {
               className="bg-muted/50 border border-border rounded-xl px-3 py-2 text-xs text-content font-medium outline-none focus:border-primary/50 cursor-pointer"
             >
               <option value="all">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Rejected">Rejected</option>
+              {COMPLAINT_STATUS_ORDER.map((s) => (
+                <option key={s} value={s}>{COMPLAINT_STATUS_LABELS[s]}</option>
+              ))}
             </select>
 
             {/* Category Filter */}
@@ -228,23 +283,7 @@ export const AdminComplaintsPage: React.FC = () => {
 
                     {/* Status Badge */}
                     <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                          item.status === 'Pending'
-                            ? 'bg-amber-50 text-amber-800 border-amber-200'
-                            : item.status === 'In Progress'
-                            ? 'bg-blue-50 text-blue-800 border-blue-200'
-                            : item.status === 'Resolved'
-                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                            : 'bg-red-50 text-red-800 border-red-200'
-                        }`}
-                      >
-                        {item.status === 'Pending' && <Clock className="w-2.5 h-2.5" />}
-                        {item.status === 'In Progress' && <AlertTriangle className="w-2.5 h-2.5" />}
-                        {item.status === 'Resolved' && <CheckCircle2 className="w-2.5 h-2.5" />}
-                        {item.status === 'Rejected' && <XCircle className="w-2.5 h-2.5" />}
-                        {item.status}
-                      </span>
+                      {statusBadge(item.status)}
                     </td>
 
                     {/* Date */}
@@ -273,7 +312,7 @@ export const AdminComplaintsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Complaint Detail & Status Changer Modal */}
+        {/* Complaint Detail Modal */}
         {activeComplaint && (
           <Modal
             isOpen={Boolean(activeComplaint)}
@@ -299,11 +338,16 @@ export const AdminComplaintsPage: React.FC = () => {
                     className={`font-extrabold px-2 py-0.5 rounded-full text-[10px] ${
                       activeComplaint.priority === 'High'
                         ? 'bg-red-100 text-red-800'
-                        : 'bg-amber-100 text-amber-800'
+                        : activeComplaint.priority === 'Medium'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-slate-100 text-slate-700'
                     }`}
                   >
                     {activeComplaint.priority}
                   </span>
+                </div>
+                <div>
+                  {statusBadge(activeComplaint.status)}
                 </div>
               </div>
 
@@ -344,31 +388,55 @@ export const AdminComplaintsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Interactive Status Changer */}
-              <div className="p-4 rounded-2xl border border-primary/30 bg-primary-light/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              {/* Evidence Photos */}
+              {activeComplaint.evidenceUrls.length > 0 && (
                 <div>
-                  <span className="font-bold text-content block">Triage Status Update</span>
-                  <span className="text-[11px] text-content-secondary block">
-                    Assigned Officer: {activeComplaint.assignedOfficer || 'Pending Assignment'}
-                  </span>
+                  <h4 className="font-bold text-content mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Evidence Photos ({activeComplaint.evidenceUrls.length})
+                  </h4>
+                  <div className="flex gap-2 overflow-x-auto">
+                    {activeComplaint.evidenceUrls.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt={`Evidence ${i + 1}`}
+                        className="w-20 h-20 rounded-lg object-cover border border-border shrink-0"
+                      />
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {(['Pending', 'In Progress', 'Resolved', 'Rejected'] as ComplaintStatus[]).map((st) => (
-                    <button
-                      key={st}
-                      type="button"
-                      onClick={() => handleUpdateStatus(activeComplaint.id, st)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        activeComplaint.status === st
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-surface hover:bg-muted text-content border border-border'
-                      }`}
-                    >
-                      {st}
-                    </button>
-                  ))}
+              {/* Status History Timeline */}
+              {activeComplaint.statusHistory.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-content mb-2">Status History</h4>
+                  <div className="space-y-0 max-h-48 overflow-y-auto pr-1">
+                    {activeComplaint.statusHistory.map((entry, i) => (
+                      <div key={i} className="relative flex gap-2.5 pb-3 last:pb-0">
+                        {i < activeComplaint.statusHistory.length - 1 && (
+                          <div className="absolute left-[8px] top-5 bottom-0 w-px bg-border" />
+                        )}
+                        <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${getStatusDotColor(entry.status)}`}>
+                          <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold text-content">{entry.title}</p>
+                          <p className="text-[10px] text-content-secondary mt-0.5">{entry.description}</p>
+                          <p className="text-[10px] text-content-muted mt-0.5">{entry.timestamp} • {entry.performedBy}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              )}
+
+              {/* Assigned Officer Info */}
+              <div className="p-3 rounded-xl border border-border bg-muted/30">
+                <span className="font-bold text-content block text-[11px]">
+                  Assigned Officer: {activeComplaint.assignedOfficer || 'Pending Assignment'}
+                </span>
               </div>
             </div>
 

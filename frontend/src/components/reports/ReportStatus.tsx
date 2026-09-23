@@ -10,10 +10,13 @@ export interface ReportStatusProps {
 }
 
 const statusMap: Record<string, { label: string; variant: StatusBadgeVariant }> = {
-  SUBMITTED: { label: 'Report Submitted', variant: 'warning' },
+  SUBMITTED: { label: 'Submitted', variant: 'warning' },
+  UNDER_REVIEW: { label: 'Under Review', variant: 'info' },
+  ASSIGNED: { label: 'Assigned', variant: 'info' },
+  IN_PROGRESS: { label: 'In Progress', variant: 'info' },
+  RESOLVED: { label: 'Resolved', variant: 'success' },
+  CLOSED: { label: 'Closed', variant: 'default' },
   VERIFIED: { label: 'Verified by Council', variant: 'info' },
-  IN_PROGRESS: { label: 'Cleanup In Progress', variant: 'info' },
-  RESOLVED: { label: 'Resolved & Cleaned', variant: 'success' },
   REJECTED: { label: 'Dismissed', variant: 'error' },
 };
 
