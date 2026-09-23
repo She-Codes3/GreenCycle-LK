@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type {
   MunicipalCollectionRequest,
   MunicipalCollector,
-  MunicipalComplaint,
   MunicipalDisposalCenter,
   MunicipalScheduleEntry,
   MunicipalActivityLog,
@@ -10,7 +9,6 @@ import type {
 } from '../types/municipal';
 import {
   MOCK_MUNICIPAL_COLLECTORS,
-  MOCK_MUNICIPAL_COMPLAINTS,
   MOCK_MUNICIPAL_DISPOSAL_CENTERS,
   MOCK_MUNICIPAL_SCHEDULE,
   MOCK_MUNICIPAL_ACTIVITY_LOGS,
@@ -22,6 +20,12 @@ import {
   GC_SHARED_COLLECTION_STORAGE_KEY,
   GC_COLLECTION_SYNC_EVENT,
 } from '@/shared/data/collectionStore';
+import {
+  loadSharedComplaints,
+  updateSharedComplaintStatus,
+  GC_COMPLAINTS_SYNC_EVENT,
+} from '@/shared/data/complaintsStore';
+import type { SharedComplaint, ComplaintStatus } from '@/shared/types/complaint';
 
 // ──── Storage Keys ────────────────────────────────────────────────────────────
 const STORAGE_KEYS = {
@@ -100,9 +104,15 @@ export function useMunicipalData() {
   const [collectors, setCollectors] = useState<MunicipalCollector[]>(() =>
     loadFromStorage(STORAGE_KEYS.collectors, MOCK_MUNICIPAL_COLLECTORS),
   );
-  const [complaints, setComplaints] = useState<MunicipalComplaint[]>(() =>
-    loadFromStorage(STORAGE_KEYS.complaints, MOCK_MUNICIPAL_COMPLAINTS),
-  );
+  const [complaints, setComplaints] = useState<SharedComplaint[]>(() => {
+    const all = loadSharedComplaints();
+    return all.filter(
+      (c) =>
+        !c.municipality ||
+        c.municipality === MUNICIPAL_USER.municipality ||
+        c.id.startsWith('MCMP-'),
+    );
+  });
   const [disposalCenters] = useState<MunicipalDisposalCenter[]>(MOCK_MUNICIPAL_DISPOSAL_CENTERS);
   const [schedule] = useState<MunicipalScheduleEntry[]>(() =>
     loadFromStorage(STORAGE_KEYS.schedule, MOCK_MUNICIPAL_SCHEDULE),
@@ -116,14 +126,24 @@ export function useMunicipalData() {
     const handleSync = () => {
       setRequests(getMunicipalRequests());
       setCollectors(loadFromStorage(STORAGE_KEYS.collectors, MOCK_MUNICIPAL_COLLECTORS));
-      setComplaints(loadFromStorage(STORAGE_KEYS.complaints, MOCK_MUNICIPAL_COMPLAINTS));
+      const allComplaints = loadSharedComplaints();
+      setComplaints(
+        allComplaints.filter(
+          (c) =>
+            !c.municipality ||
+            c.municipality === MUNICIPAL_USER.municipality ||
+            c.id.startsWith('MCMP-'),
+        ),
+      );
       setActivityLogs(loadFromStorage(STORAGE_KEYS.activityLogs, MOCK_MUNICIPAL_ACTIVITY_LOGS));
     };
     window.addEventListener(SYNC_EVENT, handleSync);
     window.addEventListener(GC_COLLECTION_SYNC_EVENT, handleSync);
+    window.addEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
     return () => {
       window.removeEventListener(SYNC_EVENT, handleSync);
       window.removeEventListener(GC_COLLECTION_SYNC_EVENT, handleSync);
+      window.removeEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
     };
   }, []);
 
@@ -194,29 +214,32 @@ export function useMunicipalData() {
 
   // ── Update complaint status ─────────────────────────────────────────────────
   const updateComplaintStatus = useCallback(
-    (complaintId: string, newStatus: MunicipalComplaint['status'], notes?: string) => {
-      setComplaints((prev) => {
-        const next = prev.map((c) => {
-          if (c.id !== complaintId) return c;
-          return {
-            ...c,
-            status: newStatus,
-            ...(newStatus === 'Resolved' && {
-              resolvedDate: new Date().toISOString().split('T')[0],
-              resolutionNotes: notes || '',
-            }),
-          };
-        });
-        saveToStorage(STORAGE_KEYS.complaints, next);
-        emitSync();
-        return next;
-      });
+    (complaintId: string, newStatus: string, notes?: string) => {
+      // Delegate to the shared complaints store
+      updateSharedComplaintStatus(
+        complaintId,
+        newStatus as ComplaintStatus,
+        MUNICIPAL_USER.name,
+        MUNICIPAL_USER.role,
+        notes,
+      );
+
+      // Reload from shared store
+      const allComplaints = loadSharedComplaints();
+      setComplaints(
+        allComplaints.filter(
+          (c: SharedComplaint) =>
+            !c.municipality ||
+            c.municipality === MUNICIPAL_USER.municipality ||
+            c.id.startsWith('MCMP-'),
+        ),
+      );
 
       addLog(
         `Complaint ${complaintId} updated to ${newStatus}`,
         `Complaint ${complaintId} status changed to ${newStatus}.${notes ? ` Notes: ${notes}` : ''}`,
         'Complaints',
-        newStatus === 'Resolved' ? 'success' : 'info',
+        newStatus === 'RESOLVED' ? 'success' : 'info',
       );
     },
     [addLog],
@@ -228,7 +251,7 @@ export function useMunicipalData() {
     const inProgress = requests.filter((r) => r.status === 'In Progress').length;
     const completed = requests.filter((r) => r.status === 'Completed').length;
     const activeCollectors = collectors.filter((c) => c.status === 'Active').length;
-    const activeComplaints = complaints.filter((c) => c.status === 'Pending' || c.status === 'In Progress').length;
+    const activeComplaints = complaints.filter((c) => c.status === 'SUBMITTED' || c.status === 'UNDER_REVIEW' || c.status === 'ASSIGNED' || c.status === 'IN_PROGRESS').length;
 
     return {
       totalCollectionRequests: requests.length,
@@ -246,9 +269,20 @@ export function useMunicipalData() {
   const resetStore = useCallback(() => {
     Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
     localStorage.removeItem(GC_SHARED_COLLECTION_STORAGE_KEY);
+    // Also clear shared complaints storage so it re-seeds
+    localStorage.removeItem('gc_shared_complaints_v2');
     setRequests(getMunicipalRequests());
     setCollectors(MOCK_MUNICIPAL_COLLECTORS);
-    setComplaints(MOCK_MUNICIPAL_COMPLAINTS);
+    // Reload complaints from shared store (which will re-seed)
+    const allComplaints = loadSharedComplaints();
+    setComplaints(
+      allComplaints.filter(
+        (c: SharedComplaint) =>
+          !c.municipality ||
+          c.municipality === MUNICIPAL_USER.municipality ||
+          c.id.startsWith('MCMP-'),
+      ),
+    );
     setActivityLogs(MOCK_MUNICIPAL_ACTIVITY_LOGS);
     emitSync();
   }, []);
