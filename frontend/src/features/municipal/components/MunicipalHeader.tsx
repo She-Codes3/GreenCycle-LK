@@ -28,7 +28,6 @@ export const MunicipalHeader: React.FC<MunicipalHeaderProps> = ({
     if (path.includes('/municipal/disposal-centers')) return 'Disposal Centers';
     if (path.includes('/municipal/collectors')) return 'Collectors';
     if (path.includes('/municipal/complaints')) return 'Complaints & Reports';
-    if (path.includes('/municipal/notifications')) return 'Notifications & Alerts';
     if (path.includes('/municipal/schedule')) return 'Collection Schedule';
     if (path.includes('/municipal/activity')) return 'Activity Logs';
     if (path.includes('/municipal/settings')) return 'Municipal Settings';

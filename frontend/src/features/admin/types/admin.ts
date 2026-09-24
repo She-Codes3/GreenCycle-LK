@@ -151,6 +151,5 @@ export type AdminSidebarItem =
   | 'disposal-centers'
   | 'collection-requests'
   | 'complaints'
-  | 'notifications'
   | 'activity'
   | 'settings';
