@@ -46,6 +46,45 @@ const CMC_WARDS = [
   'Ward 12 - Pettah',
 ];
 
+interface ToggleSwitchProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  ariaLabel?: string;
+  size?: 'sm' | 'md';
+}
+
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
+  checked,
+  onChange,
+  ariaLabel,
+  size = 'md',
+}) => {
+  const isSm = size === 'sm';
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange(!checked);
+      }}
+      className={`relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
+        isSm ? 'h-5 w-9' : 'h-6 w-11'
+      } ${checked ? 'bg-[#046a38]' : 'bg-slate-200'}`}
+    >
+      <span
+        className={`pointer-events-none inline-block transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+          isSm
+            ? checked ? 'translate-x-4 h-4 w-4' : 'translate-x-0 h-4 w-4'
+            : checked ? 'translate-x-5 h-5 w-5' : 'translate-x-0 h-5 w-5'
+        }`}
+      />
+    </button>
+  );
+};
+
 export const ResidentSettingsPage: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -633,39 +672,45 @@ export const ResidentSettingsPage: React.FC = () => {
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-border hover:border-primary/50 transition cursor-pointer bg-canvas">
-                  <input
-                    type="checkbox"
-                    checked={segregatedWaste}
-                    onChange={(e) => setSegregatedWaste(e.target.checked)}
-                    className="mt-0.5 rounded text-primary focus:ring-primary h-4 w-4"
-                  />
-                  <div>
+                <div
+                  onClick={() => setSegregatedWaste(!segregatedWaste)}
+                  className="flex items-start justify-between gap-3 p-3.5 rounded-xl border border-border hover:border-primary/50 hover:bg-emerald-50/20 transition cursor-pointer bg-canvas select-none"
+                >
+                  <div className="space-y-0.5">
                     <span className="text-xs font-bold text-content block">
                       3-Bin Kerbside Segregation Active
                     </span>
-                    <span className="text-[11px] text-content-secondary mt-0.5 block">
+                    <span className="text-[11px] text-content-secondary block">
                       Household separates Organic, Recyclable, and Residual dry waste.
                     </span>
                   </div>
-                </label>
-
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border border-border hover:border-primary/50 transition cursor-pointer bg-canvas">
-                  <input
-                    type="checkbox"
-                    checked={hasCompostBin}
-                    onChange={(e) => setHasCompostBin(e.target.checked)}
-                    className="mt-0.5 rounded text-primary focus:ring-primary h-4 w-4"
+                  <ToggleSwitch
+                    checked={segregatedWaste}
+                    onChange={setSegregatedWaste}
+                    ariaLabel="3-Bin Kerbside Segregation Active"
+                    size="sm"
                   />
-                  <div>
+                </div>
+
+                <div
+                  onClick={() => setHasCompostBin(!hasCompostBin)}
+                  className="flex items-start justify-between gap-3 p-3.5 rounded-xl border border-border hover:border-primary/50 hover:bg-emerald-50/20 transition cursor-pointer bg-canvas select-none"
+                >
+                  <div className="space-y-0.5">
                     <span className="text-xs font-bold text-content block">
                       Home Compost Bin Installed
                     </span>
-                    <span className="text-[11px] text-content-secondary mt-0.5 block">
+                    <span className="text-[11px] text-content-secondary block">
                       Qualifies for municipal green tax rebate and extra GreenPoints.
                     </span>
                   </div>
-                </label>
+                  <ToggleSwitch
+                    checked={hasCompostBin}
+                    onChange={setHasCompostBin}
+                    ariaLabel="Home Compost Bin Installed"
+                    size="sm"
+                  />
+                </div>
               </div>
             </div>
 
@@ -695,7 +740,10 @@ export const ResidentSettingsPage: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas">
+              <div
+                onClick={() => setSmsTruckAlert(!smsTruckAlert)}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas hover:border-primary/40 hover:bg-emerald-50/20 transition cursor-pointer select-none"
+              >
                 <div className="space-y-0.5 pr-4">
                   <span className="text-xs font-bold text-content flex items-center gap-2">
                     <Smartphone className="w-4 h-4 text-primary" />
@@ -705,15 +753,17 @@ export const ResidentSettingsPage: React.FC = () => {
                     Receive an SMS to {phone} before the truck enters your lane.
                   </span>
                 </div>
-                <input
-                  type="checkbox"
+                <ToggleSwitch
                   checked={smsTruckAlert}
-                  onChange={(e) => setSmsTruckAlert(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 shrink-0"
+                  onChange={setSmsTruckAlert}
+                  ariaLabel="SMS Truck Arrival Alert"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas">
+              <div
+                onClick={() => setPushTruckAlert(!pushTruckAlert)}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas hover:border-primary/40 hover:bg-emerald-50/20 transition cursor-pointer select-none"
+              >
                 <div className="space-y-0.5 pr-4">
                   <span className="text-xs font-bold text-content flex items-center gap-2">
                     <Bell className="w-4 h-4 text-emerald-600" />
@@ -723,11 +773,10 @@ export const ResidentSettingsPage: React.FC = () => {
                     Browser & mobile push alert when vehicle is on live tracking radar.
                   </span>
                 </div>
-                <input
-                  type="checkbox"
+                <ToggleSwitch
                   checked={pushTruckAlert}
-                  onChange={(e) => setPushTruckAlert(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 shrink-0"
+                  onChange={setPushTruckAlert}
+                  ariaLabel="Push Notification Alerts"
                 />
               </div>
 
@@ -752,7 +801,10 @@ export const ResidentSettingsPage: React.FC = () => {
                 </select>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas">
+              <div
+                onClick={() => setMissedPickupAlert(!missedPickupAlert)}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas hover:border-primary/40 hover:bg-emerald-50/20 transition cursor-pointer select-none"
+              >
                 <div className="space-y-0.5 pr-4">
                   <span className="text-xs font-bold text-content block">
                     Missed Collection Notice
@@ -761,15 +813,17 @@ export const ResidentSettingsPage: React.FC = () => {
                     Instant alert if your street collection was delayed or rescheduled.
                   </span>
                 </div>
-                <input
-                  type="checkbox"
+                <ToggleSwitch
                   checked={missedPickupAlert}
-                  onChange={(e) => setMissedPickupAlert(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 shrink-0"
+                  onChange={setMissedPickupAlert}
+                  ariaLabel="Missed Collection Notice"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas">
+              <div
+                onClick={() => setRewardsAlert(!rewardsAlert)}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas hover:border-primary/40 hover:bg-emerald-50/20 transition cursor-pointer select-none"
+              >
                 <div className="space-y-0.5 pr-4">
                   <span className="text-xs font-bold text-content block">
                     GreenPoints & Reward Milestones
@@ -778,15 +832,17 @@ export const ResidentSettingsPage: React.FC = () => {
                     Notify when points are awarded from recycling centres or vouchers are ready.
                   </span>
                 </div>
-                <input
-                  type="checkbox"
+                <ToggleSwitch
                   checked={rewardsAlert}
-                  onChange={(e) => setRewardsAlert(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 shrink-0"
+                  onChange={setRewardsAlert}
+                  ariaLabel="GreenPoints & Reward Milestones"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas">
+              <div
+                onClick={() => setWeeklyDigest(!weeklyDigest)}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-canvas hover:border-primary/40 hover:bg-emerald-50/20 transition cursor-pointer select-none"
+              >
                 <div className="space-y-0.5 pr-4">
                   <span className="text-xs font-bold text-content block">
                     Weekly Household Eco Summary
@@ -795,11 +851,10 @@ export const ResidentSettingsPage: React.FC = () => {
                     Email digest every Sunday with your weekly recycling kg and community rank.
                   </span>
                 </div>
-                <input
-                  type="checkbox"
+                <ToggleSwitch
                   checked={weeklyDigest}
-                  onChange={(e) => setWeeklyDigest(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 shrink-0"
+                  onChange={setWeeklyDigest}
+                  ariaLabel="Weekly Household Eco Summary"
                 />
               </div>
             </div>
@@ -892,8 +947,11 @@ export const ResidentSettingsPage: React.FC = () => {
             </form>
 
             {/* Two-Factor Authentication Card */}
-            <div className="bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-card space-y-4">
-              <div className="flex items-center justify-between">
+            <div
+              onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
+              className="bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-card hover:border-primary/40 hover:bg-emerald-50/10 transition cursor-pointer select-none"
+            >
+              <div className="flex items-center justify-between gap-4">
                 <div>
                   <h4 className="text-xs font-extrabold text-content uppercase tracking-wider">
                     Two-Factor Authentication (SMS OTP)
@@ -902,17 +960,11 @@ export const ResidentSettingsPage: React.FC = () => {
                     Require a verification code sent to {phone} whenever you sign in.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
-                    twoFactorEnabled
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : 'bg-muted text-content-secondary hover:bg-muted/80'
-                  }`}
-                >
-                  {twoFactorEnabled ? 'Enabled' : 'Disabled'}
-                </button>
+                <ToggleSwitch
+                  checked={twoFactorEnabled}
+                  onChange={setTwoFactorEnabled}
+                  ariaLabel="Two-Factor Authentication"
+                />
               </div>
             </div>
           </div>
