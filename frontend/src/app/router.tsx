@@ -6,7 +6,7 @@ import { DisposalCenterDetailsPage } from "@/pages/disposal/DisposalCenterDetail
 import { ReportIssuePage } from "@/features/reports/pages/ReportIssuePage";
 import { MyReportsPage } from "@/features/reports/pages/MyReportsPage";
 import { ReportDetailPage } from "@/features/reports/pages/ReportDetailPage";
-import { ResidentNotificationsPage, ResidentMyReportsPage, ResidentDashboardPage as ResidentPortalDashboard } from "@/features/resident";
+import { ResidentNotificationsPage, ResidentMyReportsPage, ResidentScannerPage, ResidentDashboardPage as ResidentPortalDashboard } from "@/features/resident";
 
 import { CollectionHistory } from "@/features/collector/pages/CollectionHistory";
 import { CollectorDashboardPage } from "@/features/collector/pages/CollectorDashboardPage";
@@ -180,7 +180,8 @@ export function AppRouter() {
       <Route path="/resident/dashboard" element={residentDashboard} />
       <Route path="/resident/schedule" element={<ResidentPortalDashboard />} />
       <Route path="/resident/tracking" element={<ResidentPortalDashboard />} />
-      <Route path="/resident/scanner" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/scanner" element={<ResidentScannerPage />} />
+      <Route path="/scanner" element={<Navigate to="/resident/scanner" replace />} />
       <Route path="/resident/pickup" element={<ResidentPortalDashboard />} />
       <Route path="/resident/disposal-centers" element={<Navigate to="/disposal-centers" replace />} />
       <Route path="/resident/rewards" element={<ResidentPortalDashboard />} />
