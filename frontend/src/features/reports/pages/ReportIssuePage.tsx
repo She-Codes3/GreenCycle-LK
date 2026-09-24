@@ -18,9 +18,7 @@ import {
 import { submitNewComplaint } from '@/shared/data/complaintsStore';
 import type { ComplaintCategory, ComplaintPriority } from '@/shared/types/complaint';
 import { COMPLAINT_CATEGORIES } from '@/shared/types/complaint';
-import { DashboardLayout } from '@/components/dashboard';
-import { MobileMenu } from '@/components/layout/MobileMenu';
-import { UserNavbar, UserSidebar } from '@/features/user/components';
+import { ResidentLayout } from '@/features/resident/components/ResidentLayout';
 
 // ── Mock resident identity ────────────────────────────────────────────────────
 const MOCK_RESIDENT = {
@@ -73,7 +71,6 @@ const categoryConfig: Record<ComplaintCategory, { icon: React.ReactNode; color: 
 const STEPS = ['Issue Type', 'Details', 'Evidence', 'Location', 'Review'];
 
 export const ReportIssuePage: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState('');
@@ -154,24 +151,7 @@ export const ReportIssuePage: React.FC = () => {
   // ── Success View ────────────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <DashboardLayout
-        sidebar={<UserSidebar activeItem="report-issue" />}
-        mobileMenu={
-          <MobileMenu
-            isOpen={isMenuOpen}
-            onClose={() => setIsMenuOpen(false)}
-            brandName="GreenCycle LK"
-          >
-            <UserSidebar activeItem="report-issue" />
-          </MobileMenu>
-        }
-        navbar={
-          <UserNavbar
-            isMenuOpen={isMenuOpen}
-            onMenuToggle={() => setIsMenuOpen((open) => !open)}
-          />
-        }
-      >
+      <ResidentLayout activeItem="reports">
         <div className="flex items-center justify-center py-12">
           <div className="w-full max-w-md bg-surface rounded-3xl border border-border shadow-elevated p-8 text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto">
@@ -212,30 +192,13 @@ export const ReportIssuePage: React.FC = () => {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </ResidentLayout>
     );
   }
 
   // ── Main Form ───────────────────────────────────────────────────────────────
   return (
-    <DashboardLayout
-      sidebar={<UserSidebar activeItem="report-issue" />}
-      mobileMenu={
-        <MobileMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          brandName="GreenCycle LK"
-        >
-          <UserSidebar activeItem="report-issue" />
-        </MobileMenu>
-      }
-      navbar={
-        <UserNavbar
-          isMenuOpen={isMenuOpen}
-          onMenuToggle={() => setIsMenuOpen((open) => !open)}
-        />
-      }
-    >
+    <ResidentLayout activeItem="reports">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-border/60">
@@ -620,6 +583,6 @@ export const ReportIssuePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </ResidentLayout>
   );
 };

@@ -6,8 +6,7 @@ import { DisposalCenterDetailsPage } from "@/pages/disposal/DisposalCenterDetail
 import { ReportIssuePage } from "@/features/reports/pages/ReportIssuePage";
 import { MyReportsPage } from "@/features/reports/pages/MyReportsPage";
 import { ReportDetailPage } from "@/features/reports/pages/ReportDetailPage";
-import { ResidentDashboardPage } from "@/features/dashboard";
-import { ResidentNotificationsPage } from "@/features/resident";
+import { ResidentNotificationsPage, ResidentMyReportsPage, ResidentDashboardPage as ResidentPortalDashboard } from "@/features/resident";
 
 import { CollectionHistory } from "@/features/collector/pages/CollectionHistory";
 import { CollectorDashboardPage } from "@/features/collector/pages/CollectorDashboardPage";
@@ -75,10 +74,10 @@ export function AppRouter() {
   );
 
   const residentDashboard = import.meta.env.DEV ? (
-    <ResidentDashboardPage />
+    <ResidentPortalDashboard />
   ) : (
     <ProtectedRoute allowedRoles={["RESIDENT"]}>
-      <ResidentDashboardPage />
+      <ResidentPortalDashboard />
     </ProtectedRoute>
   );
 
@@ -179,17 +178,17 @@ export function AppRouter() {
       {/* Resident Dashboard Routes */}
       <Route path="/resident" element={<Navigate to="/resident/dashboard" replace />} />
       <Route path="/resident/dashboard" element={residentDashboard} />
-      <Route path="/resident/schedule" element={<ResidentDashboardPage />} />
-      <Route path="/resident/tracking" element={<ResidentDashboardPage />} />
-      <Route path="/resident/scanner" element={<ResidentDashboardPage />} />
-      <Route path="/resident/pickup" element={<ResidentDashboardPage />} />
+      <Route path="/resident/schedule" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/tracking" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/scanner" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/pickup" element={<ResidentPortalDashboard />} />
       <Route path="/resident/disposal-centers" element={<Navigate to="/disposal-centers" replace />} />
-      <Route path="/resident/rewards" element={<ResidentDashboardPage />} />
-      <Route path="/resident/reports" element={<Navigate to="/my-reports" replace />} />
+      <Route path="/resident/rewards" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/reports" element={<ResidentMyReportsPage />} />
       <Route path="/resident/report-issue" element={<Navigate to="/report-issue" replace />} />
       <Route path="/resident/notifications" element={<ResidentNotificationsPage />} />
       <Route path="/notifications" element={<Navigate to="/resident/notifications" replace />} />
-      <Route path="/resident/settings" element={<ResidentDashboardPage />} />
+      <Route path="/resident/settings" element={<ResidentPortalDashboard />} />
 
       <Route
         path="/dashboard"

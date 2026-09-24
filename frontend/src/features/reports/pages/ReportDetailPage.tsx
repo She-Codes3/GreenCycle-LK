@@ -19,9 +19,7 @@ import { loadSharedComplaints, GC_COMPLAINTS_SYNC_EVENT } from '@/shared/data/co
 import { ReportStatus } from '@/components/reports/ReportStatus';
 import type { SharedComplaint, ComplaintCategory, ComplaintStatus } from '@/shared/types/complaint';
 import { COMPLAINT_STATUS_ORDER, COMPLAINT_STATUS_LABELS } from '@/shared/types/complaint';
-import { DashboardLayout } from '@/components/dashboard';
-import { MobileMenu } from '@/components/layout/MobileMenu';
-import { UserNavbar, UserSidebar } from '@/features/user/components';
+import { ResidentLayout } from '@/features/resident/components/ResidentLayout';
 
 // ── Category config ───────────────────────────────────────────────────────────
 const categoryConfig: Record<ComplaintCategory, { icon: React.ReactNode; color: string; bgColor: string }> = {
@@ -47,7 +45,6 @@ function getStatusColor(status: ComplaintStatus): string {
 
 export const ReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [report, setReport] = useState<SharedComplaint | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -102,24 +99,7 @@ export const ReportDetailPage: React.FC = () => {
   const currentStatusIndex = COMPLAINT_STATUS_ORDER.indexOf(report.status);
 
   return (
-    <DashboardLayout
-      sidebar={<UserSidebar activeItem="my-reports" />}
-      mobileMenu={
-        <MobileMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          brandName="GreenCycle LK"
-        >
-          <UserSidebar activeItem="my-reports" />
-        </MobileMenu>
-      }
-      navbar={
-        <UserNavbar
-          isMenuOpen={isMenuOpen}
-          onMenuToggle={() => setIsMenuOpen((open) => !open)}
-        />
-      }
-    >
+    <ResidentLayout activeItem="reports">
       {/* Image Lightbox */}
       {lightboxImage && (
         <div
@@ -333,6 +313,6 @@ export const ReportDetailPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </ResidentLayout>
   );
 };

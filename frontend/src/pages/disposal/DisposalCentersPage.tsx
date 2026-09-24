@@ -1,12 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Container } from '@/components/layout/Container';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { DashboardLayout } from '@/components/dashboard';
-import { MobileMenu } from '@/components/layout';
+import { ResidentLayout } from '@/features/resident/components/ResidentLayout';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-
-import { UserNavbar, UserSidebar } from '@/features/user/components';
 
 import { DisposalSearchPanel } from '@/features/disposal/components/DisposalSearchPanel';
 import { DisposalMapView } from '@/features/disposal/components/DisposalMapView';
@@ -37,7 +34,6 @@ export const DisposalCentersPage: React.FC = () => {
   const [filters, setFilters] = useState<DisposalFilterState>(INITIAL_FILTERS);
   const [sortBy, setSortBy] = useState<DisposalSortOption>('nearest');
   const [selectedCenterId, setSelectedCenterId] = useState<string | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   // Enrich raw data with computed distance + isOpen
@@ -76,26 +72,7 @@ export const DisposalCentersPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout
-      sidebar={<UserSidebar activeItem="disposal-centers" />}
-      mobileMenu={
-        <MobileMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          brandName="GreenCycle LK"
-        >
-          <UserSidebar activeItem="disposal-centers" />
-        </MobileMenu>
-      }
-      navbar={
-        <UserNavbar
-          isMenuOpen={isMenuOpen}
-          onMenuToggle={() => setIsMenuOpen((open) => !open)}
-        />
-      }
-      className="p-0 sm:p-0 lg:p-0"
-      contentClassName="max-w-none"
-    >
+    <ResidentLayout activeItem="disposal-centers" contentClassName="max-w-none p-0 sm:p-0 lg:p-0">
       {/* Main Page Container */}
       <Container size="full" className="px-6 py-6 flex-1 flex flex-col">
         {/* Page Header */}
@@ -185,7 +162,7 @@ export const DisposalCentersPage: React.FC = () => {
           </div>
         </main>
       </Container>
-    </DashboardLayout>
+    </ResidentLayout>
   );
 };
 

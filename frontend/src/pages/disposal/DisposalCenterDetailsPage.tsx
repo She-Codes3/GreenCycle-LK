@@ -1,15 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container } from '@/components/layout/Container';
-import { DashboardLayout } from '@/components/dashboard';
-import { MobileMenu } from '@/components/layout';
+import { ResidentLayout } from '@/features/resident/components/ResidentLayout';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MapContainer } from '@/components/maps/MapContainer';
 import { Marker } from 'react-leaflet';
 import L from 'leaflet';
-
-import { UserNavbar, UserSidebar } from '@/features/user/components';
 
 import { MOCK_DISPOSAL_CENTERS } from '@/features/disposal/data/disposalCenters.mock';
 import { DisposalCenter, DisposalCenterView } from '@/features/disposal/types/disposal';
@@ -42,7 +39,6 @@ const createCenterPinIcon = () => {
 
 export const DisposalCenterDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Lookup center by code (e.g. DC001) or id (e.g. colombo-recycling-center)
   const center: DisposalCenterView = useMemo(() => {
@@ -165,26 +161,7 @@ export const DisposalCenterDetailsPage: React.FC = () => {
       ];
 
   return (
-    <DashboardLayout
-      sidebar={<UserSidebar activeItem="disposal-centers" />}
-      mobileMenu={
-        <MobileMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          brandName="GreenCycle LK"
-        >
-          <UserSidebar activeItem="disposal-centers" />
-        </MobileMenu>
-      }
-      navbar={
-        <UserNavbar
-          isMenuOpen={isMenuOpen}
-          onMenuToggle={() => setIsMenuOpen((open) => !open)}
-        />
-      }
-      className="p-0 sm:p-0 lg:p-0"
-      contentClassName="max-w-none"
-    >
+    <ResidentLayout activeItem="disposal-centers" contentClassName="max-w-none p-0 sm:p-0 lg:p-0">
 
       {/* Main Details Body */}
       <Container size="full" className="max-w-6xl mx-auto px-6 py-6 flex-1 space-y-6">
@@ -619,7 +596,7 @@ export const DisposalCenterDetailsPage: React.FC = () => {
           </span>
         </div>
       </Container>
-    </DashboardLayout>
+    </ResidentLayout>
   );
 };
 
