@@ -5,6 +5,7 @@ import {
   Search,
   Leaf,
   X,
+  Settings,
 } from 'lucide-react';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAuth } from '@/app/providers';
@@ -168,6 +169,16 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
         </button>
 
 
+        {/* Settings Quick Button */}
+        <button
+          type="button"
+          onClick={() => navigate('/resident/settings?tab=household')}
+          title="Household & Collection Settings"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface text-content-secondary hover:text-primary hover:bg-muted/80 transition-all shadow-xs active:scale-[0.98]"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+
         <div className="h-6 w-px bg-border hidden sm:block" />
 
         {/* User Menu Dropdown */}
@@ -175,9 +186,9 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
           user={activeUser}
           onProfile={() => {
             if (onProfileClick) onProfileClick();
-            else navigate('/resident/settings');
+            else navigate('/resident/settings?tab=profile');
           }}
-          onSettings={() => navigate('/resident/settings')}
+          onSettings={() => navigate('/resident/settings?tab=household')}
           onLogout={handleLogoutAction}
         />
       </div>
