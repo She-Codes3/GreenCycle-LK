@@ -123,12 +123,15 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            <h1 className="text-base sm:text-lg font-bold text-content truncate leading-snug">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-base sm:text-lg font-bold text-content shrink-0 whitespace-nowrap leading-snug">
               {getComputedTitle()}
             </h1>
             {pageSubtitle && (
-              <span className="hidden md:inline-block text-xs text-content-muted font-normal">
+              <span
+                title={pageSubtitle}
+                className="hidden md:inline-block text-xs text-content-muted font-normal truncate max-w-xs lg:max-w-sm xl:max-w-lg"
+              >
                 — {pageSubtitle}
               </span>
             )}
@@ -137,9 +140,9 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
       </div>
 
       {/* Center & Right Actions */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Quick Search for Drop-offs & Sorting Guides */}
-        <form onSubmit={handleSearchSubmit} className="hidden md:block relative w-52 lg:w-72">
+        <form onSubmit={handleSearchSubmit} className="hidden md:block relative w-44 lg:w-56 xl:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-content-muted" />
           <input
             type="text"
