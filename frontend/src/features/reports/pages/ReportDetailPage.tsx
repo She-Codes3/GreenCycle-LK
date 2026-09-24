@@ -157,7 +157,7 @@ export const ReportDetailPage: React.FC = () => {
           <div className="p-5 sm:p-6 space-y-4">
             <div>
               <h3 className="text-xs font-bold text-content-muted uppercase tracking-wider mb-2">Description</h3>
-              <p className="text-sm text-content leading-relaxed">{report.description}</p>
+              <p className="text-sm text-content leading-relaxed break-words break-all whitespace-pre-wrap">{report.description}</p>
             </div>
 
             {/* Location */}
