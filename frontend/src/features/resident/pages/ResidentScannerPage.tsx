@@ -179,7 +179,7 @@ export const ResidentScannerPage: React.FC = () => {
   };
 
   return (
-    <ResidentLayout>
+    <ResidentLayout activeItem="scanner" pageTitle="AI Waste Identifier" pageSubtitle="Instant AI-powered waste classification and recycling guidance">
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* ── Page Header ── */}

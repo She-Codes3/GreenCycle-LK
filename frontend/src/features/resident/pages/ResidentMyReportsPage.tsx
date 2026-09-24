@@ -13,17 +13,18 @@ import {
   Clock,
   ChevronRight,
   Image as ImageIcon,
+  FileText,
 } from 'lucide-react';
 import { loadSharedComplaints, GC_COMPLAINTS_SYNC_EVENT } from '@/shared/data/complaintsStore';
 import { ReportStatus } from '@/components/reports/ReportStatus';
 import type { SharedComplaint, ComplaintCategory } from '@/shared/types/complaint';
 import { COMPLAINT_CATEGORIES } from '@/shared/types/complaint';
-import { ResidentLayout } from '@/features/resident/components/ResidentLayout';
+import { ResidentLayout } from '../components/ResidentLayout';
 
-// ── Mock resident identity (filter reports by submitter) ──────────────────────
+// ── Mock resident identity ────────────────────────────────────────────────────
 const MOCK_RESIDENT_NAME = 'Kasun Perera';
 
-// ── Category icons ────────────────────────────────────────────────────────────
+// ── Category icons ─────────────────────────────────────────────────────────────
 const categoryIcons: Record<ComplaintCategory, React.ReactNode> = {
   'Illegal Dumping': <AlertTriangle className="w-4 h-4" />,
   'Overflowing Bin': <Trash2 className="w-4 h-4" />,
@@ -40,8 +41,10 @@ const categoryColors: Record<ComplaintCategory, string> = {
   'Waste Accumulation': 'bg-emerald-50 text-emerald-700',
 };
 
-export const MyReportsPage: React.FC = () => {
+// ── Page ─────────────────────────────────────────────────────────────────────
+export const ResidentMyReportsPage: React.FC = () => {
   const navigate = useNavigate();
+
   const [complaints, setComplaints] = useState<SharedComplaint[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -56,9 +59,8 @@ export const MyReportsPage: React.FC = () => {
     };
     load();
 
-    const handleSync = () => load();
-    window.addEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
-    return () => window.removeEventListener(GC_COMPLAINTS_SYNC_EVENT, handleSync);
+    window.addEventListener(GC_COMPLAINTS_SYNC_EVENT, load);
+    return () => window.removeEventListener(GC_COMPLAINTS_SYNC_EVENT, load);
   }, []);
 
   // Stats
@@ -89,7 +91,8 @@ export const MyReportsPage: React.FC = () => {
   return (
     <ResidentLayout activeItem="reports">
       <div className="space-y-6">
-        {/* Page Title & Actions */}
+
+        {/* ── Page Title & Actions ────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-content tracking-tight">My Reports</h1>
@@ -106,7 +109,7 @@ export const MyReportsPage: React.FC = () => {
           </Link>
         </div>
 
-        {/* Summary Cards */}
+        {/* ── Summary Stats ───────────────────────────────────────── */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: 'Total Reports', value: stats.total, color: 'bg-muted text-content' },
@@ -120,7 +123,7 @@ export const MyReportsPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Filters */}
+        {/* ── Filters ─────────────────────────────────────────────── */}
         <div className="bg-surface rounded-2xl border border-border p-4 shadow-card flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted" strokeWidth={1.8} />
@@ -162,11 +165,11 @@ export const MyReportsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Reports List */}
+        {/* ── Reports List ─────────────────────────────────────────── */}
         {filteredComplaints.length === 0 ? (
           <div className="bg-surface rounded-2xl border border-border p-12 text-center">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-7 h-7 text-content-muted" />
+              <FileText className="w-7 h-7 text-content-muted" />
             </div>
             <h3 className="text-base font-bold text-content">No reports found</h3>
             <p className="text-sm text-content-secondary mt-1 mb-6">
@@ -242,6 +245,7 @@ export const MyReportsPage: React.FC = () => {
             ))}
           </div>
         )}
+
       </div>
     </ResidentLayout>
   );
