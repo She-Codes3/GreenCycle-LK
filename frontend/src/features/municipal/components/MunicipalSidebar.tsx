@@ -198,7 +198,7 @@ export const MunicipalSidebar: React.FC<MunicipalSidebarProps> = ({
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 space-y-4 overflow-y-auto pt-4 pr-1">
+      <nav className="flex-1 space-y-4 overflow-y-auto pt-4 pr-1 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {navSections.map((section, sIdx) => (
           <div key={sIdx} className="space-y-1">
             {section.title && (
