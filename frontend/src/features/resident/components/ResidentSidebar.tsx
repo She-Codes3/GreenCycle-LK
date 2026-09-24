@@ -192,7 +192,7 @@ export const ResidentSidebar: React.FC<ResidentSidebarProps> = ({
 
   return (
     <aside
-      className={`flex min-h-screen w-64 shrink-0 flex-col bg-[#046a38] p-4 text-white select-none ${className}`}
+      className={`flex h-full min-h-screen w-64 shrink-0 flex-col bg-[#046a38] p-4 text-white select-none overflow-hidden ${className}`}
       style={{ boxShadow: '4px 0 24px rgba(0,0,0,0.35)' }}
     >
       {/* Brand Header */}
@@ -222,7 +222,7 @@ export const ResidentSidebar: React.FC<ResidentSidebarProps> = ({
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 space-y-4 overflow-y-auto pt-4 pr-1">
+      <nav className="flex-1 space-y-3 overflow-y-auto pt-3 pr-1 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {navSections.map((section, sIdx) => (
           <div key={sIdx} className="space-y-1">
             {section.title && (
