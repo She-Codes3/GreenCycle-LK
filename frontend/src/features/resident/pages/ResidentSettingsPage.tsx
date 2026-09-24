@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ResidentLayout } from '../components/ResidentLayout';
 import {
   User,
@@ -87,7 +88,32 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 
 export const ResidentSettingsPage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const getValidTab = (param: string | null): SettingsTab => {
+    if (param === 'household' || param === 'settings') return 'household';
+    if (param === 'notifications' || param === 'alerts') return 'notifications';
+    if (param === 'security' || param === 'password') return 'security';
+    if (param === 'impact' || param === 'eco') return 'impact';
+    return 'profile';
+  };
+
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    return getValidTab(searchParams.get('tab'));
+  });
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setActiveTab(getValidTab(tabParam));
+    }
+  }, [searchParams]);
+
+  const handleTabSelect = (tabId: SettingsTab) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId }, { replace: true });
+  };
+
   const [savedNotice, setSavedNotice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -304,7 +330,7 @@ export const ResidentSettingsPage: React.FC = () => {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabSelect(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-primary text-white shadow-xs'
