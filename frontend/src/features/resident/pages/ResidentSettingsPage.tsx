@@ -86,17 +86,17 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   );
 };
 
+const getValidTab = (param: string | null): SettingsTab => {
+  if (param === 'household' || param === 'settings') return 'household';
+  if (param === 'notifications' || param === 'alerts') return 'notifications';
+  if (param === 'security' || param === 'password') return 'security';
+  if (param === 'impact' || param === 'eco') return 'impact';
+  return 'profile';
+};
+
 export const ResidentSettingsPage: React.FC = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const getValidTab = (param: string | null): SettingsTab => {
-    if (param === 'household' || param === 'settings') return 'household';
-    if (param === 'notifications' || param === 'alerts') return 'notifications';
-    if (param === 'security' || param === 'password') return 'security';
-    if (param === 'impact' || param === 'eco') return 'impact';
-    return 'profile';
-  };
 
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
     return getValidTab(searchParams.get('tab'));

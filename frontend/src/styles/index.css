@@ -87,10 +87,8 @@ textarea {
 }
 
 textarea {
-  word-wrap: break-word;
-  word-break: break-all;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 button:focus-visible,
