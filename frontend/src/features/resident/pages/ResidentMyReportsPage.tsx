@@ -216,7 +216,7 @@ export const ResidentMyReportsPage: React.FC = () => {
                       <ReportStatus status={report.status} size="sm" />
                     </div>
 
-                    <p className="text-sm text-content font-medium leading-snug line-clamp-2">
+                    <p className="text-sm text-content font-medium leading-snug line-clamp-2 break-words break-all">
                       {report.description}
                     </p>
 
