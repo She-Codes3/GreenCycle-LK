@@ -48,7 +48,7 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
     if (path.includes('/resident/rewards')) return 'Green Points & Rewards';
     if (path.includes('/resident/reports')) return 'Citizen Reports & Complaints';
     if (path.includes('/resident/notifications')) return 'Notifications & Alerts';
-    if (path.includes('/resident/settings')) return 'Household Settings';
+    if (path.includes('/resident/settings')) return 'Profile & Settings';
     return 'Resident Eco-Dashboard';
   };
 
@@ -69,10 +69,10 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
   };
 
   const activeUser = {
-    name: user?.fullName || RESIDENT_USER.name,
-    email: user?.email || RESIDENT_USER.email,
+    name: localStorage.getItem('gc_resident_name') || user?.fullName || RESIDENT_USER.name,
+    email: localStorage.getItem('gc_resident_email') || user?.email || RESIDENT_USER.email,
     role: 'Resident Citizen',
-    avatarUrl: user?.avatarUrl,
+    avatarUrl: localStorage.getItem('gc_resident_avatar') || user?.avatarUrl,
   };
 
   return (

@@ -6,7 +6,7 @@ import { DisposalCenterDetailsPage } from "@/pages/disposal/DisposalCenterDetail
 import { ReportIssuePage } from "@/features/reports/pages/ReportIssuePage";
 import { MyReportsPage } from "@/features/reports/pages/MyReportsPage";
 import { ReportDetailPage } from "@/features/reports/pages/ReportDetailPage";
-import { ResidentNotificationsPage, ResidentMyReportsPage, ResidentScannerPage, ResidentDashboardPage as ResidentPortalDashboard } from "@/features/resident";
+import { ResidentNotificationsPage, ResidentMyReportsPage, ResidentScannerPage, ResidentSettingsPage, ResidentDashboardPage as ResidentPortalDashboard } from "@/features/resident";
 
 import { CollectionHistory } from "@/features/collector/pages/CollectionHistory";
 import { CollectorDashboardPage } from "@/features/collector/pages/CollectorDashboardPage";
@@ -189,7 +189,10 @@ export function AppRouter() {
       <Route path="/resident/report-issue" element={<Navigate to="/report-issue" replace />} />
       <Route path="/resident/notifications" element={<ResidentNotificationsPage />} />
       <Route path="/notifications" element={<Navigate to="/resident/notifications" replace />} />
-      <Route path="/resident/settings" element={<ResidentPortalDashboard />} />
+      <Route path="/resident/settings" element={<ResidentSettingsPage />} />
+      <Route path="/resident/profile" element={<Navigate to="/resident/settings" replace />} />
+      <Route path="/settings" element={<Navigate to="/resident/settings" replace />} />
+      <Route path="/profile" element={<Navigate to="/resident/settings" replace />} />
 
       <Route
         path="/dashboard"

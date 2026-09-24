@@ -174,7 +174,7 @@ export const ResidentSidebar: React.FC<ResidentSidebarProps> = ({
       items: [
         {
           id: 'settings',
-          label: 'Household Settings',
+          label: 'Profile & Settings',
           href: '/resident/settings',
           icon: <Settings className="w-4 h-4 stroke-[2.2]" />,
         },
