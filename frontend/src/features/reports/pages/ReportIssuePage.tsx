@@ -490,7 +490,7 @@ export const ReportIssuePage: React.FC = () => {
                   {/* Description */}
                   <div className="p-4">
                     <p className="text-[10px] font-bold text-content-muted uppercase tracking-wider mb-1">Description</p>
-                    <p className="text-sm text-content leading-relaxed">{description}</p>
+                    <p className="text-sm text-content leading-relaxed break-words break-all">{description}</p>
                   </div>
 
                   {/* Location */}
