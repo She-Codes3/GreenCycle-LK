@@ -86,6 +86,13 @@ textarea {
   font: inherit;
 }
 
+textarea {
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
