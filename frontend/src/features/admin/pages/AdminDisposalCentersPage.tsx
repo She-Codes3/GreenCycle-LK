@@ -75,7 +75,7 @@ export const AdminDisposalCentersPage: React.FC = () => {
               Disposal Centers
             </h1>
             <p className="text-xs sm:text-sm text-content-secondary mt-1">
-              National registry of municipal drop-off hubs, recycling sorting plants, and telemetry sensors.
+              National registry of municipal drop-off hubs, recycling sorting plants, and community facilities.
             </p>
           </div>
 
@@ -95,9 +95,9 @@ export const AdminDisposalCentersPage: React.FC = () => {
           </div>
 
           <div className="bg-surface rounded-2xl border border-border p-4 shadow-card">
-            <span className="text-xs font-bold text-content-muted block">Normal Telemetry</span>
+            <span className="text-xs font-bold text-content-muted block">Operational Centers</span>
             <span className="text-2xl font-black text-emerald-700 mt-1 block">128</span>
-            <span className="text-[11px] text-emerald-700 font-semibold mt-0.5 block">Intake &lt; 70% capacity</span>
+            <span className="text-[11px] text-emerald-700 font-semibold mt-0.5 block">Fully operational</span>
           </div>
 
           <div className="bg-surface rounded-2xl border border-border p-4 shadow-card">
@@ -109,7 +109,7 @@ export const AdminDisposalCentersPage: React.FC = () => {
           <div className="bg-surface rounded-2xl border border-border p-4 shadow-card">
             <span className="text-xs font-bold text-content-muted block">Maintenance</span>
             <span className="text-2xl font-black text-content-secondary mt-1 block">3</span>
-            <span className="text-[11px] text-content-muted mt-0.5 block">Scheduled sensor service</span>
+            <span className="text-[11px] text-content-muted mt-0.5 block">Scheduled facility service</span>
           </div>
         </div>
 
@@ -163,9 +163,9 @@ export const AdminDisposalCentersPage: React.FC = () => {
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="bg-muted/50 border border-border rounded-xl px-3 py-2 text-xs text-content font-medium outline-none focus:border-primary/50 cursor-pointer"
             >
-              <option value="all">All Telemetry States</option>
-              <option value="NORMAL">Normal (&lt;70%)</option>
-              <option value="HIGH">Near Capacity (&gt;70%)</option>
+              <option value="all">All Statuses</option>
+              <option value="NORMAL">Operational</option>
+              <option value="HIGH">Near Capacity</option>
             </select>
 
             {(searchTerm || selectedMunicipality !== 'all' || selectedStreamGroup !== 'all' || selectedStatus !== 'all') && (
@@ -190,16 +190,12 @@ export const AdminDisposalCentersPage: React.FC = () => {
                   <th className="py-3.5 px-4 font-bold">Center Name & Code</th>
                   <th className="py-3.5 px-4 font-bold">Location / Ward</th>
                   <th className="py-3.5 px-4 font-bold">Accepted Streams</th>
-                  <th className="py-3.5 px-4 font-bold">Intake Telemetry</th>
                   <th className="py-3.5 px-4 font-bold text-center">Status</th>
                   <th className="py-3.5 px-4 font-bold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
                 {filteredCenters.map((center) => {
-                  const capacity = center.telemetryCapacityPct || 42;
-                  const isHigh = capacity >= 70;
-
                   return (
                     <tr
                       key={center.id}
@@ -245,26 +241,6 @@ export const AdminDisposalCentersPage: React.FC = () => {
                               +{center.acceptedWasteTypes.length - 3} more
                             </span>
                           )}
-                        </div>
-                      </td>
-
-                      {/* Intake Telemetry Bar */}
-                      <td className="py-3.5 px-4">
-                        <div className="space-y-1 w-32">
-                          <div className="flex items-center justify-between text-[10px] font-bold">
-                            <span className={isHigh ? 'text-amber-600' : 'text-emerald-700'}>
-                              {capacity}% Intake
-                            </span>
-                            <span className="text-content-muted">{capacity > 80 ? 'Heavy' : 'Normal'}</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${
-                                isHigh ? 'bg-amber-500' : 'bg-emerald-500'
-                              }`}
-                              style={{ width: `${capacity}%` }}
-                            />
-                          </div>
                         </div>
                       </td>
 
@@ -329,10 +305,10 @@ export const AdminDisposalCentersPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] font-black uppercase tracking-wider text-content-muted block">
-                    Active Telemetry Status
+                    Operating Status
                   </span>
                   <span className="font-bold text-sm text-emerald-700 block mt-0.5">
-                    {inspectCenter.telemetryStatus || 'Intake Normal (42% Capacity)'}
+                    Operational
                   </span>
                 </div>
               </div>

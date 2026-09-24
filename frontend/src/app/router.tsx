@@ -25,7 +25,6 @@ import {
   AdminDisposalCentersPage,
   AdminCollectionRequestsPage,
   AdminComplaintsPage,
-  AdminNotificationsPage,
   AdminActivityPage,
   AdminSettingsPage,
 } from "@/features/admin";
@@ -35,7 +34,6 @@ import {
   MunicipalDisposalCentersPage,
   MunicipalCollectorsPage,
   MunicipalComplaintsPage,
-  MunicipalNotificationsPage,
   MunicipalSchedulePage,
   MunicipalActivityPage,
   MunicipalSettingsPage,
@@ -133,7 +131,6 @@ export function AppRouter() {
         element={<AdminCollectionRequestsPage />}
       />
       <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
-      <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
       <Route path="/admin/activity" element={<AdminActivityPage />} />
       <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
@@ -162,10 +159,6 @@ export function AppRouter() {
       <Route
         path="/municipal/complaints"
         element={<MunicipalComplaintsPage />}
-      />
-      <Route
-        path="/municipal/notifications"
-        element={<MunicipalNotificationsPage />}
       />
       <Route path="/municipal/schedule" element={<MunicipalSchedulePage />} />
       <Route path="/municipal/activity" element={<MunicipalActivityPage />} />

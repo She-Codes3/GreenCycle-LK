@@ -28,7 +28,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     if (path.includes('/admin/municipalities')) return 'Municipality Management';
     if (path.includes('/admin/disposal-centers')) return 'Disposal Centers';
     if (path.includes('/admin/complaints')) return 'Complaints & Reports';
-    if (path.includes('/admin/notifications')) return 'Notifications & Alerts';
     if (path.includes('/admin/activity')) return 'Activity Logs';
     if (path.includes('/admin/settings')) return 'Admin Settings';
     return 'Dashboard Overview';

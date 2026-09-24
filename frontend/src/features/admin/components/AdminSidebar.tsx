@@ -7,7 +7,6 @@ import {
   Recycle,
   Truck,
   AlertTriangle,
-  Bell,
   History,
   Settings,
   ShieldCheck,
@@ -15,7 +14,6 @@ import {
 } from 'lucide-react';
 import logoImage from '@/assets/GreenCycle-logo.png';
 import { useAuth } from '@/app/providers';
-import { useNotifications } from '@/shared/data/notificationStore';
 import { AdminSidebarItem } from '../types/admin';
 
 export interface AdminSidebarProps {
@@ -71,15 +69,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       ? 'collection-requests'
       : location.pathname.includes('/admin/complaints')
       ? 'complaints'
-      : location.pathname.includes('/admin/notifications')
-      ? 'notifications'
       : location.pathname.includes('/admin/activity')
       ? 'activity'
       : location.pathname.includes('/admin/settings')
       ? 'settings'
       : 'dashboard');
-
-  const { unreadCount } = useNotifications('ADMIN');
 
   const navSections: NavSection[] = [
     {
@@ -129,14 +123,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           label: 'Complaints / Reports',
           href: '/admin/complaints',
           icon: <AlertTriangle className="w-4 h-4 stroke-[2.2]" />,
-        },
-        {
-          id: 'notifications',
-          label: 'Notifications',
-          href: '/admin/notifications',
-          icon: <Bell className="w-4 h-4 stroke-[2.2]" />,
-          badge: unreadCount > 0 ? `${unreadCount}` : undefined,
-          badgeColor: 'bg-rose-500/90 text-white font-extrabold',
         },
         {
           id: 'activity',
