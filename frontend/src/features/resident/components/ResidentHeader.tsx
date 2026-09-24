@@ -48,7 +48,7 @@ export const ResidentHeader: React.FC<ResidentHeaderProps> = ({
     if (path.includes('/resident/rewards')) return 'Green Points & Rewards';
     if (path.includes('/resident/reports')) return 'Citizen Reports & Complaints';
     if (path.includes('/resident/notifications')) return 'Notifications & Alerts';
-    if (path.includes('/resident/settings')) return 'Household Settings';
+    if (path.includes('/resident/settings')) return 'Profile & Settings';
     return 'Resident Eco-Dashboard';
   };
 
